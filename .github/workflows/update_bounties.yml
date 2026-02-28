@@ -1,0 +1,63 @@
+name: Update Bounty Intelligence
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update-bounties:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install openai
+
+      - name: Fetch latest bounty issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go run fetch_bounty_issues.go
+
+      - name: Enrich bounties with AI (preserving expert hints)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python enrich_bounties.py
+
+      - name: Copy enriched data to static folder
+        run: |
+          cp enriched_bounties.json static/enriched_bounties.json
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add bounty_issues.json enriched_bounties.json static/enriched_bounties.json
+          git commit -m "🔄 Auto-update bounty intelligence [$(date -u +%Y-%m-%d)]"
+          git push

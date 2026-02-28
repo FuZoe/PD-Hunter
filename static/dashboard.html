@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Bounty Hunter Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hacker-bg': '#0a0a0f',
+                        'hacker-card': '#12121a',
+                        'hacker-border': '#1e1e2e',
+                        'hacker-green': '#00ff88',
+                        'hacker-cyan': '#00d4ff',
+                        'hacker-purple': '#a855f7',
+                        'hacker-yellow': '#fbbf24',
+                        'hacker-red': '#ef4444',
+                        'hacker-orange': '#f97316',
+                        'hacker-text': '#e2e8f0',
+                        'hacker-muted': '#64748b',
+                    },
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                        'sans': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 50%, #0a0a0f 100%);
+        }
+        .glow-green { text-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
+        .glow-cyan { text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+        .glow-purple { text-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+        .card-glow:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
+            transform: translateY(-2px);
+        }
+        .s-tier-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(251, 191, 36, 0.5); }
+        }
+        .terminal-cursor::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: #12121a; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #1e1e2e; border-radius: 3px; }
+        .friction-low { border-left: 3px solid #00ff88; }
+        .friction-medium { border-left: 3px solid #fbbf24; }
+        .friction-high { border-left: 3px solid #ef4444; }
+    </style>
+</head>
+<body class="min-h-screen font-sans text-hacker-text antialiased">
+    <!-- Header -->
+    <header class="border-b border-hacker-border bg-hacker-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🎯</span>
+                        <h1 class="text-xl font-mono font-bold text-hacker-green glow-green">BOUNTY_HUNTER</h1>
+                    </div>
+                    <span class="text-hacker-muted font-mono text-sm">v1.0.0</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="text-right">
+                        <div class="text-hacker-muted text-xs font-mono">TOTAL BOUNTIES</div>
+                        <div id="totalBounties" class="text-hacker-cyan font-mono font-bold text-lg">--</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-hacker-muted text-xs font-mono">TOTAL VALUE</div>
+                        <div id="totalValue" class="text-hacker-green font-mono font-bold text-lg glow-green">$--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <section class="border-b border-hacker-border bg-hacker-card/30">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-hacker-card rounded-lg p-4 border border-hacker-border">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-hacker-yellow/20 flex items-center justify-center">
+                            <span class="text-hacker-yellow font-bold">S</span>
+                        </div>
+                        <div>
+                            <div class="text-hacker-muted text-xs font-mono">S-TIER</div>
+                            <div id="sTierCount" class="text-hacker-yellow font-mono font-bold">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-hacker-card rounded-lg p-4 border border-hacker-border">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-hacker-purple/20 flex items-center justify-center">
+                            <span class="text-hacker-purple font-bold">A</span>
+                        </div>
+                        <div>
+                            <div class="text-hacker-muted text-xs font-mono">A-TIER</div>
+                            <div id="aTierCount" class="text-hacker-purple font-mono font-bold">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-hacker-card rounded-lg p-4 border border-hacker-border">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-hacker-cyan/20 flex items-center justify-center">
+                            <span class="text-hacker-cyan font-bold">B</span>
+                        </div>
+                        <div>
+                            <div class="text-hacker-muted text-xs font-mono">B-TIER</div>
+                            <div id="bTierCount" class="text-hacker-cyan font-mono font-bold">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-hacker-card rounded-lg p-4 border border-hacker-border">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-hacker-green/20 flex items-center justify-center">
+                            <span class="text-hacker-green">✓</span>
+                        </div>
+                        <div>
+                            <div class="text-hacker-muted text-xs font-mono">LOW FRICTION</div>
+                            <div id="lowFrictionCount" class="text-hacker-green font-mono font-bold">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Controls -->
+    <section class="border-b border-hacker-border bg-hacker-bg">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <span class="text-hacker-muted text-sm font-mono">FILTER:</span>
+                <button onclick="filterByTier('all')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-green transition-colors" data-filter="all">ALL</button>
+                <button onclick="filterByTier('S-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-yellow transition-colors" data-filter="S-Tier">S-TIER</button>
+                <button onclick="filterByTier('A-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-purple transition-colors" data-filter="A-Tier">A-TIER</button>
+                <button onclick="filterByTier('B-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-cyan transition-colors" data-filter="B-Tier">B-TIER</button>
+                <div class="flex-1"></div>
+                <select id="sortSelect" onchange="sortBounties()" class="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-green outline-none">
+                    <option value="bounty-desc">Bounty: High → Low</option>
+                    <option value="bounty-asc">Bounty: Low → High</option>
+                    <option value="friction-asc">Friction: Low → High</option>
+                    <option value="date-desc">Date: Newest</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Featured S-Tier Section -->
+        <section id="featuredSection" class="mb-10 hidden">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-2xl">⚡</span>
+                <h2 class="text-xl font-mono font-bold text-hacker-yellow">FEATURED: S-TIER OPPORTUNITIES</h2>
+            </div>
+            <div id="featuredCards" class="grid gap-6"></div>
+        </section>
+
+        <!-- All Bounties -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-xl">💎</span>
+                <h2 class="text-lg font-mono font-bold text-hacker-text">HUNTER CARDS</h2>
+                <span id="visibleCount" class="text-hacker-muted text-sm font-mono">(--)</span>
+            </div>
+            <div id="bountyGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-20">
+            <div class="text-hacker-green font-mono text-lg terminal-cursor">Loading bounties</div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-20 hidden">
+            <div class="text-hacker-muted font-mono">No bounties found matching your criteria.</div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-hacker-border bg-hacker-card/30 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-hacker-muted text-sm font-mono">
+                    <span class="text-hacker-green">$</span> DN-Institute Bounty Dashboard
+                </div>
+                <div class="text-hacker-muted text-xs font-mono">
+                    Data sourced from <span class="text-hacker-cyan">enriched_bounties.json</span> • Built with Expert Intelligence
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let allBounties = [];
+        let currentFilter = 'all';
+
+        // Tier colors mapping
+        const tierColors = {
+            'S-Tier': { bg: 'bg-hacker-yellow/10', border: 'border-hacker-yellow', text: 'text-hacker-yellow', badge: 'bg-hacker-yellow text-black' },
+            'A-Tier': { bg: 'bg-hacker-purple/10', border: 'border-hacker-purple', text: 'text-hacker-purple', badge: 'bg-hacker-purple text-white' },
+            'B-Tier': { bg: 'bg-hacker-cyan/10', border: 'border-hacker-cyan', text: 'text-hacker-cyan', badge: 'bg-hacker-cyan text-black' }
+        };
+
+        const frictionColors = {
+            'Low': 'friction-low',
+            'Medium': 'friction-medium',
+            'High': 'friction-high'
+        };
+
+        // Format bounty amount
+        function formatBounty(amount) {
+            if (amount >= 1000) {
+                return `$${(amount / 1000).toFixed(1)}k`;
+            }
+            return `$${amount}`;
+        }
+
+        // Create Hunter Card HTML
+        function createCard(bounty, featured = false) {
+            const intel = bounty.hunter_intelligence;
+            const tier = tierColors[intel.bounty_tier] || tierColors['B-Tier'];
+            const friction = frictionColors[intel.friction_level] || '';
+            const isSTier = intel.bounty_tier === 'S-Tier';
+            
+            const repoName = bounty.repository.split('/')[1];
+            const updatedDate = new Date(bounty.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+            return `
+                <div class="bg-hacker-card rounded-xl border ${isSTier ? 'border-hacker-yellow s-tier-glow' : 'border-hacker-border'} 
+                            overflow-hidden card-glow transition-all duration-300 ${friction}" data-tier="${intel.bounty_tier}">
+                    <!-- Card Header -->
+                    <div class="p-5 border-b border-hacker-border">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-1 rounded text-xs font-mono font-bold ${tier.badge}">${intel.bounty_tier}</span>
+                                <span class="px-2 py-1 rounded text-xs font-mono bg-hacker-border text-hacker-muted">#${bounty.number}</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-mono font-bold ${isSTier ? 'text-hacker-yellow glow-green' : 'text-hacker-green'}">${formatBounty(intel.bounty_amount)}</div>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-hacker-text leading-tight line-clamp-2 mb-2">${bounty.title}</h3>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-hacker-cyan font-mono">${repoName}</span>
+                            <span class="text-hacker-muted">•</span>
+                            <span class="text-hacker-muted">${updatedDate}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Expert Intelligence -->
+                    <div class="p-5 bg-hacker-bg/50">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-sm">🧠</span>
+                            <span class="text-xs font-mono text-hacker-purple uppercase">Expert Intelligence</span>
+                        </div>
+                        <p class="text-sm text-hacker-text leading-relaxed">${intel.technical_hint}</p>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="px-5 py-4 border-t border-hacker-border flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-mono ${
+                                intel.friction_level === 'Low' ? 'text-hacker-green' :
+                                intel.friction_level === 'Medium' ? 'text-hacker-yellow' : 'text-hacker-red'
+                            }">
+                                ${intel.friction_level === 'Low' ? '⚡' : intel.friction_level === 'Medium' ? '⚙️' : '🔥'} 
+                                ${intel.friction_level} Friction
+                            </span>
+                            <span class="text-xs text-hacker-muted">•</span>
+                            <span class="text-xs text-hacker-muted font-mono">${bounty.comment_count} comments</span>
+                        </div>
+                        <a href="${bounty.url}" target="_blank" rel="noopener" 
+                           class="px-3 py-1.5 rounded-lg bg-hacker-green/10 text-hacker-green text-xs font-mono font-bold 
+                                  hover:bg-hacker-green hover:text-black transition-colors">
+                            HUNT →
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update stats
+        function updateStats(bounties) {
+            const totalValue = bounties.reduce((sum, b) => sum + b.hunter_intelligence.bounty_amount, 0);
+            document.getElementById('totalBounties').textContent = bounties.length;
+            document.getElementById('totalValue').textContent = `$${totalValue.toLocaleString()}`;
+            
+            const sTier = bounties.filter(b => b.hunter_intelligence.bounty_tier === 'S-Tier').length;
+            const aTier = bounties.filter(b => b.hunter_intelligence.bounty_tier === 'A-Tier').length;
+            const bTier = bounties.filter(b => b.hunter_intelligence.bounty_tier === 'B-Tier').length;
+            const lowFriction = bounties.filter(b => b.hunter_intelligence.friction_level === 'Low').length;
+            
+            document.getElementById('sTierCount').textContent = sTier;
+            document.getElementById('aTierCount').textContent = aTier;
+            document.getElementById('bTierCount').textContent = bTier;
+            document.getElementById('lowFrictionCount').textContent = lowFriction;
+        }
+
+        // Render bounties
+        function renderBounties(bounties) {
+            const grid = document.getElementById('bountyGrid');
+            const featuredSection = document.getElementById('featuredSection');
+            const featuredCards = document.getElementById('featuredCards');
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const visibleCount = document.getElementById('visibleCount');
+
+            loadingState.classList.add('hidden');
+
+            // Filter bounties
+            let filtered = bounties;
+            if (currentFilter !== 'all') {
+                filtered = bounties.filter(b => b.hunter_intelligence.bounty_tier === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                featuredSection.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                visibleCount.textContent = '(0)';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            visibleCount.textContent = `(${filtered.length})`;
+
+            // Separate S-Tier for featured section
+            const sTierBounties = filtered.filter(b => b.hunter_intelligence.bounty_tier === 'S-Tier');
+            const otherBounties = filtered.filter(b => b.hunter_intelligence.bounty_tier !== 'S-Tier');
+
+            // Render featured S-Tier
+            if (sTierBounties.length > 0 && currentFilter === 'all') {
+                featuredSection.classList.remove('hidden');
+                featuredCards.innerHTML = sTierBounties.map(b => createCard(b, true)).join('');
+            } else {
+                featuredSection.classList.add('hidden');
+            }
+
+            // Render other bounties (or all if filtering)
+            const toRender = currentFilter === 'all' ? otherBounties : filtered;
+            grid.innerHTML = toRender.map(b => createCard(b)).join('');
+        }
+
+        // Filter by tier
+        function filterByTier(tier) {
+            currentFilter = tier;
+            
+            // Update active button style
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('border-hacker-green', 'text-hacker-green');
+                if (btn.dataset.filter === tier) {
+                    btn.classList.add('border-hacker-green', 'text-hacker-green');
+                }
+            });
+
+            sortBounties();
+        }
+
+        // Sort bounties
+        function sortBounties() {
+            const sortValue = document.getElementById('sortSelect').value;
+            let sorted = [...allBounties];
+
+            switch (sortValue) {
+                case 'bounty-desc':
+                    sorted.sort((a, b) => b.hunter_intelligence.bounty_amount - a.hunter_intelligence.bounty_amount);
+                    break;
+                case 'bounty-asc':
+                    sorted.sort((a, b) => a.hunter_intelligence.bounty_amount - b.hunter_intelligence.bounty_amount);
+                    break;
+                case 'friction-asc':
+                    const frictionOrder = { 'Low': 1, 'Medium': 2, 'High': 3 };
+                    sorted.sort((a, b) => frictionOrder[a.hunter_intelligence.friction_level] - frictionOrder[b.hunter_intelligence.friction_level]);
+                    break;
+                case 'date-desc':
+                    sorted.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                    break;
+            }
+
+            renderBounties(sorted);
+        }
+
+        // Fallback embedded data for file:// protocol
+        const FALLBACK_DATA = [];
+
+        // Hybrid loader: try fetch first, fallback to embedded data
+        async function loadData() {
+            try {
+                // Try fetch first (works on HTTP)
+                const response = await fetch('./enriched_bounties.json');
+                if (!response.ok) throw new Error('HTTP error');
+                allBounties = await response.json();
+                console.log('Data loaded via fetch');
+            } catch (error) {
+                // Fallback to embedded data (works on file://)
+                console.log('Using embedded fallback data');
+                allBounties = FALLBACK_DATA;
+            }
+            
+            updateStats(allBounties);
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('border-hacker-green', 'text-hacker-green');
+            sortBounties();
+        }
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
