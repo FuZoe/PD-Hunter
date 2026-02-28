@@ -1,0 +1,258 @@
+[
+  {
+    "number": 1434,
+    "title": "[Issue] The `rl,rls` options are not supported",
+    "url": "https://github.com/projectdiscovery/subfinder/issues/1434",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$75"
+    ],
+    "comment_count": 18,
+    "repository": "projectdiscovery/subfinder",
+    "created_at": "2024-11-04T01:08:56Z",
+    "updated_at": "2026-02-27T20:57:45Z",
+    "author": "Bundy01",
+    "body": "**Describe the bug**\nI noticed that these options weren't working when testing with the sitedossier source, for example. I suspected that it was blocking my VPN's IP.\nI thought it was coming from him, but now I suspect the number of requests/min is too high.\n\nOn an old branch, I saw a commit including the limits/min c3d8a02a7b636fa11bb5c76065c952a73fad561e.\nThis is more sensible, for example with the subdomaincenter source and its 2 requests/min.\n\n**Subfinder version**\nCurrent Version: v2.6.7\n\n**Complete command you used to reproduce this**\nsubfinder -s sitedossier -dL FILE -rl NUMBER\nsubfinder -s sitedossier -rls sitedossier=2/m -dL FILE\n\n**Screenshots**\nan extract from FILE\n```\nsurreal.vision\naskfacebook.net\ninstagramboomerang.com\ninstagramboomerang.net\nboomerangfrominstagram.com\nadvertiseonfacebook.net\nwebinstagramsecurity.com\noculusacademy.net\noculusacademy.org\nconnect-facebook-mobile.net\nconnect-facebook-cell.net\nfriendfeed-inc.com\ninstagram.bet\ninstagram.bayern\ninstagramboomerang.org\ninstagram.scot\ninstagram.brussels\ninstagram-together.org\ninstagram.shop\ninstagram.tj\ninstagram.doctor\ninstagram.loan\n```\n"
+  },
+  {
+    "number": 6674,
+    "title": "Replace panic with error handling in template loader when dialers are missing",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/6674",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$100"
+    ],
+    "comment_count": 37,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2025-12-07T18:53:59Z",
+    "updated_at": "2026-02-28T09:30:38Z",
+    "author": "coderabbitai[bot]",
+    "body": "## Description\n\nThe template loader in `pkg/catalog/loader/loader.go` (around lines 684-703) currently panics when `protocolstate.GetDialersWithId()` returns nil. This is too harsh for a public API that may be exercised in non-scanning flows.\n\n## Current Behavior\n\nWhen dialers are not initialized, the code panics:\n```go\ndialers := protocolstate.GetDialersWithId(typesOpts.ExecutionId)\nif dialers == nil {\n    panic(\"dialers with executionId \" + typesOpts.ExecutionId + \" not found\")\n}\n```\n\n## Expected Behavior\n\nThe loader should return a proper error instead of panicking, allowing callers to handle the situation gracefully. The broader codebase pattern returns `fmt.Errorf` when dialers are missing rather than panicking.\n\n## Suggested Changes\n\n1. Replace the panic with proper error return (e.g., `return fmt.Errorf(\"dialers with executionId %s not found\", typesOpts.ExecutionId)`)\n2. Update the loader function signature to propagate the error\n3. Update callers to handle the error appropriately\n4. Add documentation noting the new error condition\n\n## Context\n\nCallers like lazy auth template loading (`internal/runner/lazy.go`) and automatic tech detection (`pkg/protocols/common/automaticscan/`) invoke `LoadTemplates`/`LoadTemplatesWithTags` without guaranteed dialer initialization.\n\n## References\n\n- PR: https://github.com/projectdiscovery/nuclei/pull/6668\n- Comment: https://github.com/projectdiscovery/nuclei/pull/6668#discussion_r2596513576\n- Requested by: @dwisiswant0"
+  },
+  {
+    "number": 6592,
+    "title": "[BUG] Authenticated scanning starts executing templates before the secret-file template finishes",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/6592",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$100"
+    ],
+    "comment_count": 19,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2025-11-06T15:54:58Z",
+    "updated_at": "2026-02-28T04:07:55Z",
+    "author": "anze3db",
+    "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhen running an authenticated scan using a secret file nuclei starts executing templates immediately, before the secret file finishes, causing some requests to not be authenticated.\n\ncommand that I'm running:\n\n```\nnuclei3.4.dev -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\nWhen I print the server logs I see all requests before the secret file finishes as unauthenticated (See AnyonymousUser):\n\n\n```\n15:32:48.443 | WARNING | django.request - Not Found: /wp-content/plugins/flash-album-gallery/readme.txt\n15:32:48.446 | WARNING | django.server - \"GET /wp-content/plugins/flash-album-gallery/readme.txt HTTP/1.1\" 404 23770\n15:32:48.450 | WARNING | django.request - Not Found: /wp-content/plugins/skysa-official/readme.txt\nAnonymousUser\nAnonymousUser\n15:32:48.491 | WARNING | django.server - \"GET /wp-content/plugins/skysa-official/readme.txt HTTP/1.1\" 404 23750\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.554 | WARNING | django.request - Not Found: /login-x.php\nAnonymousUser\n15:32:48.641 | WARNING | django.server - \"GET /login-x.php HTTP/1.1\" 404 23619\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.946 | WARNING | django.request - Not Found: /guest_auth/guestIsUp.php\n15:32:48.950 | WARNING | django.server - \"POST /guest_auth/guestIsUp.php HTTP/1.1\" 404 23672\n15:32:48.950 | INFO    | django.server - code 400, message Bad HTTP/0.9 request type ('mac=1\u0026ip=127.0.0.1|wget')\n15:32:48.950 | WARNING | django.server - \"mac=1\u0026ip=127.0.0.1|wget d46bv7aqko33m6d2te7g4b8fu93o1zo7w.oast.me\" 400 -\nAnonymousUser\n15:32:48.994 | WARNING | django.request - Not Found: /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx\n15:32:48.996 | WARNING | django.server - \"POST /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx?method=GetStoreWarehouseByStore HTTP/1.1\" 404 23884\nAnonymousUser\n15:32:49.290 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n \u003cengbot@example.com\u003e\n15:32:49.476 | WARNING | django.request - Not Found: /wp-content/plugins/featurific-for-wordpress/readme.txt\n15:32:49.482 | WARNING | django.server - \"GET /wp-content/plugins/featurific-for-wordpress/readme.txt HTTP/1.1\" 404 23791\n \u003cengbot@example.com\u003e\n15:32:49.592 | WARNING | django.request - Not Found: /wp-content/plugins/clickdesk-live-support-chat/readme.txt\n15:32:49.599 | WARNING | django.server - \"GET /wp-content/plugins/clickdesk-live-support-chat/readme.txt HTTP/1.1\" 404 23803\n15:32:49.655 | WARNING | django.request - Not Found: /lcms/index.php\n15:32:49.657 | WARNING | django.server - \"POST /lcms/index.php HTTP/1.1\" 404 23632\n \u003cengbot@example.com\u003e\n15:32:49.683 | WARNING | django.security.csrf - Forbidden (CSRF cookie not set.): /\n15:32:49.690 | WARNING | django.request - Not Found: /wp-content/plugins/all-in-one-event-calendar/readme.txt\n15:32:49.694 | INFO    | django.server - \"GET /?+config-create+/\u0026lang=../../../../../../../../../../../usr/local/lib/php/pearcmd\u0026/safedog()+sBV3dCd1eI.log HTTP/1.1\" 302 0\n15:32:49.695 | WARNING | django.server - \"GET /wp-content/plugins/all-in-one-event-calendar/readme.txt HTTP/1.1\" 404 23795\n \u003cengbot@example.com\u003e\n```\n\nOnly once `POST /accounts/login/` finishes do the requests start being authenticated (see engbot@example.com) instead of Anonymous user.\n\n### Expected Behavior\n\nI would expect nuclei to first run the secret-file and only after it finishes start running the other templates. This was the behavior on Nuclei 3.4.7, before the [authenticated scan regression in 3.4.8](https://github.com/projectdiscovery/nuclei/issues/6463).\n\nThis is how the server logs look when I run the same code on 3.4.7:\n\n\n```\nnuclei3.4.7 -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n```\nAnonymousUser\n15:50:23.744 | INFO    | django.server - \"GET /accounts/login/ HTTP/1.1\" 200 25860\nAnonymousUser\n15:50:23.931 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n \u003cengbot@example.com\u003e\n15:50:25.028 | WARNING | django.request - Not Found: /export/classroom-course-statistics\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n15:50:25.031 | WARNING | django.server - \"GET /export/classroom-course-statistics?fileNames[]=../../../../../../../etc/passwd HTTP/1.1\" 404 23797\n \u003cengbot@example.com\u003e\n15:50:25.058 | WARNING | django.request - Not Found: /cgi-bin/rpc\n15:50:25.059 | WARNING | django.server - \"POST /cgi-bin/rpc HTTP/1.1\" 404 23618\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n15:50:25.364 | WARNING | django.request - Not Found: /zentao/user-login.html\n15:50:25.365 | WARNING | django.server - \"POST /zentao/user-login.html HTTP/1.1\" 404 23663\n15:50:25.370 | WARNING | django.request - Not Found: /general/index/UploadFile.php\n15:50:25.371 | WARNING | django.request - Not Found: /webadm/\n```\n\n### Steps To Reproduce\n\n1. Run nuclei with a secret-file\n\n```\nnuclei -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: Macos\n- Nuclei: 3.4.10 53af79a39290c86857f433bb2f40e4567982fed0\n- Go: go version go1.24.2 darwin/arm64\n```\n\n### Anything else?\n\n_No response_"
+  },
+  {
+    "number": 6532,
+    "title": "Integrate typos tool into CI",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/6532",
+    "state": "open",
+    "labels": [
+      "Type: Maintenance",
+      "💎 Bounty",
+      "$100"
+    ],
+    "comment_count": 21,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2025-10-14T10:19:21Z",
+    "updated_at": "2026-02-27T18:58:59Z",
+    "author": "coderabbitai[bot]",
+    "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890"
+  },
+  {
+    "number": 6403,
+    "title": "[FEATURE] Add honeypot detection to nuclei",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/6403",
+    "state": "open",
+    "labels": [
+      "Type: Enhancement",
+      "💎 Bounty",
+      "$250"
+    ],
+    "comment_count": 29,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2025-08-20T09:01:19Z",
+    "updated_at": "2026-02-28T05:12:29Z",
+    "author": "Ice3man543",
+    "body": "### Describe your feature request\n\nMany hosts on shodan have all the matchers from nuclei in order to fool scanner (show each vuln as matching). we should have some sort of detection to match such scenarios and ignore their matches (at least inform user)\n\n\n### Describe the use case of the feature\n\nReduce noise while scanning\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n\n```html\n\n\u003c!--\n--\n\u003cUsername Level=\"40/40\" Dispatch=\"account\"\u003eadmin\u003c/Username\u003e\u003cUser1\u003e\u003cPassword Level=\"40/40\" Dispatch=\"account\"\u003eadmin\u003c/Password\u003e\u003c/User1\u003e\n/var/pinglog\n\u003cTITLE\u003eLogin\u003c/TITLE\u003e\n\u003ca href=\"jpg.html\"\u003eLIVE JPEG\u003c/a\u003e\u003cbr\u003e\n\u003ca href=\"liveie.html\"\u003eInternet Monitor (Microsoft Internet Explorer 8, 9, 10, 11) \u003c/a\u003e\u003cbr\u003e\n\u003ca href=\"DVRRemoteAP.exe\"\u003eDownload 32 bits DVR Client (Windows 7, Windows 8, Windows 10)\u003c/a\u003e\u003cbr\u003e\n\u003ca href=\"DVRRemoteAP_X64.exe\"\u003eDownload 64 bits DVR Client (Windows 7, Windows 8, Windows 10)\u003c/a\u003e\u003cbr\u003e\n\u003ca href=\"DVFPlayer.zip\"\u003eDownload 32/64 bits File Player (Windows 7, Windows 8, Windows 10)\u003c/a\u003e\u003cbr\u003e\n\u003c\\?xml version=\"1.0\" encoding=\"utf-8\"?\u003e\u003cbase64Binary xmlns=\"http://micros-hosting.com/EGateway/\"\u003e\nLocation: /admin\n\u003cmeta name=\"generator\" content=\"vBulletin 5.5.4\" /\u003e\nLocation: http://120.26.237.211:80/relogin.htm?_t=3541144909\nLocation: http://120.26.237.211:80/syscmd.htm\"\nLocation: /ui/login\n/cgi-bin/webctrl.cgi?action=index_page\nPDR-M800\nfunction btnPing()\n\u003cHTML\u003e\u003cHEAD\u003e\u003cTITLE\u003e302 Moved\u003c/TITLE\u003e\u003c/HEAD\u003e\u003cBODY\u003e\u003cH1\u003e302 Moved\u003c/H1\u003e.The document has moved\u003cA HREF=\"http://120.26.237.211:80/relogin.htm?_t=179439949\"\u003ehere\u003c/A\u003e\u003c/BODY\u003e\u003c/HTML\u003e\n\u003clink type=\"image/x-icon\" rel=\"shortcut icon\" href=\"/themes/img/icon/cisco_shortcut.png\"\u003e\n\u003clink type=\"image/x-icon\" rel=\"shortcut icon\" href=\"/themes/img/icon/cisco_logo.png\"\u003e\n\u003ctd class=\"Copyright\" colspan=\"2\" style=\"text-align:justify\" height=\"20\" valign=\"bottom\"\u003e© 2017 Cisco Systems, Inc. All Rights Reserved.\n\u003cbr\u003eCisco, Cisco Systems, and the Cisco Systems logo are registered\ntrademarks or trademarks of Cisco Systems, Inc. and/or it's affiliates\nin the United States and certain other countries.\n\u003c/td\u003e\n:\n#\n\u003e\n$\nSSH key is good\nis not a valid ref and may not be archived\npcPassword2\n'\u0026sessionKey=790148060;'\nname=\"sessionKey\" value=\"790148060\"\nSet-Cookie: loginName=admin\nvar fgt_lang = /dev/cmdb/sslvpn_websession\nphp 8.1.0-dev exit\nspringframework\nTomcat\nDEVICE.ACCOUNT=admin\nAUTHORIZED_GROUP=1\n\u003cuid\u003e\u003c/uid\u003e\n\u003cname\u003eAdmin\u003c/name\u003e\n\u003cusrid\u003e\u003c/usrid\u003e\n\u003cpassword\u003eadmin\u003c/password\u003e\n\u003cgroup\u003e\u003c/group\u003e\ncpto /tmp/\"root\"\nModel=AC1450\nFirmware=V1.0.0.36_10.0.17\n\"exceptionMessageValue\":\"javax.servlet.ServletException: No valid forensics analysis solrDocIds parameter found.\"\nBIG-IP release 15.0.0\nuser:root\n12345admin123'\nFailed to process image\n \nLocation: http://192.168.0.1:52869/picsdesc.xml\nYou don't have permission to access /vpns/ on this server.\n[global]\nworkgroup = intranet\nencrypt passwords = Yes\nupdate encrypted = Yes\n \nfuncionando\nsystem_sofia\nname resolve order\nInfoOS:Linux node01 uid=0(root) gid=0(root) groups=0(root)OSInfo\n\u003cb\u003eFile Uploaded !!!\u003c/b\u003e\u003cbr\u003e\nant=951d11e51392117311602d0c25435d7f\n38ee63071a04dc5e04ed22624c38e648\n6f3249aa304055d63828af3bfab778f6\n\u003ch1\u003e a8748198bf4c454b078f069b109f91af \u003c/h1\u003e\n[local]\ntid = OGRjYjc0YTY0ZGM5ODRmYjlhYmUzZTdjMjAxZjgxMGQ5ZWM5MGVkOGU0Y2E3M2M2M2ZiNDliZTFmYmMyM2IwZDIxPT0=\naddr = 120.26.237.211\n\"Powered by vBulletin Version 5.5.4\"\n789551\nLinear eMerge\nSuperSign\nubiq\nYacht\nZeroshell\nFastWeb\nAuthInfo:\nloadingIndicator_bk\nZyxel\nskyrouter\nWAP54\norg.apache.spark.ui\n \nCVE-2024-50379-CONFIRMED HTTP/1.1\nHost: 120.26.237.211:12577\nSec-Ch-Ua-Mobile:\nRESULT=0\n \n\n\u003cbr class=\"Apple-interchange-newline\"\u003e\n```"
+  },
+  {
+    "number": 6398,
+    "title": "[BUG] Fuzzing templates skips numeric path parts",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/6398",
+    "state": "open",
+    "labels": [
+      "Priority: High",
+      "Type: Bug",
+      "💎 Bounty",
+      "$150"
+    ],
+    "comment_count": 31,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2025-08-19T23:49:00Z",
+    "updated_at": "2026-02-27T21:03:36Z",
+    "author": "Mzack9999",
+    "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nRef: https://github.com/projectdiscovery/nuclei/actions/runs/17080437183/job/48437074486?pr=6393 failing `integration_tests/fuzz/fuzz-path-sqli.yaml `\n\n`dev` branch version skips some items in path based fuzzing:\n\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.8\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.8 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 51.435875ms. No results found.\n```\n\n`main` branch version correctly fuzzes all the path parts:\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.7\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.7 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55%20OR%20True/profile\n[path-based-sqli] [http] [info] http://127.0.0.1:8082/user/55%2520OR%2520True/profile [path:/user/55] [GET]\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 17.943209ms. 1 matches found.\n```\n\n### Expected Behavior\n\nCorrect fuzzing of all path items\n\n### Steps To Reproduce\n\n/\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: osx\n- Nuclei: dev\n- Go: 1.25\n```\n\n### Anything else?\n\nPotentially something got altered in the fuzzing engine (or fuzzy playground) in latest PRs"
+  },
+  {
+    "number": 5838,
+    "title": "XSS Context Analyzer",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/5838",
+    "state": "open",
+    "labels": [
+      "Type: Enhancement",
+      "💎 Bounty",
+      "$200"
+    ],
+    "comment_count": 53,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2024-11-19T06:19:43Z",
+    "updated_at": "2026-02-27T20:03:42Z",
+    "author": "ehsandeep",
+    "body": ""
+  },
+  {
+    "number": 5567,
+    "title": "[FEATURE] Template Profile Improvements",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/5567",
+    "state": "open",
+    "labels": [
+      "Type: Enhancement",
+      "💎 Bounty",
+      "$150"
+    ],
+    "comment_count": 22,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2024-08-25T07:46:54Z",
+    "updated_at": "2026-02-27T21:04:23Z",
+    "author": "tarunKoyalwar",
+    "body": "### Describe your feature request\n\n- template profiles or config.yaml file contains all flag config in yaml format which can be directly passed to nuclei instead of adding each flag , this way it is easy to maintain and scalable and shareable\r\n- this config file is merged with flags passed to nuclei with priority given to flags that way common / regularly used configs can be maintained and passed via config files\r\n- we should add below new features related to config or template profiles\r\n\r\n- [ ] ignore extra fields ( if we aren't already) that way info can be specified in fields like id , name , purpose yaml keys instead of commenting it out like we do in current template profiles\r\n- [ ] update goflags to allow embedding file content , this way instead of passing auth related data via a file we can embed it in goflags under `secrets` key and goflags can generate a temporary file to handle and pass it internally\n\n### Describe the use case of the feature\n\nthis will allow maintaining a single config file to be used with nuclei and users can maintain a different set of configs  specific to targets thereby keeping all config modular\r\n\r\nexample: a user who intends to vuln scan pd will have their template profile for this scan in this format\r\n\r\n```yaml\r\nname: projectdiscovery-scan\r\npurpose: Config File for Scanning\r\ndescription: single config file that contains every config related to scanning a specific target with specific templates and features\r\n\r\n# targets list file\r\nlist |\r\n  cve.projectdiscovery.io\r\n  chaos.projectdiscovery.io\r\n  ....\r\n  api.projectdiscovery.io\r\n\r\n# templates related config\r\ntype:\r\n  - http\r\n  - tcp\r\n  - javascript\r\n  - dns\r\n  - ssl\r\n\r\nexclude-tags:\r\n  - dos\r\n  - fuzz\r\n  - osint\r\n\r\n# other options\r\ntemplate-concurrency: 5\r\nhost-concurrency: 100\r\nstats: true\r\ntimeout: 30\r\n\r\nsecrets:\r\n  static:\r\n  # 4. Custom Header based auth\r\n  - type: header\r\n    domains:\r\n      - api.projectdiscovery.io\r\n      - cve.projectdiscovery.io\r\n      - chaos.projectdiscovery.io\r\n    headers:\r\n      - key: x-pdcp-key\r\n        value: \u003capi-key-here\u003e\r\n  dynamic:\r\n    - template: custom-oauth-flow.yaml\r\n      variables:\r\n        - name: username\r\n          value: pdteam\r\n        - name: password\r\n          value: nuclei-fuzz\r\n      type: cookie\r\n      domains:\r\n        - .*.projectdiscovery.io\r\n      headers:\r\n        - key: Authorization\r\n          value: Bearer {{token}}\r\n```\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n_No response_"
+  },
+  {
+    "number": 2063,
+    "title": "Add PDF export option",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/2063",
+    "state": "open",
+    "labels": [
+      "Type: Enhancement",
+      "💎 Bounty",
+      "$25"
+    ],
+    "comment_count": 10,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2022-05-25T11:24:01Z",
+    "updated_at": "2026-02-28T04:08:19Z",
+    "author": "forgedhallpass",
+    "body": ""
+  },
+  {
+    "number": 2240,
+    "title": "-pr http11 flag is ignored on retryablehttp-go due to HTTP/2 fallback",
+    "url": "https://github.com/projectdiscovery/httpx/issues/2240",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$100"
+    ],
+    "comment_count": 21,
+    "repository": "projectdiscovery/httpx",
+    "created_at": "2025-08-13T02:24:40Z",
+    "updated_at": "2026-02-27T21:05:02Z",
+    "author": "khs-alt",
+    "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil \u0026\u0026 stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n\u003c!-- A concise description of what you expected to happen. --\u003e\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n"
+  },
+  {
+    "number": 924,
+    "title": "Support auto wildcard detection similar to PureDNS",
+    "url": "https://github.com/projectdiscovery/dnsx/issues/924",
+    "state": "open",
+    "labels": [
+      "Type: Enhancement",
+      "💎 Bounty",
+      "$100"
+    ],
+    "comment_count": 23,
+    "repository": "projectdiscovery/dnsx",
+    "created_at": "2025-12-04T20:55:07Z",
+    "updated_at": "2026-02-28T07:20:23Z",
+    "author": "xhzeem",
+    "body": "Hi,\n\nCould you add an **auto wildcard discovery** feature similar to what `puredns` does?\n\nWhat I’m looking for:\n\n* Ability to detect wildcard DNS automatically across **multiple domains** in a single run (no need to specify `-wd` per domain).\n* Filter out wildcard-based results automatically.\n* Expose this via a simple flag, e.g. `--auto-wildcard` (or similar), so existing behaviour doesn’t change.\n\nIdea is basically:\n`puredns` handles wildcard detection automatically can you implement a similar optional mode/flag in `dnsx`?\n\nThanks!\n"
+  },
+  {
+    "number": 1367,
+    "title": "Feature / Question: go-tree-sitter dependency",
+    "url": "https://github.com/projectdiscovery/katana/issues/1367",
+    "state": "open",
+    "labels": [
+      "Type: Enhancement",
+      "💎 Bounty",
+      "$200"
+    ],
+    "comment_count": 27,
+    "repository": "projectdiscovery/katana",
+    "created_at": "2025-08-13T16:00:24Z",
+    "updated_at": "2026-02-27T21:04:54Z",
+    "author": "aautumn725",
+    "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity"
+  },
+  {
+    "number": 611,
+    "title": "`-jsonl` option with `-headless` option results in error",
+    "url": "https://github.com/projectdiscovery/katana/issues/611",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$75"
+    ],
+    "comment_count": 24,
+    "repository": "projectdiscovery/katana",
+    "created_at": "2023-10-01T18:00:50Z",
+    "updated_at": "2026-02-27T23:22:41Z",
+    "author": "ErikOwen",
+    "body": "\u003c!-- \r\n1. Please search to see if an issue already exists for the bug you encountered.\r\n2. For support requests, FAQs or \"How to\" questions, please use the GitHub Discussions section instead - https://github.com/projectdiscovery/katana/discussions or\r\n3. Join our discord server at https://discord.gg/projectdiscovery and post the question on the #katana channel.\r\n--\u003e\r\n\r\n\u003c!-- ISSUES MISSING IMPORTANT INFORMATION MAY BE CLOSED WITHOUT INVESTIGATION. --\u003e\r\n\r\n### katana version: v1.0.4\r\n\u003c!-- You can find current version of katana with \"katana -version\" --\u003e\r\n\u003c!-- We only accept issues that are reproducible on the latest version of katana. --\u003e\r\n\u003c!-- You can find the latest version of project at https://github.com/projectdiscovery/katana/releases/ --\u003e\r\n\r\n### Current Behavior: using the `-jsonl` and `-headless` options for a katana crawl results in an error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`.\r\n\u003c!-- A concise description of what you're experiencing. --\u003e\r\n\r\n### Expected Behavior:\r\n\u003c!-- A concise description of what you expected to happen. --\u003e\r\nNo error should occur, similar to running the same command without the `-headless` option.\r\n\r\n### Steps To Reproduce:\r\n\u003c!--\r\nExample: steps to reproduce the behavior:\r\n1. Run 'katana ..'\r\n2. See error...\r\n--\u003e\r\n1. Run a katana crawl against a target with the `-jsonl` and `-headless` options:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or -headless | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:47:56.072225-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"error\": \"[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom\"\r\n}\r\n```\r\n2. Notice the error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`\r\n3. Run the same command without the `-headless` option:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:50:08.902251-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"response\": {\r\n    \"status_code\": 200,\r\n    \"headers\": {\r\n      \"cache_control\": \"public, max-age=0, must-revalidate\",\r\n      \"report_to\": \"{\\\"endpoints\\\":[{\\\"url\\\":\\\"https:\\\\/\\\\/a.nel.cloudflare.com\\\\/report\\\\/v3?s=0Kep5aODKo2qRkrQjl%2FTGOcspCMTVBMeLdtA6Gc4y9E5UkFkUW9QYffz4bUgV6TgXpxudfSsHDctxNKUH3%2B979xOe6kOqAHsxy3n4HDyPkXBK2zjDQAguH0ajFdYfUtZ9I74BUw%3D\\\"}],\\\"group\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"nel\": \"{\\\"success_fraction\\\":0,\\\"report_to\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"content_type\": \"text/html\",\r\n      \"last_modified\": \"Sat, 30 Sep 2023 00:06:34 GMT\",\r\n      \"server_timing\": \"region;desc=\\\"us-west-2\\\", cache;desc=\\\"cached\\\", fallback;desc=\\\"no-fallback\\\"\",\r\n      \"vary\": \"Accept-Encoding\",\r\n      \"cf_ray\": \"80f68bd47e26521a-LAX\",\r\n      \"link\": \"\u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\", \u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\"; crossorigin=\\\"\\\"\",\r\n      \"cf_cache_status\": \"DYNAMIC\",\r\n      \"date\": \"Sun, 01 Oct 2023 17:50:08 GMT\",\r\n      \"server\": \"cloudflare\",\r\n      \"x_content_type_options\": \"nosniff\",\r\n      \"strict_transport_security\": \"max-age=0; preload\",\r\n      \"connection\": \"keep-alive\"\r\n    },\r\n    \"technologies\": [\r\n      \"Cloudflare\",\r\n      \"HSTS\"\r\n    ]\r\n  }\r\n}\r\n```\r\n4. Note that there are no errors when the `-headless` option is omitted.\r\n\r\n### Anything else:\r\nThis issue only occurs when crawling specific websites. I can consistently reproduce it when crawling `https://projectdiscovery.io` and `https://www.discover.com`. But I am unable to reproduce it crawling other sites like `https://www.google.com`."
+  },
+  {
+    "number": 859,
+    "title": "-l -list option does not understand multiple prefixes, comma-separated in a single line",
+    "url": "https://github.com/projectdiscovery/tlsx/issues/859",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$75"
+    ],
+    "comment_count": 17,
+    "repository": "projectdiscovery/tlsx",
+    "created_at": "2025-08-09T14:14:00Z",
+    "updated_at": "2026-02-28T02:36:50Z",
+    "author": "hubrandesk789",
+    "body": "### tlsx version:\nVersion: v1.2.0\nOperative System: linux\nArchitecture: amd64\nGo Version: go1.24.4\n\n### Current Behavior:\nServing targets as prefixes with the option -u work.\n./tlsx -u 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24\n\nUsing the option -l / -list filename.txt where the filename.txt contain a one line, comma-separated prefixes does not. \n`[WRN] Could not connect input 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24:443 [auto,ztls:RUNTIME] failed to setup connection \u003c- [:RUNTIME] cause=\"no address found for host\" \u003c- could not dial address \u003c- could not connect to host`\n\n### Expected Behavior:\nSame behavior using -u or -l filename.txt\n\n### Steps To Reproduce:\nPick some prefixes of your chose who are reachable, save them inside filename.txt as prefix1,prefix2,prefix3\n./tlsx -l filename.txt -v\n"
+  },
+  {
+    "number": 819,
+    "title": "tlsx hangs indefinitely for some hosts",
+    "url": "https://github.com/projectdiscovery/tlsx/issues/819",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$1.2k"
+    ],
+    "comment_count": 24,
+    "repository": "projectdiscovery/tlsx",
+    "created_at": "2025-05-09T10:47:31Z",
+    "updated_at": "2026-02-27T19:14:41Z",
+    "author": "msecrfe",
+    "body": "### tlsx version:\nv1.1.9\n\n### Current Behavior:\nFor long target lists (in our case: Around 30k host/port combinations), tlsx reliably hangs indefinitely after several hours of execution, usually after around 25k targets have finished. Hanging happens even while writing JSONL output lines, cutting off a JSONL line somewhere in the middle.\n\n### Expected Behavior:\ntlsx should not hang indefinitely.\n\n### Steps To Reproduce:\ntlsx was started as follows:\n\n```\n~/go/bin/tlsx \\\n\t-list /tmp/host_port_combos.txt \\\n\t-scan-mode 'auto' \\\n\t-ip-version '4' \\\n\t-so \\\n\t-tls-version \\\n\t-cipher \\\n\t-hash 'sha256' \\\n\t-wildcard-cert \\\n\t-probe-status \\\n\t-version-enum \\\n\t-cipher-enum \\\n\t-cipher-type 'all' \\\n\t-serial \\\n\t-expired \\\n\t-self-signed \\\n\t-mismatched \\\n\t-revoked \\\n\t-untrusted \\\n\t-resolvers 8.8.8.8,8.8.4.4,1.1.1.1 \\\n\t-certificate \\\n\t-tls-chain \\\n\t-concurrency '300' \\\n\t-cipher-concurrency '10' \\\n\t-timeout '5' \\\n\t-retry '3' \\\n\t-disable-update-check \\\n\t-output /tmp/tlsx_output.jsonl \\\n\t-json \\\n\t-no-color\n```\n\nAt one point, there is no more progress and even output is no longer written. This is the last line of the output file (`/tmp/tlsx_output.jsonl`):\n\n```\n{\"timestamp\":\"2025-04-25T09:59:31.489674682Z\",\"host\":\"xn--\u003ccensored\u003e-t6b.\u003ccensored\u003e\",\"ip\":\"\u003ccensored\u003e\",\"port\":\"443\",\"probe_status\":true,\"tls_version\":\"tls13\",\"cipher\":\"TLS_AES_128_GCM_SHA256\",\"self_signed\":true,\"mismatched\":true,\"not_before\":\"2017-01-16T16:04:01Z\",\"not_after\":\"2027-01-14T16:04:01Z\",\"subject_dn\":\"emailAddress=root@localhost.localdomain, CN=localhost.localdomain, OU=IT, O=MyCompany, L=Seattle, ST=WA, C=US, emailAddress=root@localhost.localdomain\",\"subject_cn\":\n```\nPlease note that the line ends with an open \"subject_cn\" key and the JSON object on that line is never closed. The aforementioned line is line 25737 of the output file, so more than 25k targets have been scanned before.\n\n### Anything else:\nThe issue always appears after a long time of execution. Execution of tlsx for the aforementioned approx. 30k targets (aborted/hanging after about 25k targets) started at `2025-04-24T16:50:47+00:00` and the process started hanging at `2025-04-25T10:47:39+0000`, so about 18 hours later.\n\nThe issue does not seem to depend on the specific target host, as tlsx correctly terminates when only scanning the target host. Also, it always starts hanging indefinitely for a different target, but always after having run for hours and after having already scanned several thousand targets,"
+  }
+]
