@@ -40,7 +40,7 @@ jobs:
 
       - name: Enrich bounties with AI (preserving expert hints)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
         run: |
           python enrich_bounties.py
 
