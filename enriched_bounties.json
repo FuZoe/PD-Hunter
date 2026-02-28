@@ -217,10 +217,10 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 21,
+    "comment_count": 22,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-02-27T21:05:02Z",
+    "updated_at": "2026-02-28T11:07:25Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil && stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n<!-- A concise description of what you expected to happen. -->\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n",
     "hunter_intelligence": {
