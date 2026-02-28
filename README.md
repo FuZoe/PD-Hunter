@@ -1,6 +1,9 @@
 # PD-Hunter Intelligence
 
 AI-powered bounty intelligence dashboard for ProjectDiscovery repositories.
+
+[English]| [简体中文](./README_CN.md)
+
 ## Preview
 
 see the [dashboard](https://fuzoe.github.io/PD-Hunter/static/dashboard.html)

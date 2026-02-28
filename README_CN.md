@@ -1,6 +1,12 @@
 # PD-Hunter 赏金猎人情报中心
 
 AI 驱动的 ProjectDiscovery 赏金情报仪表盘。
+v
+[English](./README.md)| [简体中文]
+
+## 直接预览
+
+see the [**dashboard**](https://fuzoe.github.io/PD-Hunter/static/dashboard.html)
 
 ## ✨ 功能特点
 
