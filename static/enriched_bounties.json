@@ -55,10 +55,10 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 19,
+    "comment_count": 20,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-11-06T15:54:58Z",
-    "updated_at": "2026-02-28T04:07:55Z",
+    "updated_at": "2026-02-28T16:53:04Z",
     "author": "anze3db",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhen running an authenticated scan using a secret file nuclei starts executing templates immediately, before the secret file finishes, causing some requests to not be authenticated.\n\ncommand that I'm running:\n\n```\nnuclei3.4.dev -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\nWhen I print the server logs I see all requests before the secret file finishes as unauthenticated (See AnyonymousUser):\n\n\n```\n15:32:48.443 | WARNING | django.request - Not Found: /wp-content/plugins/flash-album-gallery/readme.txt\n15:32:48.446 | WARNING | django.server - \"GET /wp-content/plugins/flash-album-gallery/readme.txt HTTP/1.1\" 404 23770\n15:32:48.450 | WARNING | django.request - Not Found: /wp-content/plugins/skysa-official/readme.txt\nAnonymousUser\nAnonymousUser\n15:32:48.491 | WARNING | django.server - \"GET /wp-content/plugins/skysa-official/readme.txt HTTP/1.1\" 404 23750\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.554 | WARNING | django.request - Not Found: /login-x.php\nAnonymousUser\n15:32:48.641 | WARNING | django.server - \"GET /login-x.php HTTP/1.1\" 404 23619\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.946 | WARNING | django.request - Not Found: /guest_auth/guestIsUp.php\n15:32:48.950 | WARNING | django.server - \"POST /guest_auth/guestIsUp.php HTTP/1.1\" 404 23672\n15:32:48.950 | INFO    | django.server - code 400, message Bad HTTP/0.9 request type ('mac=1&ip=127.0.0.1|wget')\n15:32:48.950 | WARNING | django.server - \"mac=1&ip=127.0.0.1|wget d46bv7aqko33m6d2te7g4b8fu93o1zo7w.oast.me\" 400 -\nAnonymousUser\n15:32:48.994 | WARNING | django.request - Not Found: /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx\n15:32:48.996 | WARNING | django.server - \"POST /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx?method=GetStoreWarehouseByStore HTTP/1.1\" 404 23884\nAnonymousUser\n15:32:49.290 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n <engbot@example.com>\n15:32:49.476 | WARNING | django.request - Not Found: /wp-content/plugins/featurific-for-wordpress/readme.txt\n15:32:49.482 | WARNING | django.server - \"GET /wp-content/plugins/featurific-for-wordpress/readme.txt HTTP/1.1\" 404 23791\n <engbot@example.com>\n15:32:49.592 | WARNING | django.request - Not Found: /wp-content/plugins/clickdesk-live-support-chat/readme.txt\n15:32:49.599 | WARNING | django.server - \"GET /wp-content/plugins/clickdesk-live-support-chat/readme.txt HTTP/1.1\" 404 23803\n15:32:49.655 | WARNING | django.request - Not Found: /lcms/index.php\n15:32:49.657 | WARNING | django.server - \"POST /lcms/index.php HTTP/1.1\" 404 23632\n <engbot@example.com>\n15:32:49.683 | WARNING | django.security.csrf - Forbidden (CSRF cookie not set.): /\n15:32:49.690 | WARNING | django.request - Not Found: /wp-content/plugins/all-in-one-event-calendar/readme.txt\n15:32:49.694 | INFO    | django.server - \"GET /?+config-create+/&lang=../../../../../../../../../../../usr/local/lib/php/pearcmd&/safedog()+sBV3dCd1eI.log HTTP/1.1\" 302 0\n15:32:49.695 | WARNING | django.server - \"GET /wp-content/plugins/all-in-one-event-calendar/readme.txt HTTP/1.1\" 404 23795\n <engbot@example.com>\n```\n\nOnly once `POST /accounts/login/` finishes do the requests start being authenticated (see engbot@example.com) instead of Anonymous user.\n\n### Expected Behavior\n\nI would expect nuclei to first run the secret-file and only after it finishes start running the other templates. This was the behavior on Nuclei 3.4.7, before the [authenticated scan regression in 3.4.8](https://github.com/projectdiscovery/nuclei/issues/6463).\n\nThis is how the server logs look when I run the same code on 3.4.7:\n\n\n```\nnuclei3.4.7 -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n```\nAnonymousUser\n15:50:23.744 | INFO    | django.server - \"GET /accounts/login/ HTTP/1.1\" 200 25860\nAnonymousUser\n15:50:23.931 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n <engbot@example.com>\n15:50:25.028 | WARNING | django.request - Not Found: /export/classroom-course-statistics\n <engbot@example.com>\n <engbot@example.com>\n15:50:25.031 | WARNING | django.server - \"GET /export/classroom-course-statistics?fileNames[]=../../../../../../../etc/passwd HTTP/1.1\" 404 23797\n <engbot@example.com>\n15:50:25.058 | WARNING | django.request - Not Found: /cgi-bin/rpc\n15:50:25.059 | WARNING | django.server - \"POST /cgi-bin/rpc HTTP/1.1\" 404 23618\n <engbot@example.com>\n <engbot@example.com>\n <engbot@example.com>\n15:50:25.364 | WARNING | django.request - Not Found: /zentao/user-login.html\n15:50:25.365 | WARNING | django.server - \"POST /zentao/user-login.html HTTP/1.1\" 404 23663\n15:50:25.370 | WARNING | django.request - Not Found: /general/index/UploadFile.php\n15:50:25.371 | WARNING | django.request - Not Found: /webadm/\n```\n\n### Steps To Reproduce\n\n1. Run nuclei with a secret-file\n\n```\nnuclei -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: Macos\n- Nuclei: 3.4.10 53af79a39290c86857f433bb2f40e4567982fed0\n- Go: go version go1.24.2 darwin/arm64\n```\n\n### Anything else?\n\n_No response_",
     "hunter_intelligence": {
@@ -78,10 +78,10 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 21,
+    "comment_count": 22,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-02-27T18:58:59Z",
+    "updated_at": "2026-02-28T16:51:47Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890",
     "hunter_intelligence": {
@@ -125,10 +125,10 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 31,
+    "comment_count": 32,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
-    "updated_at": "2026-02-27T21:03:36Z",
+    "updated_at": "2026-02-28T13:23:45Z",
     "author": "Mzack9999",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nRef: https://github.com/projectdiscovery/nuclei/actions/runs/17080437183/job/48437074486?pr=6393 failing `integration_tests/fuzz/fuzz-path-sqli.yaml `\n\n`dev` branch version skips some items in path based fuzzing:\n\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.8\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.8 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 51.435875ms. No results found.\n```\n\n`main` branch version correctly fuzzes all the path parts:\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.7\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.7 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55%20OR%20True/profile\n[path-based-sqli] [http] [info] http://127.0.0.1:8082/user/55%2520OR%2520True/profile [path:/user/55] [GET]\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 17.943209ms. 1 matches found.\n```\n\n### Expected Behavior\n\nCorrect fuzzing of all path items\n\n### Steps To Reproduce\n\n/\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: osx\n- Nuclei: dev\n- Go: 1.25\n```\n\n### Anything else?\n\nPotentially something got altered in the fuzzing engine (or fuzzy playground) in latest PRs",
     "hunter_intelligence": {
@@ -217,10 +217,10 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 22,
+    "comment_count": 23,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-02-28T11:07:25Z",
+    "updated_at": "2026-02-28T16:52:53Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil && stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n<!-- A concise description of what you expected to happen. -->\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n",
     "hunter_intelligence": {
@@ -240,10 +240,10 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 23,
+    "comment_count": 24,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
-    "updated_at": "2026-02-28T07:20:23Z",
+    "updated_at": "2026-02-28T16:53:02Z",
     "author": "xhzeem",
     "body": "Hi,\n\nCould you add an **auto wildcard discovery** feature similar to what `puredns` does?\n\nWhat I’m looking for:\n\n* Ability to detect wildcard DNS automatically across **multiple domains** in a single run (no need to specify `-wd` per domain).\n* Filter out wildcard-based results automatically.\n* Expose this via a simple flag, e.g. `--auto-wildcard` (or similar), so existing behaviour doesn’t change.\n\nIdea is basically:\n`puredns` handles wildcard detection automatically can you implement a similar optional mode/flag in `dnsx`?\n\nThanks!\n",
     "hunter_intelligence": {
@@ -263,10 +263,10 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 27,
+    "comment_count": 28,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
-    "updated_at": "2026-02-27T21:04:54Z",
+    "updated_at": "2026-02-28T16:53:02Z",
     "author": "aautumn725",
     "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity",
     "hunter_intelligence": {
@@ -309,10 +309,10 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 17,
+    "comment_count": 18,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-08-09T14:14:00Z",
-    "updated_at": "2026-02-28T02:36:50Z",
+    "updated_at": "2026-02-28T18:16:51Z",
     "author": "hubrandesk789",
     "body": "### tlsx version:\nVersion: v1.2.0\nOperative System: linux\nArchitecture: amd64\nGo Version: go1.24.4\n\n### Current Behavior:\nServing targets as prefixes with the option -u work.\n./tlsx -u 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24\n\nUsing the option -l / -list filename.txt where the filename.txt contain a one line, comma-separated prefixes does not. \n`[WRN] Could not connect input 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24:443 [auto,ztls:RUNTIME] failed to setup connection <- [:RUNTIME] cause=\"no address found for host\" <- could not dial address <- could not connect to host`\n\n### Expected Behavior:\nSame behavior using -u or -l filename.txt\n\n### Steps To Reproduce:\nPick some prefixes of your chose who are reachable, save them inside filename.txt as prefix1,prefix2,prefix3\n./tlsx -l filename.txt -v\n",
     "hunter_intelligence": {
@@ -332,10 +332,10 @@
       "💎 Bounty",
       "$1.2k"
     ],
-    "comment_count": 24,
+    "comment_count": 25,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-05-09T10:47:31Z",
-    "updated_at": "2026-02-27T19:14:41Z",
+    "updated_at": "2026-02-28T16:53:05Z",
     "author": "msecrfe",
     "body": "### tlsx version:\nv1.1.9\n\n### Current Behavior:\nFor long target lists (in our case: Around 30k host/port combinations), tlsx reliably hangs indefinitely after several hours of execution, usually after around 25k targets have finished. Hanging happens even while writing JSONL output lines, cutting off a JSONL line somewhere in the middle.\n\n### Expected Behavior:\ntlsx should not hang indefinitely.\n\n### Steps To Reproduce:\ntlsx was started as follows:\n\n```\n~/go/bin/tlsx \\\n\t-list /tmp/host_port_combos.txt \\\n\t-scan-mode 'auto' \\\n\t-ip-version '4' \\\n\t-so \\\n\t-tls-version \\\n\t-cipher \\\n\t-hash 'sha256' \\\n\t-wildcard-cert \\\n\t-probe-status \\\n\t-version-enum \\\n\t-cipher-enum \\\n\t-cipher-type 'all' \\\n\t-serial \\\n\t-expired \\\n\t-self-signed \\\n\t-mismatched \\\n\t-revoked \\\n\t-untrusted \\\n\t-resolvers 8.8.8.8,8.8.4.4,1.1.1.1 \\\n\t-certificate \\\n\t-tls-chain \\\n\t-concurrency '300' \\\n\t-cipher-concurrency '10' \\\n\t-timeout '5' \\\n\t-retry '3' \\\n\t-disable-update-check \\\n\t-output /tmp/tlsx_output.jsonl \\\n\t-json \\\n\t-no-color\n```\n\nAt one point, there is no more progress and even output is no longer written. This is the last line of the output file (`/tmp/tlsx_output.jsonl`):\n\n```\n{\"timestamp\":\"2025-04-25T09:59:31.489674682Z\",\"host\":\"xn--<censored>-t6b.<censored>\",\"ip\":\"<censored>\",\"port\":\"443\",\"probe_status\":true,\"tls_version\":\"tls13\",\"cipher\":\"TLS_AES_128_GCM_SHA256\",\"self_signed\":true,\"mismatched\":true,\"not_before\":\"2017-01-16T16:04:01Z\",\"not_after\":\"2027-01-14T16:04:01Z\",\"subject_dn\":\"emailAddress=root@localhost.localdomain, CN=localhost.localdomain, OU=IT, O=MyCompany, L=Seattle, ST=WA, C=US, emailAddress=root@localhost.localdomain\",\"subject_cn\":\n```\nPlease note that the line ends with an open \"subject_cn\" key and the JSON object on that line is never closed. The aforementioned line is line 25737 of the output file, so more than 25k targets have been scanned before.\n\n### Anything else:\nThe issue always appears after a long time of execution. Execution of tlsx for the aforementioned approx. 30k targets (aborted/hanging after about 25k targets) started at `2025-04-24T16:50:47+00:00` and the process started hanging at `2025-04-25T10:47:39+0000`, so about 18 hours later.\n\nThe issue does not seem to depend on the specific target host, as tlsx correctly terminates when only scanning the target host. Also, it always starts hanging indefinitely for a different target, but always after having run for hours and after having already scanned several thousand targets,",
     "hunter_intelligence": {
