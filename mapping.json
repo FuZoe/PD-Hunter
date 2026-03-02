@@ -1,0 +1,19 @@
+{
+  "organizations": [
+    {
+      "name": "projectdiscovery",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Standard PD bounties with diamond icon."
+    },
+    {
+      "name": "onyx-dot-app",
+      "labels": ["💎 Bounty", "Bounty"],
+      "note": "Formerly Danswer. High-value AI search bounties."
+    },
+    {
+      "name": "commaai",
+      "labels": ["bounty"],
+      "note": "Autonomous driving bounties, often $1,000+."
+    }
+  ]
+}

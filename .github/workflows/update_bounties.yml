@@ -1,4 +1,4 @@
-name: Update Bounty Intelligence
+name: Update Bounty Intelligence (Multi-Org)
 
 on:
   schedule:
@@ -32,10 +32,11 @@ jobs:
         run: |
           pip install openai
 
-      - name: Fetch latest bounty issues
+      - name: Fetch latest bounty issues (3 organizations)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "Scanning: projectdiscovery, onyx-dot-app, commaai"
           go run fetch_bounty_issues.go
 
       - name: Enrich bounties with AI (preserving expert hints)
@@ -59,5 +60,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add bounty_issues.json enriched_bounties.json static/enriched_bounties.json
-          git commit -m "🔄 Auto-update bounty intelligence [$(date -u +%Y-%m-%d)]"
+          git commit -m "🔄 Auto-update bounty radar [$(date -u +%Y-%m-%d)]"
           git push

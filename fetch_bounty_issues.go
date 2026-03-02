@@ -7,8 +7,20 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
+
+// Configuration structures
+type Config struct {
+	Organizations []Organization `json:"organizations"`
+}
+
+type Organization struct {
+	Name   string   `json:"name"`
+	Labels []string `json:"labels"`
+	Note   string   `json:"note"`
+}
 
 type Issue struct {
 	Number       int      `json:"number"`
@@ -39,7 +51,8 @@ type GitHubUser struct {
 }
 
 type GitHubSearchResult struct {
-	TotalCount int `json:"total_count"`
+	TotalCount int           `json:"total_count"`
+	Items      []GitHubIssue `json:"items"`
 }
 
 type GitHubIssue struct {
@@ -61,8 +74,7 @@ var httpClient = &http.Client{Timeout: 30 * time.Second}
 const requestDelay = 500 * time.Millisecond
 
 func main() {
-	org := "projectdiscovery"
-	label := "💎 Bounty"
+	configFile := "mapping.json"
 	outputFile := "bounty_issues.json"
 
 	token := os.Getenv("GITHUB_TOKEN")
@@ -70,61 +82,72 @@ func main() {
 		fmt.Println("Note: GITHUB_TOKEN not set. Using unauthenticated requests (rate limited to 60/hour)")
 	}
 
-	fmt.Printf("Fetching repositories from organization: %s\n", org)
-
-	repos, err := getOrgRepos(org, token)
+	// Load configuration
+	config, err := loadConfig(configFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error fetching repos: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Found %d repositories\n", len(repos))
+	fmt.Printf("Loaded %d organizations from config\n", len(config.Organizations))
 
 	var allIssues []Issue
+	seenIssues := make(map[string]bool) // Deduplicate by URL
 
-	for i, repo := range repos {
-		repoName := repo.FullName
-		fmt.Printf("[%d/%d] Checking %s...\n", i+1, len(repos), repoName)
+	for _, org := range config.Organizations {
+		fmt.Printf("\n=== Scanning organization: %s ===\n", org.Name)
+		fmt.Printf("Note: %s\n", org.Note)
 
-		time.Sleep(requestDelay)
-		issues, err := getBountyIssues(org, repo.Name, label, token)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: Error fetching issues from %s: %v\n", repoName, err)
-			continue
-		}
+		for _, label := range org.Labels {
+			fmt.Printf("\nSearching for label: %s\n", label)
+			time.Sleep(requestDelay)
 
-		for _, ghIssue := range issues {
-			if ghIssue.PullRequest != nil {
+			issues, err := searchBountyIssues(org.Name, label, token)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: Error searching %s with label '%s': %v\n", org.Name, label, err)
 				continue
 			}
-			labels := make([]string, len(ghIssue.Labels))
-			for j, l := range ghIssue.Labels {
-				labels[j] = l.Name
-			}
 
-			time.Sleep(requestDelay)
-			openPRCount := getOpenPRCount(repoName, ghIssue.Number, token)
-			fmt.Printf("  Issue #%d: %d open PRs, %d comments\n", ghIssue.Number, openPRCount, ghIssue.Comments)
+			for _, ghIssue := range issues {
+				// Skip PRs and duplicates
+				if ghIssue.PullRequest != nil || seenIssues[ghIssue.HTMLURL] {
+					continue
+				}
+				seenIssues[ghIssue.HTMLURL] = true
 
-			issue := Issue{
-				Number:       ghIssue.Number,
-				Title:        ghIssue.Title,
-				URL:          ghIssue.HTMLURL,
-				State:        ghIssue.State,
-				Labels:       labels,
-				CommentCount: ghIssue.Comments,
-				OpenPRCount:  openPRCount,
-				Repository:   repoName,
-				CreatedAt:    ghIssue.CreatedAt,
-				UpdatedAt:    ghIssue.UpdatedAt,
-				Author:       ghIssue.User.Login,
-				Body:         ghIssue.Body,
+				labels := make([]string, len(ghIssue.Labels))
+				for j, l := range ghIssue.Labels {
+					labels[j] = l.Name
+				}
+
+				// Extract repo name from URL
+				repoName := extractRepoName(ghIssue.HTMLURL)
+
+				time.Sleep(requestDelay)
+				openPRCount := getOpenPRCount(repoName, ghIssue.Number, token)
+				fmt.Printf("  Issue #%d: %d open PRs, %d comments - %s\n", ghIssue.Number, openPRCount, ghIssue.Comments, ghIssue.Title[:min(50, len(ghIssue.Title))])
+
+				issue := Issue{
+					Number:       ghIssue.Number,
+					Title:        ghIssue.Title,
+					URL:          ghIssue.HTMLURL,
+					State:        ghIssue.State,
+					Labels:       labels,
+					CommentCount: ghIssue.Comments,
+					OpenPRCount:  openPRCount,
+					Repository:   repoName,
+					CreatedAt:    ghIssue.CreatedAt,
+					UpdatedAt:    ghIssue.UpdatedAt,
+					Author:       ghIssue.User.Login,
+					Body:         ghIssue.Body,
+				}
+				allIssues = append(allIssues, issue)
 			}
-			allIssues = append(allIssues, issue)
 		}
 	}
 
-	fmt.Printf("\nTotal bounty issues found: %d\n", len(allIssues))
+	fmt.Printf("\n=== Summary ===\n")
+	fmt.Printf("Total bounty issues found: %d\n", len(allIssues))
 
 	output, err := json.MarshalIndent(allIssues, "", "  ")
 	if err != nil {
@@ -139,6 +162,65 @@ func main() {
 	}
 
 	fmt.Printf("Results saved to: %s\n", outputFile)
+}
+
+func loadConfig(filename string) (*Config, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	if err := json.Unmarshal(data, &config); err != nil {
+		return nil, err
+	}
+
+	return &config, nil
+}
+
+func extractRepoName(issueURL string) string {
+	// Extract "owner/repo" from "https://github.com/owner/repo/issues/123"
+	parts := strings.Split(issueURL, "/")
+	if len(parts) >= 5 {
+		return parts[3] + "/" + parts[4]
+	}
+	return ""
+}
+
+func searchBountyIssues(org, label, token string) ([]GitHubIssue, error) {
+	var allIssues []GitHubIssue
+	page := 1
+
+	for {
+		// Use GitHub Search API: is:open is:issue org:ORG label:"LABEL"
+		query := fmt.Sprintf("is:open is:issue org:%s label:\"%s\"", org, label)
+		apiURL := fmt.Sprintf("https://api.github.com/search/issues?q=%s&per_page=100&page=%d", url.QueryEscape(query), page)
+
+		data, err := doRequest(apiURL, token)
+		if err != nil {
+			return nil, err
+		}
+
+		var result GitHubSearchResult
+		if err := json.Unmarshal(data, &result); err != nil {
+			return nil, err
+		}
+
+		if len(result.Items) == 0 {
+			break
+		}
+
+		allIssues = append(allIssues, result.Items...)
+
+		// GitHub Search API returns max 1000 results
+		if len(allIssues) >= result.TotalCount || page >= 10 {
+			break
+		}
+		page++
+		time.Sleep(requestDelay) // Rate limit for search API
+	}
+
+	return allIssues, nil
 }
 
 func doRequest(reqURL, token string) ([]byte, error) {

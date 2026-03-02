@@ -20,22 +20,57 @@ INPUT_FILE = "bounty_issues.json"
 OUTPUT_FILE = "enriched_bounties.json"
 EXISTING_FILE = "enriched_bounties.json"  # For preserving expert hints
 
-def get_bounty_amount(labels: list[str]) -> int:
-    """Extract bounty amount from labels like '$100', '$1.2k'"""
-    for label in labels:
-        if label.startswith("$"):
-            amount_str = label[1:].lower().replace(",", "")
-            if "k" in amount_str:
-                return int(float(amount_str.replace("k", "")) * 1000)
-            try:
-                return int(float(amount_str))
-            except ValueError:
-                continue
+def extract_amount_from_text(text: str) -> int:
+    """Extract dollar amount from text (e.g., '$100', '$1.2k', '$1,000')"""
+    if not text:
+        return 0
+    
+    # Match patterns like $100, $1.2k, $1,000, $1000
+    patterns = [
+        r'\$(\d{1,3}(?:,\d{3})+)',  # $1,000 or $10,000
+        r'\$(\d+\.?\d*)k',           # $1.2k or $1k
+        r'\$(\d+)',                   # $100 or $1000
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            amount_str = match.group(1).replace(',', '')
+            if 'k' in text[match.start():match.end()].lower():
+                return int(float(amount_str) * 1000)
+            return int(float(amount_str))
+    
+    return 0
+
+def get_bounty_amount(issue: dict) -> int:
+    """Smart extraction of bounty amount from title, labels, and body"""
+    # Priority 1: Check labels (most reliable)
+    for label in issue.get("labels", []):
+        amount = extract_amount_from_text(label)
+        if amount > 0:
+            return amount
+    
+    # Priority 2: Check title
+    amount = extract_amount_from_text(issue.get("title", ""))
+    if amount > 0:
+        return amount
+    
+    # Priority 3: Check body (first 1000 chars)
+    body = issue.get("body", "")[:1000]
+    amount = extract_amount_from_text(body)
+    if amount > 0:
+        return amount
+    
     return 0
 
 def get_bounty_tier(amount: int) -> str:
-    """Determine bounty tier based on amount"""
-    if amount >= 500:
+    """Determine bounty tier based on amount
+    
+    S-Tier: $1000+ (high-value bounties)
+    A-Tier: $200+ (mid-value bounties)
+    B-Tier: <$200 (entry-level bounties)
+    """
+    if amount >= 1000:
         return "S-Tier"
     elif amount >= 200:
         return "A-Tier"
@@ -58,12 +93,15 @@ def analyze_issue_with_ai(client: OpenAI, issue: dict) -> dict:
     
     body_preview = issue.get("body", "")[:2000] if issue.get("body") else "No description"
     
+    open_pr_count = issue.get('open_pr_count', 0)
+    
     prompt = f"""Analyze this GitHub bounty issue and provide Hunter Intelligence:
 
 **Title:** {issue['title']}
 **Repository:** {issue['repository']}
 **Labels:** {', '.join(issue['labels'])}
 **Comment Count:** {issue['comment_count']}
+**Open PR Count:** {open_pr_count}
 **Created:** {issue['created_at']}
 **Updated:** {issue['updated_at']}
 
@@ -73,11 +111,12 @@ def analyze_issue_with_ai(client: OpenAI, issue: dict) -> dict:
 Based on this issue, provide:
 
 1. **Friction Level** (High/Medium/Low):
-   - High: 20+ comments, complex debugging, multiple failed attempts
+   - High: 20+ comments OR many open PRs (high competition), complex debugging, multiple failed attempts
    - Medium: 10-20 comments, moderate complexity
-   - Low: <10 comments, clear scope, straightforward fix
+   - Low: <10 comments AND <3 open PRs, clear scope, straightforward fix
 
 2. **Technical Hint**: A one-sentence actionable technical hint for solving this issue.
+   Focus on specific code areas, debugging approaches, or implementation strategies.
    Examples: "Check for unclosed channels in Go", "Use git bisect for this regression", "Look for race conditions in concurrent code"
 
 Respond in this exact JSON format:
@@ -149,7 +188,7 @@ def main():
     
     for i, issue in enumerate(issues, 1):
         issue_num = issue["number"]
-        bounty_amount = get_bounty_amount(issue["labels"])
+        bounty_amount = get_bounty_amount(issue)
         bounty_tier = get_bounty_tier(bounty_amount)
         
         # Check if we already have expert intelligence for this issue
