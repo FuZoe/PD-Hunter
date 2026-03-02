@@ -214,8 +214,9 @@ func getOrgRepos(org, token string) ([]GitHubRepo, error) {
 }
 
 func getOpenPRCount(repoFullName string, issueNumber int, token string) int {
-	apiURL := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+repo:%s+linked:%d",
-		url.QueryEscape(repoFullName), issueNumber)
+	// Search for open PRs that mention this issue number in body/title (e.g., "Fixes #2063", "#2063")
+	query := fmt.Sprintf("is:pr is:open repo:%s %d", repoFullName, issueNumber)
+	apiURL := fmt.Sprintf("https://api.github.com/search/issues?q=%s", url.QueryEscape(query))
 
 	data, err := doRequest(apiURL, token)
 	if err != nil {
