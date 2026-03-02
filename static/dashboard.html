@@ -166,6 +166,13 @@
                 <button onclick="filterByTier('B-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-cyan transition-colors" data-filter="B-Tier">B-TIER</button>
                 <div class="h-6 w-px bg-hacker-border"></div>
                 <button onclick="toggleHiddenGemsMode()" id="hiddenGemsBtn" class="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-orange transition-colors">💎 HIDDEN GEMS</button>
+                <div id="gemFilters" class="hidden flex items-center gap-2">
+                    <span class="text-hacker-muted text-xs font-mono">PR≤</span>
+                    <input type="number" id="maxPRCount" value="3" min="0" max="100" class="w-14 px-2 py-1 rounded bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-orange outline-none">
+                    <span class="text-hacker-muted text-xs font-mono">Comments≤</span>
+                    <input type="number" id="maxCommentCount" value="10" min="0" max="200" class="w-14 px-2 py-1 rounded bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-orange outline-none">
+                    <button onclick="applyGemFilters()" class="px-3 py-1 rounded bg-hacker-orange/20 border border-hacker-orange text-hacker-orange text-xs font-mono hover:bg-hacker-orange hover:text-black transition-colors">Apply</button>
+                </div>
                 <div class="flex-1"></div>
                 <select id="sortSelect" onchange="sortBounties()" class="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-green outline-none">
                     <option value="bounty-desc">Bounty: High → Low</option>
@@ -227,6 +234,8 @@
         let allBounties = [];
         let currentFilter = 'all';
         let hiddenGemsMode = false;
+        let maxPRThreshold = 3;
+        let maxCommentThreshold = 10;
 
         // Tier colors mapping
         const tierColors = {
@@ -349,9 +358,12 @@
             // Filter bounties
             let filtered = bounties;
             
-            // Apply Hidden Gems filter first if enabled
+            // Apply Hidden Gems filter first if enabled (using custom thresholds)
             if (hiddenGemsMode) {
-                filtered = filtered.filter(b => b.hunter_intelligence.is_hidden_gem === true);
+                filtered = filtered.filter(b => 
+                    (b.open_pr_count || 0) <= maxPRThreshold && 
+                    b.comment_count <= maxCommentThreshold
+                );
             }
             
             // Then apply tier filter
@@ -406,14 +418,34 @@
         function toggleHiddenGemsMode() {
             hiddenGemsMode = !hiddenGemsMode;
             const btn = document.getElementById('hiddenGemsBtn');
+            const filters = document.getElementById('gemFilters');
             
             if (hiddenGemsMode) {
                 btn.classList.add('border-hacker-orange', 'text-hacker-orange', 'bg-hacker-orange/10');
+                filters.classList.remove('hidden');
             } else {
                 btn.classList.remove('border-hacker-orange', 'text-hacker-orange', 'bg-hacker-orange/10');
+                filters.classList.add('hidden');
             }
             
             sortBounties();
+        }
+
+        // Apply custom gem filters
+        function applyGemFilters() {
+            maxPRThreshold = parseInt(document.getElementById('maxPRCount').value) || 3;
+            maxCommentThreshold = parseInt(document.getElementById('maxCommentCount').value) || 10;
+            updateHiddenGemsCount();
+            sortBounties();
+        }
+
+        // Update Hidden Gems count based on custom thresholds
+        function updateHiddenGemsCount() {
+            const count = allBounties.filter(b => 
+                (b.open_pr_count || 0) <= maxPRThreshold && 
+                b.comment_count <= maxCommentThreshold
+            ).length;
+            document.getElementById('hiddenGemsCount').textContent = count;
         }
 
         // Sort bounties
