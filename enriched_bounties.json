@@ -855,11 +855,11 @@
     "author": "adeebshihadeh",
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)",
     "hunter_intelligence": {
-      "friction_level": "Low",
-      "technical_hint": "Focus on ensuring `test_onroad` passes consistently by debugging kernel integration issues and validating hardware compatibility with Ubuntu 24.04 and the mainline kernel.",
+      "friction_level": "High",
+      "technical_hint": "Requires expertise in AT Commands and Linux Networking (Route Metrics). The key is to strip ModemManager to ~200 lines of Python. Bounty requires 10+ Discord users to sign off.",
       "bounty_tier": "S-Tier",
       "bounty_amount": 1000,
-      "is_hidden_gem": true
+      "is_hidden_gem": false
     }
   },
   {
