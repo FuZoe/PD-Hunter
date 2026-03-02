@@ -513,11 +513,11 @@
     "author": "adeebshihadeh",
     "body": "Let's get Gen2 Rivians supported! Any model is eligible.\n\nRequires a harness design/schematic, a high quality lateral port, and at least a proof-of-concept for longitudinal support.",
     "hunter_intelligence": {
-      "friction_level": "Low",
-      "technical_hint": "Focus on designing a robust harness schematic and ensure lateral port compatibility by referencing existing Rivian Gen1 implementations in the repository.",
+      "friction_level": "High",
+      "technical_hint": "⚠️ Physical Access Required. This is a Hardware Bounty. Do not attempt unless you own or have access to a 2025+ Rivian and a comma 3X. Simulated PRs will be rejected immediately by maintainers.",
       "bounty_tier": "S-Tier",
       "bounty_amount": 4000,
-      "is_hidden_gem": true
+      "is_hidden_gem": false
     }
   },
   {
