@@ -859,7 +859,7 @@
       "technical_hint": "Requires expertise in AT Commands and Linux Networking (Route Metrics). The key is to strip ModemManager to ~200 lines of Python. Bounty requires 10+ Discord users to sign off.",
       "bounty_tier": "S-Tier",
       "bounty_amount": 1000,
-      "is_hidden_gem": false
+      "is_hidden_gem": true
     }
   },
   {
