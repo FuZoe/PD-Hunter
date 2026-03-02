@@ -111,13 +111,29 @@ def analyze_issue_with_ai(client: OpenAI, issue: dict) -> dict:
 Based on this issue, provide:
 
 1. **Friction Level** (High/Medium/Low):
-   - High: 20+ comments OR many open PRs (high competition), complex debugging, multiple failed attempts
-   - Medium: 10-20 comments, moderate complexity
-   - Low: <10 comments AND <3 open PRs, clear scope, straightforward fix
+   
+   **High Friction** - Mark as High if ANY of these apply:
+   - Requires access to SPECIFIC/RARE vehicles (e.g., "Rivian Gen2", "2025+ model", specific car makes)
+   - Requires expensive or rare hardware that most developers don't own
+   - Explicitly states "must test on real vehicle" or "physical access required"
+   - 20+ comments OR many open PRs indicating high competition or complexity
+   - Keywords indicating rare hardware: "2025+", "Gen2", specific car model names, "must own"
+   
+   **Medium Friction**:
+   - Requires comma device + any commonly supported car (not a specific rare model)
+   - General hardware debugging without rare components
+   - 10-20 comments, moderate complexity
+   
+   **Low Friction**:
+   - Pure software tasks: code refactoring, bug fixes, documentation, CI/testing
+   - Simulation-only tasks that don't require physical devices
+   - Common/accessible hardware: comma 3X, Raspberry Pi, Arduino (developers likely own these)
+   - <10 comments AND <3 open PRs, clear scope, straightforward fix
 
 2. **Technical Hint**: A one-sentence actionable technical hint for solving this issue.
-   Focus on specific code areas, debugging approaches, or implementation strategies.
-   Examples: "Check for unclosed channels in Go", "Use git bisect for this regression", "Look for race conditions in concurrent code"
+   - If the issue requires RARE/SPECIFIC hardware, START with "⚠️ Physical Access Required."
+   - Focus on specific code areas, debugging approaches, or implementation strategies.
+   - Examples: "Check for unclosed channels in Go", "Use git bisect for this regression"
 
 Respond in this exact JSON format:
 {{"friction_level": "High|Medium|Low", "technical_hint": "Your hint here"}}
