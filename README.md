@@ -2,7 +2,9 @@
 
 AI-powered bounty intelligence dashboard for ProjectDiscovery repositories.
 
-[English]| [简体中文](./README_CN.md)
+<div align="center">
+  <a>[English]</a> | <a href="./README_zh.md">[简体中文]</a>
+</div>
 
 ## Preview
 
