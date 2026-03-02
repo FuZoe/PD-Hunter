@@ -95,7 +95,7 @@
     <!-- Stats Bar -->
     <section class="border-b border-hacker-border bg-hacker-card/30">
         <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div class="bg-hacker-card rounded-lg p-4 border border-hacker-border">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg bg-hacker-yellow/20 flex items-center justify-center">
@@ -140,6 +140,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="bg-hacker-card rounded-lg p-4 border border-hacker-border">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-hacker-orange/20 flex items-center justify-center">
+                            <span class="text-hacker-orange">💎</span>
+                        </div>
+                        <div>
+                            <div class="text-hacker-muted text-xs font-mono">HIDDEN GEMS</div>
+                            <div id="hiddenGemsCount" class="text-hacker-orange font-mono font-bold">0</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -153,6 +164,8 @@
                 <button onclick="filterByTier('S-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-yellow transition-colors" data-filter="S-Tier">S-TIER</button>
                 <button onclick="filterByTier('A-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-purple transition-colors" data-filter="A-Tier">A-TIER</button>
                 <button onclick="filterByTier('B-Tier')" class="filter-btn px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-cyan transition-colors" data-filter="B-Tier">B-TIER</button>
+                <div class="h-6 w-px bg-hacker-border"></div>
+                <button onclick="toggleHiddenGemsMode()" id="hiddenGemsBtn" class="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono hover:border-hacker-orange transition-colors">💎 HIDDEN GEMS</button>
                 <div class="flex-1"></div>
                 <select id="sortSelect" onchange="sortBounties()" class="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-green outline-none">
                     <option value="bounty-desc">Bounty: High → Low</option>
@@ -213,6 +226,7 @@
     <script>
         let allBounties = [];
         let currentFilter = 'all';
+        let hiddenGemsMode = false;
 
         // Tier colors mapping
         const tierColors = {
@@ -288,6 +302,9 @@
                             </span>
                             <span class="text-xs text-hacker-muted">•</span>
                             <span class="text-xs text-hacker-muted font-mono">${bounty.comment_count} comments</span>
+                            <span class="text-xs text-hacker-muted">•</span>
+                            <span class="text-xs text-hacker-muted font-mono">${bounty.open_pr_count || 0} PRs</span>
+                            ${intel.is_hidden_gem ? '<span class="text-xs text-hacker-orange font-mono ml-2">💎 GEM</span>' : ''}
                         </div>
                         <a href="${bounty.url}" target="_blank" rel="noopener" 
                            class="px-3 py-1.5 rounded-lg bg-hacker-green/10 text-hacker-green text-xs font-mono font-bold 
@@ -309,11 +326,13 @@
             const aTier = bounties.filter(b => b.hunter_intelligence.bounty_tier === 'A-Tier').length;
             const bTier = bounties.filter(b => b.hunter_intelligence.bounty_tier === 'B-Tier').length;
             const lowFriction = bounties.filter(b => b.hunter_intelligence.friction_level === 'Low').length;
+            const hiddenGems = bounties.filter(b => b.hunter_intelligence.is_hidden_gem === true).length;
             
             document.getElementById('sTierCount').textContent = sTier;
             document.getElementById('aTierCount').textContent = aTier;
             document.getElementById('bTierCount').textContent = bTier;
             document.getElementById('lowFrictionCount').textContent = lowFriction;
+            document.getElementById('hiddenGemsCount').textContent = hiddenGems;
         }
 
         // Render bounties
@@ -329,8 +348,15 @@
 
             // Filter bounties
             let filtered = bounties;
+            
+            // Apply Hidden Gems filter first if enabled
+            if (hiddenGemsMode) {
+                filtered = filtered.filter(b => b.hunter_intelligence.is_hidden_gem === true);
+            }
+            
+            // Then apply tier filter
             if (currentFilter !== 'all') {
-                filtered = bounties.filter(b => b.hunter_intelligence.bounty_tier === currentFilter);
+                filtered = filtered.filter(b => b.hunter_intelligence.bounty_tier === currentFilter);
             }
 
             if (filtered.length === 0) {
@@ -373,6 +399,20 @@
                 }
             });
 
+            sortBounties();
+        }
+
+        // Toggle Hidden Gems mode
+        function toggleHiddenGemsMode() {
+            hiddenGemsMode = !hiddenGemsMode;
+            const btn = document.getElementById('hiddenGemsBtn');
+            
+            if (hiddenGemsMode) {
+                btn.classList.add('border-hacker-orange', 'text-hacker-orange', 'bg-hacker-orange/10');
+            } else {
+                btn.classList.remove('border-hacker-orange', 'text-hacker-orange', 'bg-hacker-orange/10');
+            }
+            
             sortBounties();
         }
 

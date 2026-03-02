@@ -17,6 +17,7 @@ type Issue struct {
 	State        string   `json:"state"`
 	Labels       []string `json:"labels"`
 	CommentCount int      `json:"comment_count"`
+	OpenPRCount  int      `json:"open_pr_count"`
 	Repository   string   `json:"repository"`
 	CreatedAt    string   `json:"created_at"`
 	UpdatedAt    string   `json:"updated_at"`
@@ -35,6 +36,10 @@ type GitHubLabel struct {
 
 type GitHubUser struct {
 	Login string `json:"login"`
+}
+
+type GitHubSearchResult struct {
+	TotalCount int `json:"total_count"`
 }
 
 type GitHubIssue struct {
@@ -97,6 +102,10 @@ func main() {
 				labels[j] = l.Name
 			}
 
+			time.Sleep(requestDelay)
+			openPRCount := getOpenPRCount(repoName, ghIssue.Number, token)
+			fmt.Printf("  Issue #%d: %d open PRs, %d comments\n", ghIssue.Number, openPRCount, ghIssue.Comments)
+
 			issue := Issue{
 				Number:       ghIssue.Number,
 				Title:        ghIssue.Title,
@@ -104,6 +113,7 @@ func main() {
 				State:        ghIssue.State,
 				Labels:       labels,
 				CommentCount: ghIssue.Comments,
+				OpenPRCount:  openPRCount,
 				Repository:   repoName,
 				CreatedAt:    ghIssue.CreatedAt,
 				UpdatedAt:    ghIssue.UpdatedAt,
@@ -201,6 +211,24 @@ func getOrgRepos(org, token string) ([]GitHubRepo, error) {
 	}
 
 	return allRepos, nil
+}
+
+func getOpenPRCount(repoFullName string, issueNumber int, token string) int {
+	apiURL := fmt.Sprintf("https://api.github.com/search/issues?q=is:pr+is:open+repo:%s+linked:%d",
+		url.QueryEscape(repoFullName), issueNumber)
+
+	data, err := doRequest(apiURL, token)
+	if err != nil {
+		fmt.Printf("  Warning: Could not get PR count for #%d: %v\n", issueNumber, err)
+		return 0
+	}
+
+	var result GitHubSearchResult
+	if err := json.Unmarshal(data, &result); err != nil {
+		return 0
+	}
+
+	return result.TotalCount
 }
 
 func getBountyIssues(org, repo, label, token string) ([]GitHubIssue, error) {

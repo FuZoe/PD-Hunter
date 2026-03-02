@@ -42,6 +42,17 @@ def get_bounty_tier(amount: int) -> str:
     else:
         return "B-Tier"
 
+def is_hidden_gem(issue: dict) -> bool:
+    """Check if issue is a Hidden Gem (low competition opportunity)
+    
+    Criteria:
+    - Open PR count <= 3
+    - Comment count <= 10
+    """
+    open_pr_count = issue.get("open_pr_count", 0)
+    comment_count = issue.get("comment_count", 0)
+    return open_pr_count <= 3 and comment_count <= 10
+
 def analyze_issue_with_ai(client: OpenAI, issue: dict) -> dict:
     """Call GPT-4o to analyze the issue and generate Hunter Intelligence"""
     
@@ -147,13 +158,15 @@ def main():
             existing = existing_intel[issue_num]
             print(f"[{i}/{len(issues)}] PRESERVED: #{issue_num} - {issue['title'][:50]}...")
             
+            hidden_gem = is_hidden_gem(issue)
             enriched_issue = {
                 **issue,
                 "hunter_intelligence": {
                     "friction_level": existing.get("friction_level", "Medium"),
                     "technical_hint": existing.get("technical_hint", "Review the issue details."),
                     "bounty_tier": bounty_tier,  # Recalculate tier in case bounty changed
-                    "bounty_amount": bounty_amount
+                    "bounty_amount": bounty_amount,
+                    "is_hidden_gem": hidden_gem
                 }
             }
             preserved_count += 1
@@ -163,13 +176,15 @@ def main():
             
             ai_analysis = analyze_issue_with_ai(client, issue)
             
+            hidden_gem = is_hidden_gem(issue)
             enriched_issue = {
                 **issue,
                 "hunter_intelligence": {
                     "friction_level": ai_analysis.get("friction_level", "Medium"),
                     "technical_hint": ai_analysis.get("technical_hint", "Review the issue details."),
                     "bounty_tier": bounty_tier,
-                    "bounty_amount": bounty_amount
+                    "bounty_amount": bounty_amount,
+                    "is_hidden_gem": hidden_gem
                 }
             }
             
@@ -188,14 +203,18 @@ def main():
     print(f"  New (AI):  {new_count} hints generated")
     
     tiers = {"S-Tier": 0, "A-Tier": 0, "B-Tier": 0}
+    hidden_gems_count = 0
     for issue in enriched_issues:
         tier = issue["hunter_intelligence"]["bounty_tier"]
         tiers[tier] += 1
+        if issue["hunter_intelligence"].get("is_hidden_gem", False):
+            hidden_gems_count += 1
     
     print(f"\nTier Summary:")
     print(f"  S-Tier ($500+): {tiers['S-Tier']}")
     print(f"  A-Tier ($200+): {tiers['A-Tier']}")
     print(f"  B-Tier (other): {tiers['B-Tier']}")
+    print(f"\nHidden Gems (low competition): {hidden_gems_count}")
 
 if __name__ == "__main__":
     main()
