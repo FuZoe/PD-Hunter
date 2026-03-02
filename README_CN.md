@@ -1,8 +1,10 @@
 # PD-Hunter 赏金猎人情报中心
 
 AI 驱动的 ProjectDiscovery 赏金情报仪表盘。
-v
-[English](./README.md)| [简体中文]
+
+<div align="center">
+  <a href="./README.md">[English]</a> | [简体中文]</a>
+</div>
 
 ## 直接预览
 
