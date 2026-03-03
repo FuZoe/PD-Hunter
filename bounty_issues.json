@@ -10,7 +10,7 @@
       "$100"
     ],
     "comment_count": 5,
-    "open_pr_count": 0,
+    "open_pr_count": 3,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
     "updated_at": "2026-03-03T06:09:10Z",
@@ -27,11 +27,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 41,
-    "open_pr_count": 28,
+    "comment_count": 42,
+    "open_pr_count": 29,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-12-07T18:53:59Z",
-    "updated_at": "2026-03-03T05:08:38Z",
+    "updated_at": "2026-03-03T12:20:05Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nThe template loader in `pkg/catalog/loader/loader.go` (around lines 684-703) currently panics when `protocolstate.GetDialersWithId()` returns nil. This is too harsh for a public API that may be exercised in non-scanning flows.\n\n## Current Behavior\n\nWhen dialers are not initialized, the code panics:\n```go\ndialers := protocolstate.GetDialersWithId(typesOpts.ExecutionId)\nif dialers == nil {\n    panic(\"dialers with executionId \" + typesOpts.ExecutionId + \" not found\")\n}\n```\n\n## Expected Behavior\n\nThe loader should return a proper error instead of panicking, allowing callers to handle the situation gracefully. The broader codebase pattern returns `fmt.Errorf` when dialers are missing rather than panicking.\n\n## Suggested Changes\n\n1. Replace the panic with proper error return (e.g., `return fmt.Errorf(\"dialers with executionId %s not found\", typesOpts.ExecutionId)`)\n2. Update the loader function signature to propagate the error\n3. Update callers to handle the error appropriately\n4. Add documentation noting the new error condition\n\n## Context\n\nCallers like lazy auth template loading (`internal/runner/lazy.go`) and automatic tech detection (`pkg/protocols/common/automaticscan/`) invoke `LoadTemplates`/`LoadTemplatesWithTags` without guaranteed dialer initialization.\n\n## References\n\n- PR: https://github.com/projectdiscovery/nuclei/pull/6668\n- Comment: https://github.com/projectdiscovery/nuclei/pull/6668#discussion_r2596513576\n- Requested by: @dwisiswant0"
   },
@@ -136,11 +136,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 28,
+    "comment_count": 29,
     "open_pr_count": 6,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
-    "updated_at": "2026-02-28T20:54:43Z",
+    "updated_at": "2026-03-03T09:00:56Z",
     "author": "aautumn725",
     "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity"
   },
@@ -154,11 +154,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 25,
+    "comment_count": 26,
     "open_pr_count": 7,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-03-03T04:32:42Z",
+    "updated_at": "2026-03-03T07:54:33Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil \u0026\u0026 stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n\u003c!-- A concise description of what you expected to happen. --\u003e\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n"
   },
@@ -284,7 +284,7 @@
     "open_pr_count": 4,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2022-05-25T11:24:01Z",
-    "updated_at": "2026-03-02T07:34:26Z",
+    "updated_at": "2026-03-03T08:39:35Z",
     "author": "forgedhallpass",
     "body": ""
   },
@@ -403,7 +403,7 @@
     "open_pr_count": 0,
     "repository": "commaai/flash",
     "created_at": "2025-04-03T18:35:54Z",
-    "updated_at": "2026-02-25T04:34:50Z",
+    "updated_at": "2026-03-03T08:27:44Z",
     "author": "adeebshihadeh",
     "body": "Make a video walkthrough of flash.comma.ai, then make a PR to embed it onto the site.\n\nGood example videos:\n* https://www.youtube.com/watch?v=NAz5NGnaDKs\u0026list=PLawfivpGQ-voT2siiz61hgVhdhtfy2y0P\n* https://www.youtube.com/watch?v=gNnRmEyVSVQ\u0026t=89s\n\nMust be high quality!"
   },
