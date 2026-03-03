@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 5,
-    "open_pr_count": 3,
+    "comment_count": 7,
+    "open_pr_count": 4,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-03T06:09:10Z",
+    "updated_at": "2026-03-03T17:03:00Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. `\u003cscript type=\"application/json\"\u003e` blocks are treated as executable script context.\n\n   Example:\n   \u003cscript type=\"application/json\"\u003enucleiXSScanary\u003c/script\u003e\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `\u003cscript type=\"application/json\"\u003e` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction."
   },
@@ -28,10 +28,10 @@
       "$100"
     ],
     "comment_count": 42,
-    "open_pr_count": 29,
+    "open_pr_count": 25,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-12-07T18:53:59Z",
-    "updated_at": "2026-03-03T12:20:05Z",
+    "updated_at": "2026-03-03T18:35:51Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nThe template loader in `pkg/catalog/loader/loader.go` (around lines 684-703) currently panics when `protocolstate.GetDialersWithId()` returns nil. This is too harsh for a public API that may be exercised in non-scanning flows.\n\n## Current Behavior\n\nWhen dialers are not initialized, the code panics:\n```go\ndialers := protocolstate.GetDialersWithId(typesOpts.ExecutionId)\nif dialers == nil {\n    panic(\"dialers with executionId \" + typesOpts.ExecutionId + \" not found\")\n}\n```\n\n## Expected Behavior\n\nThe loader should return a proper error instead of panicking, allowing callers to handle the situation gracefully. The broader codebase pattern returns `fmt.Errorf` when dialers are missing rather than panicking.\n\n## Suggested Changes\n\n1. Replace the panic with proper error return (e.g., `return fmt.Errorf(\"dialers with executionId %s not found\", typesOpts.ExecutionId)`)\n2. Update the loader function signature to propagate the error\n3. Update callers to handle the error appropriately\n4. Add documentation noting the new error condition\n\n## Context\n\nCallers like lazy auth template loading (`internal/runner/lazy.go`) and automatic tech detection (`pkg/protocols/common/automaticscan/`) invoke `LoadTemplates`/`LoadTemplatesWithTags` without guaranteed dialer initialization.\n\n## References\n\n- PR: https://github.com/projectdiscovery/nuclei/pull/6668\n- Comment: https://github.com/projectdiscovery/nuclei/pull/6668#discussion_r2596513576\n- Requested by: @dwisiswant0"
   },
@@ -46,7 +46,7 @@
       "$100"
     ],
     "comment_count": 25,
-    "open_pr_count": 11,
+    "open_pr_count": 7,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
     "updated_at": "2026-03-03T04:59:28Z",
@@ -64,10 +64,10 @@
       "$100"
     ],
     "comment_count": 22,
-    "open_pr_count": 6,
+    "open_pr_count": 5,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-11-06T15:54:58Z",
-    "updated_at": "2026-03-02T07:33:44Z",
+    "updated_at": "2026-03-03T18:19:39Z",
     "author": "anze3db",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhen running an authenticated scan using a secret file nuclei starts executing templates immediately, before the secret file finishes, causing some requests to not be authenticated.\n\ncommand that I'm running:\n\n```\nnuclei3.4.dev -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\nWhen I print the server logs I see all requests before the secret file finishes as unauthenticated (See AnyonymousUser):\n\n\n```\n15:32:48.443 | WARNING | django.request - Not Found: /wp-content/plugins/flash-album-gallery/readme.txt\n15:32:48.446 | WARNING | django.server - \"GET /wp-content/plugins/flash-album-gallery/readme.txt HTTP/1.1\" 404 23770\n15:32:48.450 | WARNING | django.request - Not Found: /wp-content/plugins/skysa-official/readme.txt\nAnonymousUser\nAnonymousUser\n15:32:48.491 | WARNING | django.server - \"GET /wp-content/plugins/skysa-official/readme.txt HTTP/1.1\" 404 23750\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.554 | WARNING | django.request - Not Found: /login-x.php\nAnonymousUser\n15:32:48.641 | WARNING | django.server - \"GET /login-x.php HTTP/1.1\" 404 23619\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.946 | WARNING | django.request - Not Found: /guest_auth/guestIsUp.php\n15:32:48.950 | WARNING | django.server - \"POST /guest_auth/guestIsUp.php HTTP/1.1\" 404 23672\n15:32:48.950 | INFO    | django.server - code 400, message Bad HTTP/0.9 request type ('mac=1\u0026ip=127.0.0.1|wget')\n15:32:48.950 | WARNING | django.server - \"mac=1\u0026ip=127.0.0.1|wget d46bv7aqko33m6d2te7g4b8fu93o1zo7w.oast.me\" 400 -\nAnonymousUser\n15:32:48.994 | WARNING | django.request - Not Found: /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx\n15:32:48.996 | WARNING | django.server - \"POST /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx?method=GetStoreWarehouseByStore HTTP/1.1\" 404 23884\nAnonymousUser\n15:32:49.290 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n \u003cengbot@example.com\u003e\n15:32:49.476 | WARNING | django.request - Not Found: /wp-content/plugins/featurific-for-wordpress/readme.txt\n15:32:49.482 | WARNING | django.server - \"GET /wp-content/plugins/featurific-for-wordpress/readme.txt HTTP/1.1\" 404 23791\n \u003cengbot@example.com\u003e\n15:32:49.592 | WARNING | django.request - Not Found: /wp-content/plugins/clickdesk-live-support-chat/readme.txt\n15:32:49.599 | WARNING | django.server - \"GET /wp-content/plugins/clickdesk-live-support-chat/readme.txt HTTP/1.1\" 404 23803\n15:32:49.655 | WARNING | django.request - Not Found: /lcms/index.php\n15:32:49.657 | WARNING | django.server - \"POST /lcms/index.php HTTP/1.1\" 404 23632\n \u003cengbot@example.com\u003e\n15:32:49.683 | WARNING | django.security.csrf - Forbidden (CSRF cookie not set.): /\n15:32:49.690 | WARNING | django.request - Not Found: /wp-content/plugins/all-in-one-event-calendar/readme.txt\n15:32:49.694 | INFO    | django.server - \"GET /?+config-create+/\u0026lang=../../../../../../../../../../../usr/local/lib/php/pearcmd\u0026/safedog()+sBV3dCd1eI.log HTTP/1.1\" 302 0\n15:32:49.695 | WARNING | django.server - \"GET /wp-content/plugins/all-in-one-event-calendar/readme.txt HTTP/1.1\" 404 23795\n \u003cengbot@example.com\u003e\n```\n\nOnly once `POST /accounts/login/` finishes do the requests start being authenticated (see engbot@example.com) instead of Anonymous user.\n\n### Expected Behavior\n\nI would expect nuclei to first run the secret-file and only after it finishes start running the other templates. This was the behavior on Nuclei 3.4.7, before the [authenticated scan regression in 3.4.8](https://github.com/projectdiscovery/nuclei/issues/6463).\n\nThis is how the server logs look when I run the same code on 3.4.7:\n\n\n```\nnuclei3.4.7 -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n```\nAnonymousUser\n15:50:23.744 | INFO    | django.server - \"GET /accounts/login/ HTTP/1.1\" 200 25860\nAnonymousUser\n15:50:23.931 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n \u003cengbot@example.com\u003e\n15:50:25.028 | WARNING | django.request - Not Found: /export/classroom-course-statistics\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n15:50:25.031 | WARNING | django.server - \"GET /export/classroom-course-statistics?fileNames[]=../../../../../../../etc/passwd HTTP/1.1\" 404 23797\n \u003cengbot@example.com\u003e\n15:50:25.058 | WARNING | django.request - Not Found: /cgi-bin/rpc\n15:50:25.059 | WARNING | django.server - \"POST /cgi-bin/rpc HTTP/1.1\" 404 23618\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n15:50:25.364 | WARNING | django.request - Not Found: /zentao/user-login.html\n15:50:25.365 | WARNING | django.server - \"POST /zentao/user-login.html HTTP/1.1\" 404 23663\n15:50:25.370 | WARNING | django.request - Not Found: /general/index/UploadFile.php\n15:50:25.371 | WARNING | django.request - Not Found: /webadm/\n```\n\n### Steps To Reproduce\n\n1. Run nuclei with a secret-file\n\n```\nnuclei -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: Macos\n- Nuclei: 3.4.10 53af79a39290c86857f433bb2f40e4567982fed0\n- Go: go version go1.24.2 darwin/arm64\n```\n\n### Anything else?\n\n_No response_"
   },
@@ -82,7 +82,7 @@
       "$100"
     ],
     "comment_count": 25,
-    "open_pr_count": 8,
+    "open_pr_count": 6,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
     "updated_at": "2026-03-01T18:42:23Z",
@@ -100,7 +100,7 @@
       "$250"
     ],
     "comment_count": 31,
-    "open_pr_count": 9,
+    "open_pr_count": 8,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-20T09:01:19Z",
     "updated_at": "2026-03-02T14:55:00Z",
@@ -119,7 +119,7 @@
       "$150"
     ],
     "comment_count": 32,
-    "open_pr_count": 10,
+    "open_pr_count": 9,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
     "updated_at": "2026-02-28T13:23:45Z",
@@ -136,11 +136,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 29,
-    "open_pr_count": 6,
+    "comment_count": 30,
+    "open_pr_count": 4,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
-    "updated_at": "2026-03-03T09:00:56Z",
+    "updated_at": "2026-03-03T17:58:11Z",
     "author": "aautumn725",
     "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity"
   },
@@ -155,7 +155,7 @@
       "$100"
     ],
     "comment_count": 26,
-    "open_pr_count": 7,
+    "open_pr_count": 4,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
     "updated_at": "2026-03-03T07:54:33Z",
@@ -173,7 +173,7 @@
       "$75"
     ],
     "comment_count": 19,
-    "open_pr_count": 5,
+    "open_pr_count": 3,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-08-09T14:14:00Z",
     "updated_at": "2026-03-02T18:50:09Z",
@@ -191,7 +191,7 @@
       "$1.2k"
     ],
     "comment_count": 27,
-    "open_pr_count": 5,
+    "open_pr_count": 3,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-05-09T10:47:31Z",
     "updated_at": "2026-02-28T21:43:25Z",
@@ -208,11 +208,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 57,
+    "comment_count": 58,
     "open_pr_count": 12,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-03T04:14:02Z",
+    "updated_at": "2026-03-03T17:32:05Z",
     "author": "ehsandeep",
     "body": ""
   },
@@ -227,7 +227,7 @@
       "$75"
     ],
     "comment_count": 18,
-    "open_pr_count": 3,
+    "open_pr_count": 2,
     "repository": "projectdiscovery/subfinder",
     "created_at": "2024-11-04T01:08:56Z",
     "updated_at": "2026-03-01T18:58:14Z",
@@ -263,10 +263,10 @@
       "$75"
     ],
     "comment_count": 24,
-    "open_pr_count": 3,
+    "open_pr_count": 1,
     "repository": "projectdiscovery/katana",
     "created_at": "2023-10-01T18:00:50Z",
-    "updated_at": "2026-03-02T16:43:24Z",
+    "updated_at": "2026-03-03T16:39:24Z",
     "author": "ErikOwen",
     "body": "\u003c!-- \r\n1. Please search to see if an issue already exists for the bug you encountered.\r\n2. For support requests, FAQs or \"How to\" questions, please use the GitHub Discussions section instead - https://github.com/projectdiscovery/katana/discussions or\r\n3. Join our discord server at https://discord.gg/projectdiscovery and post the question on the #katana channel.\r\n--\u003e\r\n\r\n\u003c!-- ISSUES MISSING IMPORTANT INFORMATION MAY BE CLOSED WITHOUT INVESTIGATION. --\u003e\r\n\r\n### katana version: v1.0.4\r\n\u003c!-- You can find current version of katana with \"katana -version\" --\u003e\r\n\u003c!-- We only accept issues that are reproducible on the latest version of katana. --\u003e\r\n\u003c!-- You can find the latest version of project at https://github.com/projectdiscovery/katana/releases/ --\u003e\r\n\r\n### Current Behavior: using the `-jsonl` and `-headless` options for a katana crawl results in an error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`.\r\n\u003c!-- A concise description of what you're experiencing. --\u003e\r\n\r\n### Expected Behavior:\r\n\u003c!-- A concise description of what you expected to happen. --\u003e\r\nNo error should occur, similar to running the same command without the `-headless` option.\r\n\r\n### Steps To Reproduce:\r\n\u003c!--\r\nExample: steps to reproduce the behavior:\r\n1. Run 'katana ..'\r\n2. See error...\r\n--\u003e\r\n1. Run a katana crawl against a target with the `-jsonl` and `-headless` options:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or -headless | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:47:56.072225-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"error\": \"[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom\"\r\n}\r\n```\r\n2. Notice the error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`\r\n3. Run the same command without the `-headless` option:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:50:08.902251-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"response\": {\r\n    \"status_code\": 200,\r\n    \"headers\": {\r\n      \"cache_control\": \"public, max-age=0, must-revalidate\",\r\n      \"report_to\": \"{\\\"endpoints\\\":[{\\\"url\\\":\\\"https:\\\\/\\\\/a.nel.cloudflare.com\\\\/report\\\\/v3?s=0Kep5aODKo2qRkrQjl%2FTGOcspCMTVBMeLdtA6Gc4y9E5UkFkUW9QYffz4bUgV6TgXpxudfSsHDctxNKUH3%2B979xOe6kOqAHsxy3n4HDyPkXBK2zjDQAguH0ajFdYfUtZ9I74BUw%3D\\\"}],\\\"group\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"nel\": \"{\\\"success_fraction\\\":0,\\\"report_to\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"content_type\": \"text/html\",\r\n      \"last_modified\": \"Sat, 30 Sep 2023 00:06:34 GMT\",\r\n      \"server_timing\": \"region;desc=\\\"us-west-2\\\", cache;desc=\\\"cached\\\", fallback;desc=\\\"no-fallback\\\"\",\r\n      \"vary\": \"Accept-Encoding\",\r\n      \"cf_ray\": \"80f68bd47e26521a-LAX\",\r\n      \"link\": \"\u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\", \u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\"; crossorigin=\\\"\\\"\",\r\n      \"cf_cache_status\": \"DYNAMIC\",\r\n      \"date\": \"Sun, 01 Oct 2023 17:50:08 GMT\",\r\n      \"server\": \"cloudflare\",\r\n      \"x_content_type_options\": \"nosniff\",\r\n      \"strict_transport_security\": \"max-age=0; preload\",\r\n      \"connection\": \"keep-alive\"\r\n    },\r\n    \"technologies\": [\r\n      \"Cloudflare\",\r\n      \"HSTS\"\r\n    ]\r\n  }\r\n}\r\n```\r\n4. Note that there are no errors when the `-headless` option is omitted.\r\n\r\n### Anything else:\r\nThis issue only occurs when crawling specific websites. I can consistently reproduce it when crawling `https://projectdiscovery.io` and `https://www.discover.com`. But I am unable to reproduce it crawling other sites like `https://www.google.com`."
   },
@@ -281,7 +281,7 @@
       "$25"
     ],
     "comment_count": 11,
-    "open_pr_count": 4,
+    "open_pr_count": 2,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2022-05-25T11:24:01Z",
     "updated_at": "2026-03-03T08:39:35Z",
@@ -611,7 +611,7 @@
       "bounty"
     ],
     "comment_count": 3,
-    "open_pr_count": 2,
+    "open_pr_count": 3,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
     "updated_at": "2026-02-27T00:53:43Z",
