@@ -1,6 +1,6 @@
 # PD-Hunter Intelligence
 
-AI-powered bounty intelligence dashboard for ProjectDiscovery repositories.
+AI-powered bounty intelligence dashboard for Github repositories.
 
 <div align="center">
   <a>[English]</a> | <a href="./README_CN.md">[简体中文]</a>
