@@ -1,5 +1,30 @@
 [
   {
+    "number": 7086,
+    "title": "XSS Context Analyzer misclassifies javascript: URIs and JSON script blocks",
+    "url": "https://github.com/projectdiscovery/nuclei/issues/7086",
+    "state": "open",
+    "labels": [
+      "Type: Bug",
+      "💎 Bounty",
+      "$100"
+    ],
+    "comment_count": 5,
+    "open_pr_count": 0,
+    "repository": "projectdiscovery/nuclei",
+    "created_at": "2026-03-03T04:24:36Z",
+    "updated_at": "2026-03-03T06:09:10Z",
+    "author": "mebishnusahu0595",
+    "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. `<script type=\"application/json\">` blocks are treated as executable script context.\n\n   Example:\n   <script type=\"application/json\">nucleiXSScanary</script>\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `<script type=\"application/json\">` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction.",
+    "hunter_intelligence": {
+      "friction_level": "Low",
+      "technical_hint": "Focus on refining context classification logic in `pkg/fuzz/analyzers/xss/context.go` to correctly handle `javascript:` URIs, JSON script blocks, case-insensitive reflection, and `srcdoc` attributes; add regression tests for these cases.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 100,
+      "is_hidden_gem": true
+    }
+  },
+  {
     "number": 6674,
     "title": "Replace panic with error handling in template loader when dialers are missing",
     "url": "https://github.com/projectdiscovery/nuclei/issues/6674",
@@ -9,11 +34,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 40,
+    "comment_count": 41,
     "open_pr_count": 28,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-12-07T18:53:59Z",
-    "updated_at": "2026-03-02T22:41:32Z",
+    "updated_at": "2026-03-03T05:08:38Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nThe template loader in `pkg/catalog/loader/loader.go` (around lines 684-703) currently panics when `protocolstate.GetDialersWithId()` returns nil. This is too harsh for a public API that may be exercised in non-scanning flows.\n\n## Current Behavior\n\nWhen dialers are not initialized, the code panics:\n```go\ndialers := protocolstate.GetDialersWithId(typesOpts.ExecutionId)\nif dialers == nil {\n    panic(\"dialers with executionId \" + typesOpts.ExecutionId + \" not found\")\n}\n```\n\n## Expected Behavior\n\nThe loader should return a proper error instead of panicking, allowing callers to handle the situation gracefully. The broader codebase pattern returns `fmt.Errorf` when dialers are missing rather than panicking.\n\n## Suggested Changes\n\n1. Replace the panic with proper error return (e.g., `return fmt.Errorf(\"dialers with executionId %s not found\", typesOpts.ExecutionId)`)\n2. Update the loader function signature to propagate the error\n3. Update callers to handle the error appropriately\n4. Add documentation noting the new error condition\n\n## Context\n\nCallers like lazy auth template loading (`internal/runner/lazy.go`) and automatic tech detection (`pkg/protocols/common/automaticscan/`) invoke `LoadTemplates`/`LoadTemplatesWithTags` without guaranteed dialer initialization.\n\n## References\n\n- PR: https://github.com/projectdiscovery/nuclei/pull/6668\n- Comment: https://github.com/projectdiscovery/nuclei/pull/6668#discussion_r2596513576\n- Requested by: @dwisiswant0",
     "hunter_intelligence": {
@@ -34,11 +59,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 24,
+    "comment_count": 25,
     "open_pr_count": 11,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
-    "updated_at": "2026-02-28T16:53:02Z",
+    "updated_at": "2026-03-03T04:59:28Z",
     "author": "xhzeem",
     "body": "Hi,\n\nCould you add an **auto wildcard discovery** feature similar to what `puredns` does?\n\nWhat I’m looking for:\n\n* Ability to detect wildcard DNS automatically across **multiple domains** in a single run (no need to specify `-wd` per domain).\n* Filter out wildcard-based results automatically.\n* Expose this via a simple flag, e.g. `--auto-wildcard` (or similar), so existing behaviour doesn’t change.\n\nIdea is basically:\n`puredns` handles wildcard detection automatically can you implement a similar optional mode/flag in `dnsx`?\n\nThanks!\n",
     "hunter_intelligence": {
@@ -185,11 +210,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 24,
-    "open_pr_count": 6,
+    "comment_count": 25,
+    "open_pr_count": 7,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-03-02T18:39:06Z",
+    "updated_at": "2026-03-03T04:32:42Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil && stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n<!-- A concise description of what you expected to happen. -->\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n",
     "hunter_intelligence": {
@@ -260,11 +285,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 55,
+    "comment_count": 57,
     "open_pr_count": 12,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-01T07:08:17Z",
+    "updated_at": "2026-03-03T04:14:02Z",
     "author": "ehsandeep",
     "body": "",
     "hunter_intelligence": {
@@ -604,7 +629,7 @@
       "bounty"
     ],
     "comment_count": 10,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/opendbc",
     "created_at": "2025-02-24T21:25:35Z",
     "updated_at": "2026-02-16T03:02:42Z",
