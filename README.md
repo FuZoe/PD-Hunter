@@ -41,14 +41,25 @@ cp enriched_bounties.json static/
 
 Deploy to GitHub Pages and the dashboard auto-updates every 6 hours.
 
-## Files
+## How it works
 
-| File | Description |
-|------|-------------|
-| `fetch_bounty_issues.go` | Go scraper for GitHub API |
-| `enrich_bounties.py` | GPT-4o analysis via GitHub Models |
-| `static/dashboard.html` | Hacker Dark Mode dashboard |
-| `.github/workflows/update_bounties.yml` | Automation |
+PD-Hunter runs a three-stage pipeline to continuously surface and rank open-source bounty opportunities:
+
+```mermaid
+flowchart LR
+    A[mapping.json<br/>3 Orgs & Labels] -->|config| B[fetch_bounty_issues.go<br/>GitHub Search API]
+    B -->|bounty_issues.json| C[enrich_bounties.py<br/>GPT-4o via GitHub Models]
+    C -->|enriched_bounties.json| D[static/dashboard.html<br/>Hacker Dark Mode UI]
+    E[GitHub Actions<br/>Every 6 hours] -.->|triggers| B
+    E -.->|triggers| C
+    E -.->|commits & deploys| D
+```
+
+1. **Scrape** — A Go program (`fetch_bounty_issues.go`) reads `mapping.json` for target organizations (projectdiscovery, onyx-dot-app, commaai) and their bounty labels, then queries the GitHub Search API to collect all matching open issues. For each issue it also counts open PRs to gauge competition. Results are saved to `bounty_issues.json`.
+
+2. **Enrich** — A Python script (`enrich_bounties.py`) feeds each issue to GPT-4o via GitHub Models and produces per-issue *Hunter Intelligence*: friction level (High / Medium / Low), a one-sentence technical hint, bounty tier (S / A / B based on dollar amount), and a Hidden Gem flag for low-competition opportunities. Previously reviewed expert hints are preserved across runs.
+
+3. **Publish** — A GitHub Actions workflow (`.github/workflows/update_bounties.yml`) runs the above two steps every 6 hours, copies the enriched JSON into `static/`, and commits the update. The dashboard (`static/dashboard.html`) loads this JSON client-side and renders it as a filterable, hacker-themed card view.
 
 ## License
 
