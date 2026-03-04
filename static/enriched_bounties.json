@@ -34,11 +34,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 42,
-    "open_pr_count": 25,
+    "comment_count": 44,
+    "open_pr_count": 26,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-12-07T18:53:59Z",
-    "updated_at": "2026-03-03T18:59:57Z",
+    "updated_at": "2026-03-04T07:35:54Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nThe template loader in `pkg/catalog/loader/loader.go` (around lines 684-703) currently panics when `protocolstate.GetDialersWithId()` returns nil. This is too harsh for a public API that may be exercised in non-scanning flows.\n\n## Current Behavior\n\nWhen dialers are not initialized, the code panics:\n```go\ndialers := protocolstate.GetDialersWithId(typesOpts.ExecutionId)\nif dialers == nil {\n    panic(\"dialers with executionId \" + typesOpts.ExecutionId + \" not found\")\n}\n```\n\n## Expected Behavior\n\nThe loader should return a proper error instead of panicking, allowing callers to handle the situation gracefully. The broader codebase pattern returns `fmt.Errorf` when dialers are missing rather than panicking.\n\n## Suggested Changes\n\n1. Replace the panic with proper error return (e.g., `return fmt.Errorf(\"dialers with executionId %s not found\", typesOpts.ExecutionId)`)\n2. Update the loader function signature to propagate the error\n3. Update callers to handle the error appropriately\n4. Add documentation noting the new error condition\n\n## Context\n\nCallers like lazy auth template loading (`internal/runner/lazy.go`) and automatic tech detection (`pkg/protocols/common/automaticscan/`) invoke `LoadTemplates`/`LoadTemplatesWithTags` without guaranteed dialer initialization.\n\n## References\n\n- PR: https://github.com/projectdiscovery/nuclei/pull/6668\n- Comment: https://github.com/projectdiscovery/nuclei/pull/6668#discussion_r2596513576\n- Requested by: @dwisiswant0",
     "hunter_intelligence": {
@@ -110,7 +110,7 @@
       "$100"
     ],
     "comment_count": 26,
-    "open_pr_count": 6,
+    "open_pr_count": 7,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
     "updated_at": "2026-03-04T01:49:37Z",
@@ -210,11 +210,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 26,
+    "comment_count": 28,
     "open_pr_count": 4,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-03-03T07:54:33Z",
+    "updated_at": "2026-03-04T11:26:26Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil && stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n<!-- A concise description of what you expected to happen. -->\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n",
     "hunter_intelligence": {
@@ -260,11 +260,11 @@
       "💎 Bounty",
       "$1.2k"
     ],
-    "comment_count": 29,
+    "comment_count": 31,
     "open_pr_count": 5,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-05-09T10:47:31Z",
-    "updated_at": "2026-03-04T05:36:51Z",
+    "updated_at": "2026-03-04T09:56:33Z",
     "author": "msecrfe",
     "body": "### tlsx version:\nv1.1.9\n\n### Current Behavior:\nFor long target lists (in our case: Around 30k host/port combinations), tlsx reliably hangs indefinitely after several hours of execution, usually after around 25k targets have finished. Hanging happens even while writing JSONL output lines, cutting off a JSONL line somewhere in the middle.\n\n### Expected Behavior:\ntlsx should not hang indefinitely.\n\n### Steps To Reproduce:\ntlsx was started as follows:\n\n```\n~/go/bin/tlsx \\\n\t-list /tmp/host_port_combos.txt \\\n\t-scan-mode 'auto' \\\n\t-ip-version '4' \\\n\t-so \\\n\t-tls-version \\\n\t-cipher \\\n\t-hash 'sha256' \\\n\t-wildcard-cert \\\n\t-probe-status \\\n\t-version-enum \\\n\t-cipher-enum \\\n\t-cipher-type 'all' \\\n\t-serial \\\n\t-expired \\\n\t-self-signed \\\n\t-mismatched \\\n\t-revoked \\\n\t-untrusted \\\n\t-resolvers 8.8.8.8,8.8.4.4,1.1.1.1 \\\n\t-certificate \\\n\t-tls-chain \\\n\t-concurrency '300' \\\n\t-cipher-concurrency '10' \\\n\t-timeout '5' \\\n\t-retry '3' \\\n\t-disable-update-check \\\n\t-output /tmp/tlsx_output.jsonl \\\n\t-json \\\n\t-no-color\n```\n\nAt one point, there is no more progress and even output is no longer written. This is the last line of the output file (`/tmp/tlsx_output.jsonl`):\n\n```\n{\"timestamp\":\"2025-04-25T09:59:31.489674682Z\",\"host\":\"xn--<censored>-t6b.<censored>\",\"ip\":\"<censored>\",\"port\":\"443\",\"probe_status\":true,\"tls_version\":\"tls13\",\"cipher\":\"TLS_AES_128_GCM_SHA256\",\"self_signed\":true,\"mismatched\":true,\"not_before\":\"2017-01-16T16:04:01Z\",\"not_after\":\"2027-01-14T16:04:01Z\",\"subject_dn\":\"emailAddress=root@localhost.localdomain, CN=localhost.localdomain, OU=IT, O=MyCompany, L=Seattle, ST=WA, C=US, emailAddress=root@localhost.localdomain\",\"subject_cn\":\n```\nPlease note that the line ends with an open \"subject_cn\" key and the JSON object on that line is never closed. The aforementioned line is line 25737 of the output file, so more than 25k targets have been scanned before.\n\n### Anything else:\nThe issue always appears after a long time of execution. Execution of tlsx for the aforementioned approx. 30k targets (aborted/hanging after about 25k targets) started at `2025-04-24T16:50:47+00:00` and the process started hanging at `2025-04-25T10:47:39+0000`, so about 18 hours later.\n\nThe issue does not seem to depend on the specific target host, as tlsx correctly terminates when only scanning the target host. Also, it always starts hanging indefinitely for a different target, but always after having run for hours and after having already scanned several thousand targets,",
     "hunter_intelligence": {
@@ -310,11 +310,11 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 18,
+    "comment_count": 19,
     "open_pr_count": 2,
     "repository": "projectdiscovery/subfinder",
     "created_at": "2024-11-04T01:08:56Z",
-    "updated_at": "2026-03-01T18:58:14Z",
+    "updated_at": "2026-03-04T07:11:36Z",
     "author": "Bundy01",
     "body": "**Describe the bug**\nI noticed that these options weren't working when testing with the sitedossier source, for example. I suspected that it was blocking my VPN's IP.\nI thought it was coming from him, but now I suspect the number of requests/min is too high.\n\nOn an old branch, I saw a commit including the limits/min c3d8a02a7b636fa11bb5c76065c952a73fad561e.\nThis is more sensible, for example with the subdomaincenter source and its 2 requests/min.\n\n**Subfinder version**\nCurrent Version: v2.6.7\n\n**Complete command you used to reproduce this**\nsubfinder -s sitedossier -dL FILE -rl NUMBER\nsubfinder -s sitedossier -rls sitedossier=2/m -dL FILE\n\n**Screenshots**\nan extract from FILE\n```\nsurreal.vision\naskfacebook.net\ninstagramboomerang.com\ninstagramboomerang.net\nboomerangfrominstagram.com\nadvertiseonfacebook.net\nwebinstagramsecurity.com\noculusacademy.net\noculusacademy.org\nconnect-facebook-mobile.net\nconnect-facebook-cell.net\nfriendfeed-inc.com\ninstagram.bet\ninstagram.bayern\ninstagramboomerang.org\ninstagram.scot\ninstagram.brussels\ninstagram-together.org\ninstagram.shop\ninstagram.tj\ninstagram.doctor\ninstagram.loan\n```\n",
     "hunter_intelligence": {
@@ -361,7 +361,7 @@
       "$75"
     ],
     "comment_count": 24,
-    "open_pr_count": 1,
+    "open_pr_count": 2,
     "repository": "projectdiscovery/katana",
     "created_at": "2023-10-01T18:00:50Z",
     "updated_at": "2026-03-03T16:39:24Z",
@@ -578,11 +578,11 @@
       "cleanup",
       "bounty"
     ],
-    "comment_count": 15,
+    "comment_count": 16,
     "open_pr_count": 3,
     "repository": "commaai/panda",
     "created_at": "2025-03-13T11:02:22Z",
-    "updated_at": "2026-02-16T03:02:40Z",
+    "updated_at": "2026-03-04T12:22:13Z",
     "author": "robbederks",
     "body": "It's time we move the repo from the current style (everything is a header file) to having separate source and header files. This should clean up all the import orders and `*_definitions.h` files, as well as make it a lot easier to add new drivers etc.\n\nBounty for a clean PR with minimal changes.",
     "hunter_intelligence": {
@@ -848,11 +848,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 3,
-    "open_pr_count": 3,
+    "comment_count": 5,
+    "open_pr_count": 4,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
-    "updated_at": "2026-02-27T00:53:43Z",
+    "updated_at": "2026-03-04T10:24:05Z",
     "author": "sshane",
     "body": "Currently we compare the car states from panda and openpilot to ensure that both parse CAN messages with the same 1) validity checks and 2) correctness/no bugs. That let us fix quite a few mismatches in behavior between the two: https://github.com/commaai/openpilot/pull/30443\r\n\r\nNow we want to fuzz the tx messages as well, to discover bugs related to controlsAllowed in panda, and general tx safety. Here is one such mismatch that we should aim to catch: https://github.com/commaai/panda/pull/1948\r\n\r\nSee the first PR linked above for rx to know where to start. Bounty is for a merged PR that adds fuzz testing for sent openpilot messages that\r\n1) detects mismatches in tx (sent messages) logic between openpilot and panda,\r\n1) extensible (generic, and easy to expand with more state),\r\n2) as performant as our current fuzzy testing, and\r\n3) covers as many cases as possible (catches a few bugs along the way, if there are any).",
     "hunter_intelligence": {
@@ -860,7 +860,7 @@
       "technical_hint": "Review the existing fuzzing implementation for rx messages in the linked PR and adapt it to target tx message logic, ensuring compatibility with both openpilot and panda's safety checks.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": false
     }
   },
   {
