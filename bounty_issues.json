@@ -27,11 +27,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 30,
+    "comment_count": 32,
     "open_pr_count": 7,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
-    "updated_at": "2026-03-06T10:31:14Z",
+    "updated_at": "2026-03-06T16:29:30Z",
     "author": "xhzeem",
     "body": "Hi,\n\nCould you add an **auto wildcard discovery** feature similar to what `puredns` does?\n\nWhat I’m looking for:\n\n* Ability to detect wildcard DNS automatically across **multiple domains** in a single run (no need to specify `-wd` per domain).\n* Filter out wildcard-based results automatically.\n* Expose this via a simple flag, e.g. `--auto-wildcard` (or similar), so existing behaviour doesn’t change.\n\nIdea is basically:\n`puredns` handles wildcard detection automatically can you implement a similar optional mode/flag in `dnsx`?\n\nThanks!\n"
   },
@@ -63,11 +63,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 29,
+    "comment_count": 28,
     "open_pr_count": 8,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-05T00:22:12Z",
+    "updated_at": "2026-03-06T18:11:19Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890"
   },
@@ -136,11 +136,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 34,
+    "comment_count": 36,
     "open_pr_count": 6,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
-    "updated_at": "2026-03-06T10:34:17Z",
+    "updated_at": "2026-03-06T17:23:38Z",
     "author": "khs-alt",
     "body": "### Versions\n- httpx: v1.7.1\n- retryablehttp-go: v1.0.119\n\n### Current Behavior: \nIf you see httpx repo`common/httpx/httpx.go` 156 line\n``` go\n\tif httpx.Options.Protocol == \"http11\" {\n\t\t// disable http2\n\t\tos.Setenv(\"GODEBUG\", \"http2client=0\")\n\t\ttransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}\n\t}\n```\nWhen using HTTP 1.1, change transport, and it will use retryablehttp\nBut if we see retryablehttp repo `do.go` 62 line\n``` go\n\t\t// if err is equal to missing minor protocol version retry with http/2\n\t\tif err != nil \u0026\u0026 stringsutil.ContainsAny(err.Error(), \"net/http: HTTP/1.x transport connection broken: malformed HTTP version \\\"HTTP/2\\\"\", \"net/http: HTTP/1.x transport connection broken: malformed HTTP response\") {\n\t\t\tresp, err = c.HTTPClient2.Do(req.Request)\n\t\t\tcheckOK, checkErr = c.CheckRetry(req.Context(), resp, err)\n\t\t}\n```\nThis issue is caused by the retry behavior in retryablehttp-go, as discussed in\n  projectdiscovery/retryablehttp-go#3.\nIf httpx set client for using only http1.1 but retryable use another client in this case so `-pr` does not work correctly.\n### Expected Behavior:\n\u003c!-- A concise description of what you expected to happen. --\u003e\nUse transport change client when httpx `-pr` is on\n\n### Suggestion\n\nAdd Options.DisableHTTPFallback (Example). If set, skip the HTTP/2 fallback (HTTPClient2) on malformed HTTP/2 errors and treat them according to the retry policy. \nThis respects explicit HTTP/1.1-only configs and avoids unintended protocol switches and policy divergence      (proxy/dialer/redirect/TLS)\n"
   },
@@ -154,11 +154,11 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 21,
+    "comment_count": 24,
     "open_pr_count": 5,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-08-09T14:14:00Z",
-    "updated_at": "2026-03-06T09:20:59Z",
+    "updated_at": "2026-03-06T18:05:24Z",
     "author": "hubrandesk789",
     "body": "### tlsx version:\nVersion: v1.2.0\nOperative System: linux\nArchitecture: amd64\nGo Version: go1.24.4\n\n### Current Behavior:\nServing targets as prefixes with the option -u work.\n./tlsx -u 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24\n\nUsing the option -l / -list filename.txt where the filename.txt contain a one line, comma-separated prefixes does not. \n`[WRN] Could not connect input 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24:443 [auto,ztls:RUNTIME] failed to setup connection \u003c- [:RUNTIME] cause=\"no address found for host\" \u003c- could not dial address \u003c- could not connect to host`\n\n### Expected Behavior:\nSame behavior using -u or -l filename.txt\n\n### Steps To Reproduce:\nPick some prefixes of your chose who are reachable, save them inside filename.txt as prefix1,prefix2,prefix3\n./tlsx -l filename.txt -v\n"
   },
@@ -226,11 +226,11 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 28,
+    "comment_count": 29,
     "open_pr_count": 8,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-08-25T07:46:54Z",
-    "updated_at": "2026-03-06T01:37:20Z",
+    "updated_at": "2026-03-06T18:11:14Z",
     "author": "tarunKoyalwar",
     "body": "### Describe your feature request\n\n- template profiles or config.yaml file contains all flag config in yaml format which can be directly passed to nuclei instead of adding each flag , this way it is easy to maintain and scalable and shareable\r\n- this config file is merged with flags passed to nuclei with priority given to flags that way common / regularly used configs can be maintained and passed via config files\r\n- we should add below new features related to config or template profiles\r\n\r\n- [ ] ignore extra fields ( if we aren't already) that way info can be specified in fields like id , name , purpose yaml keys instead of commenting it out like we do in current template profiles\r\n- [ ] update goflags to allow embedding file content , this way instead of passing auth related data via a file we can embed it in goflags under `secrets` key and goflags can generate a temporary file to handle and pass it internally\n\n### Describe the use case of the feature\n\nthis will allow maintaining a single config file to be used with nuclei and users can maintain a different set of configs  specific to targets thereby keeping all config modular\r\n\r\nexample: a user who intends to vuln scan pd will have their template profile for this scan in this format\r\n\r\n```yaml\r\nname: projectdiscovery-scan\r\npurpose: Config File for Scanning\r\ndescription: single config file that contains every config related to scanning a specific target with specific templates and features\r\n\r\n# targets list file\r\nlist |\r\n  cve.projectdiscovery.io\r\n  chaos.projectdiscovery.io\r\n  ....\r\n  api.projectdiscovery.io\r\n\r\n# templates related config\r\ntype:\r\n  - http\r\n  - tcp\r\n  - javascript\r\n  - dns\r\n  - ssl\r\n\r\nexclude-tags:\r\n  - dos\r\n  - fuzz\r\n  - osint\r\n\r\n# other options\r\ntemplate-concurrency: 5\r\nhost-concurrency: 100\r\nstats: true\r\ntimeout: 30\r\n\r\nsecrets:\r\n  static:\r\n  # 4. Custom Header based auth\r\n  - type: header\r\n    domains:\r\n      - api.projectdiscovery.io\r\n      - cve.projectdiscovery.io\r\n      - chaos.projectdiscovery.io\r\n    headers:\r\n      - key: x-pdcp-key\r\n        value: \u003capi-key-here\u003e\r\n  dynamic:\r\n    - template: custom-oauth-flow.yaml\r\n      variables:\r\n        - name: username\r\n          value: pdteam\r\n        - name: password\r\n          value: nuclei-fuzz\r\n      type: cookie\r\n      domains:\r\n        - .*.projectdiscovery.io\r\n      headers:\r\n        - key: Authorization\r\n          value: Bearer {{token}}\r\n```\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n_No response_"
   },
@@ -244,11 +244,11 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 24,
+    "comment_count": 26,
     "open_pr_count": 2,
     "repository": "projectdiscovery/katana",
     "created_at": "2023-10-01T18:00:50Z",
-    "updated_at": "2026-03-03T16:39:24Z",
+    "updated_at": "2026-03-06T18:34:45Z",
     "author": "ErikOwen",
     "body": "\u003c!-- \r\n1. Please search to see if an issue already exists for the bug you encountered.\r\n2. For support requests, FAQs or \"How to\" questions, please use the GitHub Discussions section instead - https://github.com/projectdiscovery/katana/discussions or\r\n3. Join our discord server at https://discord.gg/projectdiscovery and post the question on the #katana channel.\r\n--\u003e\r\n\r\n\u003c!-- ISSUES MISSING IMPORTANT INFORMATION MAY BE CLOSED WITHOUT INVESTIGATION. --\u003e\r\n\r\n### katana version: v1.0.4\r\n\u003c!-- You can find current version of katana with \"katana -version\" --\u003e\r\n\u003c!-- We only accept issues that are reproducible on the latest version of katana. --\u003e\r\n\u003c!-- You can find the latest version of project at https://github.com/projectdiscovery/katana/releases/ --\u003e\r\n\r\n### Current Behavior: using the `-jsonl` and `-headless` options for a katana crawl results in an error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`.\r\n\u003c!-- A concise description of what you're experiencing. --\u003e\r\n\r\n### Expected Behavior:\r\n\u003c!-- A concise description of what you expected to happen. --\u003e\r\nNo error should occur, similar to running the same command without the `-headless` option.\r\n\r\n### Steps To Reproduce:\r\n\u003c!--\r\nExample: steps to reproduce the behavior:\r\n1. Run 'katana ..'\r\n2. See error...\r\n--\u003e\r\n1. Run a katana crawl against a target with the `-jsonl` and `-headless` options:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or -headless | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:47:56.072225-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"error\": \"[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom\"\r\n}\r\n```\r\n2. Notice the error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`\r\n3. Run the same command without the `-headless` option:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:50:08.902251-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"response\": {\r\n    \"status_code\": 200,\r\n    \"headers\": {\r\n      \"cache_control\": \"public, max-age=0, must-revalidate\",\r\n      \"report_to\": \"{\\\"endpoints\\\":[{\\\"url\\\":\\\"https:\\\\/\\\\/a.nel.cloudflare.com\\\\/report\\\\/v3?s=0Kep5aODKo2qRkrQjl%2FTGOcspCMTVBMeLdtA6Gc4y9E5UkFkUW9QYffz4bUgV6TgXpxudfSsHDctxNKUH3%2B979xOe6kOqAHsxy3n4HDyPkXBK2zjDQAguH0ajFdYfUtZ9I74BUw%3D\\\"}],\\\"group\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"nel\": \"{\\\"success_fraction\\\":0,\\\"report_to\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"content_type\": \"text/html\",\r\n      \"last_modified\": \"Sat, 30 Sep 2023 00:06:34 GMT\",\r\n      \"server_timing\": \"region;desc=\\\"us-west-2\\\", cache;desc=\\\"cached\\\", fallback;desc=\\\"no-fallback\\\"\",\r\n      \"vary\": \"Accept-Encoding\",\r\n      \"cf_ray\": \"80f68bd47e26521a-LAX\",\r\n      \"link\": \"\u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\", \u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\"; crossorigin=\\\"\\\"\",\r\n      \"cf_cache_status\": \"DYNAMIC\",\r\n      \"date\": \"Sun, 01 Oct 2023 17:50:08 GMT\",\r\n      \"server\": \"cloudflare\",\r\n      \"x_content_type_options\": \"nosniff\",\r\n      \"strict_transport_security\": \"max-age=0; preload\",\r\n      \"connection\": \"keep-alive\"\r\n    },\r\n    \"technologies\": [\r\n      \"Cloudflare\",\r\n      \"HSTS\"\r\n    ]\r\n  }\r\n}\r\n```\r\n4. Note that there are no errors when the `-headless` option is omitted.\r\n\r\n### Anything else:\r\nThis issue only occurs when crawling specific websites. I can consistently reproduce it when crawling `https://projectdiscovery.io` and `https://www.discover.com`. But I am unable to reproduce it crawling other sites like `https://www.google.com`."
   },
@@ -279,11 +279,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 35,
+    "comment_count": 36,
     "open_pr_count": 7,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-05T15:55:32Z",
+    "updated_at": "2026-03-06T18:11:14Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
