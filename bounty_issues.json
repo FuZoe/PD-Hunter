@@ -63,11 +63,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 28,
+    "comment_count": 31,
     "open_pr_count": 8,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-06T18:11:19Z",
+    "updated_at": "2026-03-07T00:45:15Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890"
   },
@@ -119,7 +119,7 @@
       "$200"
     ],
     "comment_count": 39,
-    "open_pr_count": 6,
+    "open_pr_count": 7,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
     "updated_at": "2026-03-06T10:32:51Z",
@@ -227,10 +227,10 @@
       "$150"
     ],
     "comment_count": 29,
-    "open_pr_count": 8,
+    "open_pr_count": 9,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-08-25T07:46:54Z",
-    "updated_at": "2026-03-06T18:11:14Z",
+    "updated_at": "2026-03-06T19:47:28Z",
     "author": "tarunKoyalwar",
     "body": "### Describe your feature request\n\n- template profiles or config.yaml file contains all flag config in yaml format which can be directly passed to nuclei instead of adding each flag , this way it is easy to maintain and scalable and shareable\r\n- this config file is merged with flags passed to nuclei with priority given to flags that way common / regularly used configs can be maintained and passed via config files\r\n- we should add below new features related to config or template profiles\r\n\r\n- [ ] ignore extra fields ( if we aren't already) that way info can be specified in fields like id , name , purpose yaml keys instead of commenting it out like we do in current template profiles\r\n- [ ] update goflags to allow embedding file content , this way instead of passing auth related data via a file we can embed it in goflags under `secrets` key and goflags can generate a temporary file to handle and pass it internally\n\n### Describe the use case of the feature\n\nthis will allow maintaining a single config file to be used with nuclei and users can maintain a different set of configs  specific to targets thereby keeping all config modular\r\n\r\nexample: a user who intends to vuln scan pd will have their template profile for this scan in this format\r\n\r\n```yaml\r\nname: projectdiscovery-scan\r\npurpose: Config File for Scanning\r\ndescription: single config file that contains every config related to scanning a specific target with specific templates and features\r\n\r\n# targets list file\r\nlist |\r\n  cve.projectdiscovery.io\r\n  chaos.projectdiscovery.io\r\n  ....\r\n  api.projectdiscovery.io\r\n\r\n# templates related config\r\ntype:\r\n  - http\r\n  - tcp\r\n  - javascript\r\n  - dns\r\n  - ssl\r\n\r\nexclude-tags:\r\n  - dos\r\n  - fuzz\r\n  - osint\r\n\r\n# other options\r\ntemplate-concurrency: 5\r\nhost-concurrency: 100\r\nstats: true\r\ntimeout: 30\r\n\r\nsecrets:\r\n  static:\r\n  # 4. Custom Header based auth\r\n  - type: header\r\n    domains:\r\n      - api.projectdiscovery.io\r\n      - cve.projectdiscovery.io\r\n      - chaos.projectdiscovery.io\r\n    headers:\r\n      - key: x-pdcp-key\r\n        value: \u003capi-key-here\u003e\r\n  dynamic:\r\n    - template: custom-oauth-flow.yaml\r\n      variables:\r\n        - name: username\r\n          value: pdteam\r\n        - name: password\r\n          value: nuclei-fuzz\r\n      type: cookie\r\n      domains:\r\n        - .*.projectdiscovery.io\r\n      headers:\r\n        - key: Authorization\r\n          value: Bearer {{token}}\r\n```\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n_No response_"
   },
@@ -244,11 +244,11 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 26,
+    "comment_count": 29,
     "open_pr_count": 2,
     "repository": "projectdiscovery/katana",
     "created_at": "2023-10-01T18:00:50Z",
-    "updated_at": "2026-03-06T18:34:45Z",
+    "updated_at": "2026-03-07T00:42:08Z",
     "author": "ErikOwen",
     "body": "\u003c!-- \r\n1. Please search to see if an issue already exists for the bug you encountered.\r\n2. For support requests, FAQs or \"How to\" questions, please use the GitHub Discussions section instead - https://github.com/projectdiscovery/katana/discussions or\r\n3. Join our discord server at https://discord.gg/projectdiscovery and post the question on the #katana channel.\r\n--\u003e\r\n\r\n\u003c!-- ISSUES MISSING IMPORTANT INFORMATION MAY BE CLOSED WITHOUT INVESTIGATION. --\u003e\r\n\r\n### katana version: v1.0.4\r\n\u003c!-- You can find current version of katana with \"katana -version\" --\u003e\r\n\u003c!-- We only accept issues that are reproducible on the latest version of katana. --\u003e\r\n\u003c!-- You can find the latest version of project at https://github.com/projectdiscovery/katana/releases/ --\u003e\r\n\r\n### Current Behavior: using the `-jsonl` and `-headless` options for a katana crawl results in an error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`.\r\n\u003c!-- A concise description of what you're experiencing. --\u003e\r\n\r\n### Expected Behavior:\r\n\u003c!-- A concise description of what you expected to happen. --\u003e\r\nNo error should occur, similar to running the same command without the `-headless` option.\r\n\r\n### Steps To Reproduce:\r\n\u003c!--\r\nExample: steps to reproduce the behavior:\r\n1. Run 'katana ..'\r\n2. See error...\r\n--\u003e\r\n1. Run a katana crawl against a target with the `-jsonl` and `-headless` options:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or -headless | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:47:56.072225-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"error\": \"[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom\"\r\n}\r\n```\r\n2. Notice the error: `[hybrid:RUNTIME] context deadline exceeded \u003c- could not get dom`\r\n3. Run the same command without the `-headless` option:\r\n```\r\n\u003e echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:50:08.902251-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"response\": {\r\n    \"status_code\": 200,\r\n    \"headers\": {\r\n      \"cache_control\": \"public, max-age=0, must-revalidate\",\r\n      \"report_to\": \"{\\\"endpoints\\\":[{\\\"url\\\":\\\"https:\\\\/\\\\/a.nel.cloudflare.com\\\\/report\\\\/v3?s=0Kep5aODKo2qRkrQjl%2FTGOcspCMTVBMeLdtA6Gc4y9E5UkFkUW9QYffz4bUgV6TgXpxudfSsHDctxNKUH3%2B979xOe6kOqAHsxy3n4HDyPkXBK2zjDQAguH0ajFdYfUtZ9I74BUw%3D\\\"}],\\\"group\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"nel\": \"{\\\"success_fraction\\\":0,\\\"report_to\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"content_type\": \"text/html\",\r\n      \"last_modified\": \"Sat, 30 Sep 2023 00:06:34 GMT\",\r\n      \"server_timing\": \"region;desc=\\\"us-west-2\\\", cache;desc=\\\"cached\\\", fallback;desc=\\\"no-fallback\\\"\",\r\n      \"vary\": \"Accept-Encoding\",\r\n      \"cf_ray\": \"80f68bd47e26521a-LAX\",\r\n      \"link\": \"\u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\", \u003chttps://framerusercontent.com\u003e; rel=\\\"preconnect\\\"; crossorigin=\\\"\\\"\",\r\n      \"cf_cache_status\": \"DYNAMIC\",\r\n      \"date\": \"Sun, 01 Oct 2023 17:50:08 GMT\",\r\n      \"server\": \"cloudflare\",\r\n      \"x_content_type_options\": \"nosniff\",\r\n      \"strict_transport_security\": \"max-age=0; preload\",\r\n      \"connection\": \"keep-alive\"\r\n    },\r\n    \"technologies\": [\r\n      \"Cloudflare\",\r\n      \"HSTS\"\r\n    ]\r\n  }\r\n}\r\n```\r\n4. Note that there are no errors when the `-headless` option is omitted.\r\n\r\n### Anything else:\r\nThis issue only occurs when crawling specific websites. I can consistently reproduce it when crawling `https://projectdiscovery.io` and `https://www.discover.com`. But I am unable to reproduce it crawling other sites like `https://www.google.com`."
   },
@@ -279,11 +279,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 36,
+    "comment_count": 37,
     "open_pr_count": 7,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-06T18:11:14Z",
+    "updated_at": "2026-03-06T20:17:53Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
