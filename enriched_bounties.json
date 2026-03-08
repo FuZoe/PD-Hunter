@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 12,
+    "comment_count": 16,
     "open_pr_count": 11,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-06T00:53:53Z",
+    "updated_at": "2026-03-08T12:26:27Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. `<script type=\"application/json\">` blocks are treated as executable script context.\n\n   Example:\n   <script type=\"application/json\">nucleiXSScanary</script>\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `<script type=\"application/json\">` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction.",
     "hunter_intelligence": {
@@ -35,7 +35,7 @@
       "$100"
     ],
     "comment_count": 33,
-    "open_pr_count": 7,
+    "open_pr_count": 8,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
     "updated_at": "2026-03-07T09:07:00Z",
@@ -59,11 +59,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 25,
+    "comment_count": 26,
     "open_pr_count": 9,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-11-06T15:54:58Z",
-    "updated_at": "2026-03-07T04:58:17Z",
+    "updated_at": "2026-03-08T09:12:40Z",
     "author": "anze3db",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhen running an authenticated scan using a secret file nuclei starts executing templates immediately, before the secret file finishes, causing some requests to not be authenticated.\n\ncommand that I'm running:\n\n```\nnuclei3.4.dev -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\nWhen I print the server logs I see all requests before the secret file finishes as unauthenticated (See AnyonymousUser):\n\n\n```\n15:32:48.443 | WARNING | django.request - Not Found: /wp-content/plugins/flash-album-gallery/readme.txt\n15:32:48.446 | WARNING | django.server - \"GET /wp-content/plugins/flash-album-gallery/readme.txt HTTP/1.1\" 404 23770\n15:32:48.450 | WARNING | django.request - Not Found: /wp-content/plugins/skysa-official/readme.txt\nAnonymousUser\nAnonymousUser\n15:32:48.491 | WARNING | django.server - \"GET /wp-content/plugins/skysa-official/readme.txt HTTP/1.1\" 404 23750\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.554 | WARNING | django.request - Not Found: /login-x.php\nAnonymousUser\n15:32:48.641 | WARNING | django.server - \"GET /login-x.php HTTP/1.1\" 404 23619\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.946 | WARNING | django.request - Not Found: /guest_auth/guestIsUp.php\n15:32:48.950 | WARNING | django.server - \"POST /guest_auth/guestIsUp.php HTTP/1.1\" 404 23672\n15:32:48.950 | INFO    | django.server - code 400, message Bad HTTP/0.9 request type ('mac=1&ip=127.0.0.1|wget')\n15:32:48.950 | WARNING | django.server - \"mac=1&ip=127.0.0.1|wget d46bv7aqko33m6d2te7g4b8fu93o1zo7w.oast.me\" 400 -\nAnonymousUser\n15:32:48.994 | WARNING | django.request - Not Found: /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx\n15:32:48.996 | WARNING | django.server - \"POST /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx?method=GetStoreWarehouseByStore HTTP/1.1\" 404 23884\nAnonymousUser\n15:32:49.290 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n <engbot@example.com>\n15:32:49.476 | WARNING | django.request - Not Found: /wp-content/plugins/featurific-for-wordpress/readme.txt\n15:32:49.482 | WARNING | django.server - \"GET /wp-content/plugins/featurific-for-wordpress/readme.txt HTTP/1.1\" 404 23791\n <engbot@example.com>\n15:32:49.592 | WARNING | django.request - Not Found: /wp-content/plugins/clickdesk-live-support-chat/readme.txt\n15:32:49.599 | WARNING | django.server - \"GET /wp-content/plugins/clickdesk-live-support-chat/readme.txt HTTP/1.1\" 404 23803\n15:32:49.655 | WARNING | django.request - Not Found: /lcms/index.php\n15:32:49.657 | WARNING | django.server - \"POST /lcms/index.php HTTP/1.1\" 404 23632\n <engbot@example.com>\n15:32:49.683 | WARNING | django.security.csrf - Forbidden (CSRF cookie not set.): /\n15:32:49.690 | WARNING | django.request - Not Found: /wp-content/plugins/all-in-one-event-calendar/readme.txt\n15:32:49.694 | INFO    | django.server - \"GET /?+config-create+/&lang=../../../../../../../../../../../usr/local/lib/php/pearcmd&/safedog()+sBV3dCd1eI.log HTTP/1.1\" 302 0\n15:32:49.695 | WARNING | django.server - \"GET /wp-content/plugins/all-in-one-event-calendar/readme.txt HTTP/1.1\" 404 23795\n <engbot@example.com>\n```\n\nOnly once `POST /accounts/login/` finishes do the requests start being authenticated (see engbot@example.com) instead of Anonymous user.\n\n### Expected Behavior\n\nI would expect nuclei to first run the secret-file and only after it finishes start running the other templates. This was the behavior on Nuclei 3.4.7, before the [authenticated scan regression in 3.4.8](https://github.com/projectdiscovery/nuclei/issues/6463).\n\nThis is how the server logs look when I run the same code on 3.4.7:\n\n\n```\nnuclei3.4.7 -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n```\nAnonymousUser\n15:50:23.744 | INFO    | django.server - \"GET /accounts/login/ HTTP/1.1\" 200 25860\nAnonymousUser\n15:50:23.931 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n <engbot@example.com>\n15:50:25.028 | WARNING | django.request - Not Found: /export/classroom-course-statistics\n <engbot@example.com>\n <engbot@example.com>\n15:50:25.031 | WARNING | django.server - \"GET /export/classroom-course-statistics?fileNames[]=../../../../../../../etc/passwd HTTP/1.1\" 404 23797\n <engbot@example.com>\n15:50:25.058 | WARNING | django.request - Not Found: /cgi-bin/rpc\n15:50:25.059 | WARNING | django.server - \"POST /cgi-bin/rpc HTTP/1.1\" 404 23618\n <engbot@example.com>\n <engbot@example.com>\n <engbot@example.com>\n15:50:25.364 | WARNING | django.request - Not Found: /zentao/user-login.html\n15:50:25.365 | WARNING | django.server - \"POST /zentao/user-login.html HTTP/1.1\" 404 23663\n15:50:25.370 | WARNING | django.request - Not Found: /general/index/UploadFile.php\n15:50:25.371 | WARNING | django.request - Not Found: /webadm/\n```\n\n### Steps To Reproduce\n\n1. Run nuclei with a secret-file\n\n```\nnuclei -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: Macos\n- Nuclei: 3.4.10 53af79a39290c86857f433bb2f40e4567982fed0\n- Go: go version go1.24.2 darwin/arm64\n```\n\n### Anything else?\n\n_No response_",
     "hunter_intelligence": {
@@ -84,11 +84,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 35,
+    "comment_count": 41,
     "open_pr_count": 9,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-07T16:57:34Z",
+    "updated_at": "2026-03-08T11:46:37Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890",
     "hunter_intelligence": {
@@ -139,7 +139,7 @@
     "open_pr_count": 12,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
-    "updated_at": "2026-03-08T04:09:08Z",
+    "updated_at": "2026-03-08T08:25:20Z",
     "author": "Mzack9999",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nRef: https://github.com/projectdiscovery/nuclei/actions/runs/17080437183/job/48437074486?pr=6393 failing `integration_tests/fuzz/fuzz-path-sqli.yaml `\n\n`dev` branch version skips some items in path based fuzzing:\n\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.8\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.8 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 51.435875ms. No results found.\n```\n\n`main` branch version correctly fuzzes all the path parts:\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.7\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.7 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55%20OR%20True/profile\n[path-based-sqli] [http] [info] http://127.0.0.1:8082/user/55%2520OR%2520True/profile [path:/user/55] [GET]\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 17.943209ms. 1 matches found.\n```\n\n### Expected Behavior\n\nCorrect fuzzing of all path items\n\n### Steps To Reproduce\n\n/\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: osx\n- Nuclei: dev\n- Go: 1.25\n```\n\n### Anything else?\n\nPotentially something got altered in the fuzzing engine (or fuzzy playground) in latest PRs",
     "hunter_intelligence": {
@@ -160,11 +160,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 43,
+    "comment_count": 45,
     "open_pr_count": 8,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
-    "updated_at": "2026-03-07T10:52:48Z",
+    "updated_at": "2026-03-08T12:29:55Z",
     "author": "aautumn725",
     "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity",
     "hunter_intelligence": {
@@ -975,7 +975,7 @@
       "bounty"
     ],
     "comment_count": 12,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2023-09-29T14:28:48Z",
     "updated_at": "2025-09-10T16:21:50Z",
