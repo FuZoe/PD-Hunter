@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 20,
+    "comment_count": 23,
     "open_pr_count": 13,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-08T23:09:24Z",
+    "updated_at": "2026-03-09T05:33:33Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. `<script type=\"application/json\">` blocks are treated as executable script context.\n\n   Example:\n   <script type=\"application/json\">nucleiXSScanary</script>\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `<script type=\"application/json\">` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction.",
     "hunter_intelligence": {
@@ -84,11 +84,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 42,
-    "open_pr_count": 9,
+    "comment_count": 43,
+    "open_pr_count": 10,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-08T12:59:55Z",
+    "updated_at": "2026-03-09T02:58:26Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890",
     "hunter_intelligence": {
@@ -109,11 +109,11 @@
       "💎 Bounty",
       "$250"
     ],
-    "comment_count": 41,
+    "comment_count": 42,
     "open_pr_count": 11,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-20T09:01:19Z",
-    "updated_at": "2026-03-08T00:35:58Z",
+    "updated_at": "2026-03-09T06:28:06Z",
     "author": "Ice3man543",
     "body": "### Describe your feature request\n\nMany hosts on shodan have all the matchers from nuclei in order to fool scanner (show each vuln as matching). we should have some sort of detection to match such scenarios and ignore their matches (at least inform user)\n\n\n### Describe the use case of the feature\n\nReduce noise while scanning\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n\n```html\n\n<!--\n--\n<Username Level=\"40/40\" Dispatch=\"account\">admin</Username><User1><Password Level=\"40/40\" Dispatch=\"account\">admin</Password></User1>\n/var/pinglog\n<TITLE>Login</TITLE>\n<a href=\"jpg.html\">LIVE JPEG</a><br>\n<a href=\"liveie.html\">Internet Monitor (Microsoft Internet Explorer 8, 9, 10, 11) </a><br>\n<a href=\"DVRRemoteAP.exe\">Download 32 bits DVR Client (Windows 7, Windows 8, Windows 10)</a><br>\n<a href=\"DVRRemoteAP_X64.exe\">Download 64 bits DVR Client (Windows 7, Windows 8, Windows 10)</a><br>\n<a href=\"DVFPlayer.zip\">Download 32/64 bits File Player (Windows 7, Windows 8, Windows 10)</a><br>\n<\\?xml version=\"1.0\" encoding=\"utf-8\"?><base64Binary xmlns=\"http://micros-hosting.com/EGateway/\">\nLocation: /admin\n<meta name=\"generator\" content=\"vBulletin 5.5.4\" />\nLocation: http://120.26.237.211:80/relogin.htm?_t=3541144909\nLocation: http://120.26.237.211:80/syscmd.htm\"\nLocation: /ui/login\n/cgi-bin/webctrl.cgi?action=index_page\nPDR-M800\nfunction btnPing()\n<HTML><HEAD><TITLE>302 Moved</TITLE></HEAD><BODY><H1>302 Moved</H1>.The document has moved<A HREF=\"http://120.26.237.211:80/relogin.htm?_t=179439949\">here</A></BODY></HTML>\n<link type=\"image/x-icon\" rel=\"shortcut icon\" href=\"/themes/img/icon/cisco_shortcut.png\">\n<link type=\"image/x-icon\" rel=\"shortcut icon\" href=\"/themes/img/icon/cisco_logo.png\">\n<td class=\"Copyright\" colspan=\"2\" style=\"text-align:justify\" height=\"20\" valign=\"bottom\">© 2017 Cisco Systems, Inc. All Rights Reserved.\n<br>Cisco, Cisco Systems, and the Cisco Systems logo are registered\ntrademarks or trademarks of Cisco Systems, Inc. and/or it's affiliates\nin the United States and certain other countries.\n</td>\n:\n#\n>\n$\nSSH key is good\nis not a valid ref and may not be archived\npcPassword2\n'&sessionKey=790148060;'\nname=\"sessionKey\" value=\"790148060\"\nSet-Cookie: loginName=admin\nvar fgt_lang = /dev/cmdb/sslvpn_websession\nphp 8.1.0-dev exit\nspringframework\nTomcat\nDEVICE.ACCOUNT=admin\nAUTHORIZED_GROUP=1\n<uid></uid>\n<name>Admin</name>\n<usrid></usrid>\n<password>admin</password>\n<group></group>\ncpto /tmp/\"root\"\nModel=AC1450\nFirmware=V1.0.0.36_10.0.17\n\"exceptionMessageValue\":\"javax.servlet.ServletException: No valid forensics analysis solrDocIds parameter found.\"\nBIG-IP release 15.0.0\nuser:root\n12345admin123'\nFailed to process image\n \nLocation: http://192.168.0.1:52869/picsdesc.xml\nYou don't have permission to access /vpns/ on this server.\n[global]\nworkgroup = intranet\nencrypt passwords = Yes\nupdate encrypted = Yes\n \nfuncionando\nsystem_sofia\nname resolve order\nInfoOS:Linux node01 uid=0(root) gid=0(root) groups=0(root)OSInfo\n<b>File Uploaded !!!</b><br>\nant=951d11e51392117311602d0c25435d7f\n38ee63071a04dc5e04ed22624c38e648\n6f3249aa304055d63828af3bfab778f6\n<h1> a8748198bf4c454b078f069b109f91af </h1>\n[local]\ntid = OGRjYjc0YTY0ZGM5ODRmYjlhYmUzZTdjMjAxZjgxMGQ5ZWM5MGVkOGU0Y2E3M2M2M2ZiNDliZTFmYmMyM2IwZDIxPT0=\naddr = 120.26.237.211\n\"Powered by vBulletin Version 5.5.4\"\n789551\nLinear eMerge\nSuperSign\nubiq\nYacht\nZeroshell\nFastWeb\nAuthInfo:\nloadingIndicator_bk\nZyxel\nskyrouter\nWAP54\norg.apache.spark.ui\n \nCVE-2024-50379-CONFIRMED HTTP/1.1\nHost: 120.26.237.211:12577\nSec-Ch-Ua-Mobile:\nRESULT=0\n \n\n<br class=\"Apple-interchange-newline\">\n```",
     "hunter_intelligence": {
@@ -310,11 +310,11 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 34,
+    "comment_count": 35,
     "open_pr_count": 11,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-08-25T07:46:54Z",
-    "updated_at": "2026-03-08T15:12:03Z",
+    "updated_at": "2026-03-09T06:31:02Z",
     "author": "tarunKoyalwar",
     "body": "### Describe your feature request\n\n- template profiles or config.yaml file contains all flag config in yaml format which can be directly passed to nuclei instead of adding each flag , this way it is easy to maintain and scalable and shareable\r\n- this config file is merged with flags passed to nuclei with priority given to flags that way common / regularly used configs can be maintained and passed via config files\r\n- we should add below new features related to config or template profiles\r\n\r\n- [ ] ignore extra fields ( if we aren't already) that way info can be specified in fields like id , name , purpose yaml keys instead of commenting it out like we do in current template profiles\r\n- [ ] update goflags to allow embedding file content , this way instead of passing auth related data via a file we can embed it in goflags under `secrets` key and goflags can generate a temporary file to handle and pass it internally\n\n### Describe the use case of the feature\n\nthis will allow maintaining a single config file to be used with nuclei and users can maintain a different set of configs  specific to targets thereby keeping all config modular\r\n\r\nexample: a user who intends to vuln scan pd will have their template profile for this scan in this format\r\n\r\n```yaml\r\nname: projectdiscovery-scan\r\npurpose: Config File for Scanning\r\ndescription: single config file that contains every config related to scanning a specific target with specific templates and features\r\n\r\n# targets list file\r\nlist |\r\n  cve.projectdiscovery.io\r\n  chaos.projectdiscovery.io\r\n  ....\r\n  api.projectdiscovery.io\r\n\r\n# templates related config\r\ntype:\r\n  - http\r\n  - tcp\r\n  - javascript\r\n  - dns\r\n  - ssl\r\n\r\nexclude-tags:\r\n  - dos\r\n  - fuzz\r\n  - osint\r\n\r\n# other options\r\ntemplate-concurrency: 5\r\nhost-concurrency: 100\r\nstats: true\r\ntimeout: 30\r\n\r\nsecrets:\r\n  static:\r\n  # 4. Custom Header based auth\r\n  - type: header\r\n    domains:\r\n      - api.projectdiscovery.io\r\n      - cve.projectdiscovery.io\r\n      - chaos.projectdiscovery.io\r\n    headers:\r\n      - key: x-pdcp-key\r\n        value: <api-key-here>\r\n  dynamic:\r\n    - template: custom-oauth-flow.yaml\r\n      variables:\r\n        - name: username\r\n          value: pdteam\r\n        - name: password\r\n          value: nuclei-fuzz\r\n      type: cookie\r\n      domains:\r\n        - .*.projectdiscovery.io\r\n      headers:\r\n        - key: Authorization\r\n          value: Bearer {{token}}\r\n```\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n_No response_",
     "hunter_intelligence": {
@@ -384,11 +384,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 40,
+    "comment_count": 41,
     "open_pr_count": 7,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-09T01:43:58Z",
+    "updated_at": "2026-03-09T05:46:13Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
