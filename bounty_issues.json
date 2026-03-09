@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 18,
-    "open_pr_count": 11,
+    "comment_count": 20,
+    "open_pr_count": 13,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-08T16:56:36Z",
+    "updated_at": "2026-03-08T23:09:24Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. `\u003cscript type=\"application/json\"\u003e` blocks are treated as executable script context.\n\n   Example:\n   \u003cscript type=\"application/json\"\u003enucleiXSScanary\u003c/script\u003e\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `\u003cscript type=\"application/json\"\u003e` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction."
   },
@@ -82,7 +82,7 @@
       "$250"
     ],
     "comment_count": 41,
-    "open_pr_count": 10,
+    "open_pr_count": 11,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-20T09:01:19Z",
     "updated_at": "2026-03-08T00:35:58Z",
@@ -100,11 +100,11 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 36,
+    "comment_count": 37,
     "open_pr_count": 12,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
-    "updated_at": "2026-03-08T08:25:20Z",
+    "updated_at": "2026-03-08T23:28:09Z",
     "author": "Mzack9999",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nRef: https://github.com/projectdiscovery/nuclei/actions/runs/17080437183/job/48437074486?pr=6393 failing `integration_tests/fuzz/fuzz-path-sqli.yaml `\n\n`dev` branch version skips some items in path based fuzzing:\n\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.8\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.8 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 51.435875ms. No results found.\n```\n\n`main` branch version correctly fuzzes all the path parts:\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.7\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.7 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3\u0026source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55%20OR%20True/profile\n[path-based-sqli] [http] [info] http://127.0.0.1:8082/user/55%2520OR%2520True/profile [path:/user/55] [GET]\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 17.943209ms. 1 matches found.\n```\n\n### Expected Behavior\n\nCorrect fuzzing of all path items\n\n### Steps To Reproduce\n\n/\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: osx\n- Nuclei: dev\n- Go: 1.25\n```\n\n### Anything else?\n\nPotentially something got altered in the fuzzing engine (or fuzzy playground) in latest PRs"
   },
@@ -227,7 +227,7 @@
       "$150"
     ],
     "comment_count": 34,
-    "open_pr_count": 10,
+    "open_pr_count": 11,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-08-25T07:46:54Z",
     "updated_at": "2026-03-08T15:12:03Z",
@@ -279,11 +279,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 39,
-    "open_pr_count": 6,
+    "comment_count": 40,
+    "open_pr_count": 7,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-08T15:08:38Z",
+    "updated_at": "2026-03-09T01:43:58Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -408,24 +408,6 @@
     "body": "It's time we move the repo from the current style (everything is a header file) to having separate source and header files. This should clean up all the import orders and `*_definitions.h` files, as well as make it a lot easier to add new drivers etc.\n\nBounty for a clean PR with minimal changes."
   },
   {
-    "number": 34734,
-    "title": "comma 3X: switch to kernel driver for low level SPI comms",
-    "url": "https://github.com/commaai/openpilot/issues/34734",
-    "state": "open",
-    "labels": [
-      "enhancement",
-      "bounty",
-      "comma three"
-    ],
-    "comment_count": 5,
-    "open_pr_count": 0,
-    "repository": "commaai/openpilot",
-    "created_at": "2025-02-28T19:54:21Z",
-    "updated_at": "2026-02-27T14:37:32Z",
-    "author": "adeebshihadeh",
-    "body": "The comma 3X talks to its internal panda over SPI using the [spidev](https://www.kernel.org/doc/Documentation/spi/spidev) driver. We want to move the low-level SPI transactions into the kernel for better performance and efficiency.\n\nI already started this a while ago at [panda/drivers/spi/](https://github.com/commaai/panda/tree/master/drivers/spi).\n\nMinimum requirements for this bounty:\n* Switch to the kernel driver for the panda Python library (`panda/python/`)\n* Make it interrupt driven (no busy waiting!)\n* Good auto loading + updating the driver\n* Better throughput than the existing panda SPI stack\n  * for bonus points, you can patch the kernel to fix the SPI overhead. apparently tracking the \"SPI stats\" has a ton of overhead in our kernel version, and this was fixed in newer kernels.\n* Performance needs to be good enough to support https://github.com/commaai/openpilot/pull/34711\n  * since the easiest way to validate may end up being to finish that move, there's an extra $250 on this bounty ($1k total) for finishing that up and merging it together\n\nWe'll be switching `pandad` in openpilot to Python soon, so no need to implement this for the C++ panda library (just the one in `panda/python/`). "
-  },
-  {
     "number": 1834,
     "title": "[$250 bounty] Move CAN ignition hooks and add test",
     "url": "https://github.com/commaai/opendbc/issues/1834",
@@ -488,7 +470,7 @@
       "bounty"
     ],
     "comment_count": 14,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/agnos-builder",
     "created_at": "2024-07-25T18:11:36Z",
     "updated_at": "2026-02-25T21:09:49Z",
