@@ -136,7 +136,7 @@
       "$150"
     ],
     "comment_count": 37,
-    "open_pr_count": 13,
+    "open_pr_count": 14,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
     "updated_at": "2026-03-08T23:28:09Z",
@@ -186,7 +186,7 @@
       "$100"
     ],
     "comment_count": 38,
-    "open_pr_count": 7,
+    "open_pr_count": 8,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
     "updated_at": "2026-03-07T04:40:24Z",
@@ -261,10 +261,10 @@
       "$200"
     ],
     "comment_count": 63,
-    "open_pr_count": 12,
+    "open_pr_count": 13,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-09T12:50:01Z",
+    "updated_at": "2026-03-09T15:49:41Z",
     "author": "ehsandeep",
     "body": "",
     "hunter_intelligence": {
@@ -285,11 +285,11 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 26,
-    "open_pr_count": 3,
+    "comment_count": 27,
+    "open_pr_count": 4,
     "repository": "projectdiscovery/subfinder",
     "created_at": "2024-11-04T01:08:56Z",
-    "updated_at": "2026-03-09T10:55:35Z",
+    "updated_at": "2026-03-09T17:58:28Z",
     "author": "Bundy01",
     "body": "**Describe the bug**\nI noticed that these options weren't working when testing with the sitedossier source, for example. I suspected that it was blocking my VPN's IP.\nI thought it was coming from him, but now I suspect the number of requests/min is too high.\n\nOn an old branch, I saw a commit including the limits/min c3d8a02a7b636fa11bb5c76065c952a73fad561e.\nThis is more sensible, for example with the subdomaincenter source and its 2 requests/min.\n\n**Subfinder version**\nCurrent Version: v2.6.7\n\n**Complete command you used to reproduce this**\nsubfinder -s sitedossier -dL FILE -rl NUMBER\nsubfinder -s sitedossier -rls sitedossier=2/m -dL FILE\n\n**Screenshots**\nan extract from FILE\n```\nsurreal.vision\naskfacebook.net\ninstagramboomerang.com\ninstagramboomerang.net\nboomerangfrominstagram.com\nadvertiseonfacebook.net\nwebinstagramsecurity.com\noculusacademy.net\noculusacademy.org\nconnect-facebook-mobile.net\nconnect-facebook-cell.net\nfriendfeed-inc.com\ninstagram.bet\ninstagram.bayern\ninstagramboomerang.org\ninstagram.scot\ninstagram.brussels\ninstagram-together.org\ninstagram.shop\ninstagram.tj\ninstagram.doctor\ninstagram.loan\n```\n",
     "hunter_intelligence": {
@@ -335,11 +335,11 @@
       "💎 Bounty",
       "$75"
     ],
-    "comment_count": 30,
-    "open_pr_count": 3,
+    "comment_count": 31,
+    "open_pr_count": 4,
     "repository": "projectdiscovery/katana",
     "created_at": "2023-10-01T18:00:50Z",
-    "updated_at": "2026-03-09T11:51:37Z",
+    "updated_at": "2026-03-09T13:01:24Z",
     "author": "ErikOwen",
     "body": "<!-- \r\n1. Please search to see if an issue already exists for the bug you encountered.\r\n2. For support requests, FAQs or \"How to\" questions, please use the GitHub Discussions section instead - https://github.com/projectdiscovery/katana/discussions or\r\n3. Join our discord server at https://discord.gg/projectdiscovery and post the question on the #katana channel.\r\n-->\r\n\r\n<!-- ISSUES MISSING IMPORTANT INFORMATION MAY BE CLOSED WITHOUT INVESTIGATION. -->\r\n\r\n### katana version: v1.0.4\r\n<!-- You can find current version of katana with \"katana -version\" -->\r\n<!-- We only accept issues that are reproducible on the latest version of katana. -->\r\n<!-- You can find the latest version of project at https://github.com/projectdiscovery/katana/releases/ -->\r\n\r\n### Current Behavior: using the `-jsonl` and `-headless` options for a katana crawl results in an error: `[hybrid:RUNTIME] context deadline exceeded <- could not get dom`.\r\n<!-- A concise description of what you're experiencing. -->\r\n\r\n### Expected Behavior:\r\n<!-- A concise description of what you expected to happen. -->\r\nNo error should occur, similar to running the same command without the `-headless` option.\r\n\r\n### Steps To Reproduce:\r\n<!--\r\nExample: steps to reproduce the behavior:\r\n1. Run 'katana ..'\r\n2. See error...\r\n-->\r\n1. Run a katana crawl against a target with the `-jsonl` and `-headless` options:\r\n```\r\n> echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or -headless | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:47:56.072225-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"error\": \"[hybrid:RUNTIME] context deadline exceeded <- could not get dom\"\r\n}\r\n```\r\n2. Notice the error: `[hybrid:RUNTIME] context deadline exceeded <- could not get dom`\r\n3. Run the same command without the `-headless` option:\r\n```\r\n> echo \"https://projectdiscovery.io\" | katana -silent -d 1 -jsonl -ob -or | jq\r\n{\r\n  \"timestamp\": \"2023-10-01T10:50:08.902251-07:00\",\r\n  \"request\": {\r\n    \"method\": \"GET\",\r\n    \"endpoint\": \"https://projectdiscovery.io\"\r\n  },\r\n  \"response\": {\r\n    \"status_code\": 200,\r\n    \"headers\": {\r\n      \"cache_control\": \"public, max-age=0, must-revalidate\",\r\n      \"report_to\": \"{\\\"endpoints\\\":[{\\\"url\\\":\\\"https:\\\\/\\\\/a.nel.cloudflare.com\\\\/report\\\\/v3?s=0Kep5aODKo2qRkrQjl%2FTGOcspCMTVBMeLdtA6Gc4y9E5UkFkUW9QYffz4bUgV6TgXpxudfSsHDctxNKUH3%2B979xOe6kOqAHsxy3n4HDyPkXBK2zjDQAguH0ajFdYfUtZ9I74BUw%3D\\\"}],\\\"group\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"nel\": \"{\\\"success_fraction\\\":0,\\\"report_to\\\":\\\"cf-nel\\\",\\\"max_age\\\":604800}\",\r\n      \"content_type\": \"text/html\",\r\n      \"last_modified\": \"Sat, 30 Sep 2023 00:06:34 GMT\",\r\n      \"server_timing\": \"region;desc=\\\"us-west-2\\\", cache;desc=\\\"cached\\\", fallback;desc=\\\"no-fallback\\\"\",\r\n      \"vary\": \"Accept-Encoding\",\r\n      \"cf_ray\": \"80f68bd47e26521a-LAX\",\r\n      \"link\": \"<https://framerusercontent.com>; rel=\\\"preconnect\\\", <https://framerusercontent.com>; rel=\\\"preconnect\\\"; crossorigin=\\\"\\\"\",\r\n      \"cf_cache_status\": \"DYNAMIC\",\r\n      \"date\": \"Sun, 01 Oct 2023 17:50:08 GMT\",\r\n      \"server\": \"cloudflare\",\r\n      \"x_content_type_options\": \"nosniff\",\r\n      \"strict_transport_security\": \"max-age=0; preload\",\r\n      \"connection\": \"keep-alive\"\r\n    },\r\n    \"technologies\": [\r\n      \"Cloudflare\",\r\n      \"HSTS\"\r\n    ]\r\n  }\r\n}\r\n```\r\n4. Note that there are no errors when the `-headless` option is omitted.\r\n\r\n### Anything else:\r\nThis issue only occurs when crawling specific websites. I can consistently reproduce it when crawling `https://projectdiscovery.io` and `https://www.discover.com`. But I am unable to reproduce it crawling other sites like `https://www.google.com`.",
     "hunter_intelligence": {
@@ -578,11 +578,11 @@
       "car safety",
       "bounty"
     ],
-    "comment_count": 10,
+    "comment_count": 16,
     "open_pr_count": 1,
     "repository": "commaai/opendbc",
     "created_at": "2025-02-24T21:25:35Z",
-    "updated_at": "2026-02-16T03:02:42Z",
+    "updated_at": "2026-03-09T18:12:10Z",
     "author": "adeebshihadeh",
     "body": "CAN ignition lives in [board/drivers/can_common.h](https://github.com/commaai/panda/blob/master/board/drivers/can_common.h). This is the last car-specific code in panda and should be moved here.\n\nIt should also be possible to fully validate these signals in CI. Assert that the hook doesn't unintentionally trip on all the other cars, etc.",
     "hunter_intelligence": {
@@ -590,7 +590,7 @@
       "technical_hint": "Refactor CAN ignition hooks from can_common.h into a dedicated module and implement CI tests to validate car-specific signal integrity across all supported vehicles.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 250,
-      "is_hidden_gem": true
+      "is_hidden_gem": false
     }
   },
   {
