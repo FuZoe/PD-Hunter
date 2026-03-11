@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 25,
-    "open_pr_count": 13,
+    "comment_count": 26,
+    "open_pr_count": 14,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-10T00:45:42Z",
+    "updated_at": "2026-03-11T00:52:39Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. `\u003cscript type=\"application/json\"\u003e` blocks are treated as executable script context.\n\n   Example:\n   \u003cscript type=\"application/json\"\u003enucleiXSScanary\u003c/script\u003e\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `\u003cscript type=\"application/json\"\u003e` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction."
   },
@@ -122,7 +122,7 @@
     "open_pr_count": 8,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
-    "updated_at": "2026-03-08T13:14:40Z",
+    "updated_at": "2026-03-11T00:38:51Z",
     "author": "aautumn725",
     "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity"
   },
@@ -173,7 +173,7 @@
       "$1.2k"
     ],
     "comment_count": 40,
-    "open_pr_count": 10,
+    "open_pr_count": 11,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-05-09T10:47:31Z",
     "updated_at": "2026-03-10T07:16:20Z",
@@ -683,11 +683,11 @@
       "good first issue",
       "bounty"
     ],
-    "comment_count": 12,
-    "open_pr_count": 1,
+    "comment_count": 13,
+    "open_pr_count": 2,
     "repository": "commaai/openpilot",
     "created_at": "2023-09-29T14:28:48Z",
-    "updated_at": "2025-09-10T16:21:50Z",
+    "updated_at": "2026-03-11T01:26:41Z",
     "author": "alan-polk",
     "body": "### Describe the bug\r\n\r\nCruise control would not engaged, error would pop up \"Process Not Running deleter\"\r\n\r\n### Provide a route where the issue occurs\r\n\r\n24574459dd7fb3e0|2023-09-29--00-06-58--0\r\n\r\n### openpilot version\r\n\r\nhttps://github.com/rwxr-xr-x/openpilot/commit/ac97ef3d9162020558f5b3597823e0315fd4c715\r\n\r\n### Additional info\r\n\r\ncrashed on the previous route (24574459dd7fb3e0|2023-09-28--23-39-47--0) and still would don't work after a power cycle of the unit.\r\n\r\n"
   }
