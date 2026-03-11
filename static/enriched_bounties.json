@@ -10,7 +10,7 @@
       "$100"
     ],
     "comment_count": 26,
-    "open_pr_count": 14,
+    "open_pr_count": 15,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
     "updated_at": "2026-03-11T00:52:39Z",
@@ -160,11 +160,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 46,
+    "comment_count": 47,
     "open_pr_count": 8,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
-    "updated_at": "2026-03-11T00:38:51Z",
+    "updated_at": "2026-03-11T04:29:11Z",
     "author": "aautumn725",
     "body": "### Feature / Question: go-tree-sitter dependency\n\nHi team,  \n\nI noticed that the project currently uses `github.com/smacker/go-tree-sitter` for syntax tree parsing. Since `go-tree-sitter` relies on CGO, cross-platform compilation (especially for darwin/arm64) becomes complicated.  \n\nI have a few questions:  \n1. Is `go-tree-sitter` strictly required for Katana, or only for certain features?  \n2. Are there any alternative pure-Go libraries we could use instead of `go-tree-sitter` to simplify cross-platform builds?  \n\nThis would help in making snapshot builds and CI/CD pipelines simpler, without needing to configure CGO or cross-compilers.  \n\nThanks!\n\n---\n\n### Use Case\n\n- Simplifying cross-platform builds (Windows → macOS/ARM)  \n- Avoiding CGO-related compilation issues  \n- Maintaining full functionality while reducing dependency complexity",
     "hunter_intelligence": {
@@ -260,11 +260,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 67,
+    "comment_count": 68,
     "open_pr_count": 14,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-10T17:44:08Z",
+    "updated_at": "2026-03-11T06:43:39Z",
     "author": "ehsandeep",
     "body": "",
     "hunter_intelligence": {
@@ -578,11 +578,11 @@
       "car safety",
       "bounty"
     ],
-    "comment_count": 18,
-    "open_pr_count": 2,
+    "comment_count": 23,
+    "open_pr_count": 3,
     "repository": "commaai/opendbc",
     "created_at": "2025-02-24T21:25:35Z",
-    "updated_at": "2026-03-10T12:36:46Z",
+    "updated_at": "2026-03-11T05:55:54Z",
     "author": "adeebshihadeh",
     "body": "CAN ignition lives in [board/drivers/can_common.h](https://github.com/commaai/panda/blob/master/board/drivers/can_common.h). This is the last car-specific code in panda and should be moved here.\n\nIt should also be possible to fully validate these signals in CI. Assert that the hook doesn't unintentionally trip on all the other cars, etc.",
     "hunter_intelligence": {
@@ -949,11 +949,11 @@
       "good first issue",
       "bounty"
     ],
-    "comment_count": 13,
+    "comment_count": 15,
     "open_pr_count": 2,
     "repository": "commaai/openpilot",
     "created_at": "2023-09-29T14:28:48Z",
-    "updated_at": "2026-03-11T01:26:41Z",
+    "updated_at": "2026-03-11T01:31:38Z",
     "author": "alan-polk",
     "body": "### Describe the bug\r\n\r\nCruise control would not engaged, error would pop up \"Process Not Running deleter\"\r\n\r\n### Provide a route where the issue occurs\r\n\r\n24574459dd7fb3e0|2023-09-29--00-06-58--0\r\n\r\n### openpilot version\r\n\r\nhttps://github.com/rwxr-xr-x/openpilot/commit/ac97ef3d9162020558f5b3597823e0315fd4c715\r\n\r\n### Additional info\r\n\r\ncrashed on the previous route (24574459dd7fb3e0|2023-09-28--23-39-47--0) and still would don't work after a power cycle of the unit.\r\n\r\n",
     "hunter_intelligence": {
