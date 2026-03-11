@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 26,
-    "open_pr_count": 15,
+    "comment_count": 29,
+    "open_pr_count": 16,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-11T00:52:39Z",
+    "updated_at": "2026-03-11T10:42:52Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. `\u003cscript type=\"application/json\"\u003e` blocks are treated as executable script context.\n\n   Example:\n   \u003cscript type=\"application/json\"\u003enucleiXSScanary\u003c/script\u003e\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `\u003cscript type=\"application/json\"\u003e` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction."
   },
@@ -101,7 +101,7 @@
       "$150"
     ],
     "comment_count": 38,
-    "open_pr_count": 14,
+    "open_pr_count": 15,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
     "updated_at": "2026-03-10T10:31:29Z",
