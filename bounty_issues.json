@@ -64,7 +64,7 @@
       "$100"
     ],
     "comment_count": 44,
-    "open_pr_count": 11,
+    "open_pr_count": 12,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
     "updated_at": "2026-03-11T18:06:47Z",
@@ -194,7 +194,7 @@
     "open_pr_count": 15,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-11T18:45:42Z",
+    "updated_at": "2026-03-11T19:55:36Z",
     "author": "ehsandeep",
     "body": ""
   },
