@@ -9,11 +9,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 28,
+    "comment_count": 29,
     "open_pr_count": 20,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-13T18:47:42Z",
+    "updated_at": "2026-03-14T07:29:15Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. `<script type=\"application/json\">` blocks are treated as executable script context.\n\n   Example:\n   <script type=\"application/json\">nucleiXSScanary</script>\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `<script type=\"application/json\">` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   <a href=\"javascript:alert(nucleiXSScanary)\">\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction.",
     "hunter_intelligence": {
@@ -34,11 +34,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 34,
-    "open_pr_count": 9,
+    "comment_count": 36,
+    "open_pr_count": 10,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
-    "updated_at": "2026-03-13T10:51:45Z",
+    "updated_at": "2026-03-14T10:56:01Z",
     "author": "xhzeem",
     "body": "Hi,\n\nCould you add an **auto wildcard discovery** feature similar to what `puredns` does?\n\nWhat I’m looking for:\n\n* Ability to detect wildcard DNS automatically across **multiple domains** in a single run (no need to specify `-wd` per domain).\n* Filter out wildcard-based results automatically.\n* Expose this via a simple flag, e.g. `--auto-wildcard` (or similar), so existing behaviour doesn’t change.\n\nIdea is basically:\n`puredns` handles wildcard detection automatically can you implement a similar optional mode/flag in `dnsx`?\n\nThanks!\n",
     "hunter_intelligence": {
@@ -384,11 +384,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 44,
+    "comment_count": 45,
     "open_pr_count": 8,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-14T04:24:06Z",
+    "updated_at": "2026-03-14T06:50:35Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
