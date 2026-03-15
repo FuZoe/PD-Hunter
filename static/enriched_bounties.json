@@ -84,11 +84,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 44,
-    "open_pr_count": 12,
+    "comment_count": 39,
+    "open_pr_count": 13,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-11T18:06:47Z",
+    "updated_at": "2026-03-14T21:14:21Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890",
     "hunter_intelligence": {
@@ -260,11 +260,11 @@
       "💎 Bounty",
       "$200"
     ],
-    "comment_count": 67,
-    "open_pr_count": 15,
+    "comment_count": 70,
+    "open_pr_count": 16,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-11T19:55:36Z",
+    "updated_at": "2026-03-14T20:51:35Z",
     "author": "ehsandeep",
     "body": "",
     "hunter_intelligence": {
@@ -310,11 +310,11 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 37,
-    "open_pr_count": 13,
+    "comment_count": 39,
+    "open_pr_count": 14,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-08-25T07:46:54Z",
-    "updated_at": "2026-03-11T17:35:34Z",
+    "updated_at": "2026-03-14T20:07:13Z",
     "author": "tarunKoyalwar",
     "body": "### Describe your feature request\n\n- template profiles or config.yaml file contains all flag config in yaml format which can be directly passed to nuclei instead of adding each flag , this way it is easy to maintain and scalable and shareable\r\n- this config file is merged with flags passed to nuclei with priority given to flags that way common / regularly used configs can be maintained and passed via config files\r\n- we should add below new features related to config or template profiles\r\n\r\n- [ ] ignore extra fields ( if we aren't already) that way info can be specified in fields like id , name , purpose yaml keys instead of commenting it out like we do in current template profiles\r\n- [ ] update goflags to allow embedding file content , this way instead of passing auth related data via a file we can embed it in goflags under `secrets` key and goflags can generate a temporary file to handle and pass it internally\n\n### Describe the use case of the feature\n\nthis will allow maintaining a single config file to be used with nuclei and users can maintain a different set of configs  specific to targets thereby keeping all config modular\r\n\r\nexample: a user who intends to vuln scan pd will have their template profile for this scan in this format\r\n\r\n```yaml\r\nname: projectdiscovery-scan\r\npurpose: Config File for Scanning\r\ndescription: single config file that contains every config related to scanning a specific target with specific templates and features\r\n\r\n# targets list file\r\nlist |\r\n  cve.projectdiscovery.io\r\n  chaos.projectdiscovery.io\r\n  ....\r\n  api.projectdiscovery.io\r\n\r\n# templates related config\r\ntype:\r\n  - http\r\n  - tcp\r\n  - javascript\r\n  - dns\r\n  - ssl\r\n\r\nexclude-tags:\r\n  - dos\r\n  - fuzz\r\n  - osint\r\n\r\n# other options\r\ntemplate-concurrency: 5\r\nhost-concurrency: 100\r\nstats: true\r\ntimeout: 30\r\n\r\nsecrets:\r\n  static:\r\n  # 4. Custom Header based auth\r\n  - type: header\r\n    domains:\r\n      - api.projectdiscovery.io\r\n      - cve.projectdiscovery.io\r\n      - chaos.projectdiscovery.io\r\n    headers:\r\n      - key: x-pdcp-key\r\n        value: <api-key-here>\r\n  dynamic:\r\n    - template: custom-oauth-flow.yaml\r\n      variables:\r\n        - name: username\r\n          value: pdteam\r\n        - name: password\r\n          value: nuclei-fuzz\r\n      type: cookie\r\n      domains:\r\n        - .*.projectdiscovery.io\r\n      headers:\r\n        - key: Authorization\r\n          value: Bearer {{token}}\r\n```\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n_No response_",
     "hunter_intelligence": {
@@ -336,7 +336,7 @@
       "$75"
     ],
     "comment_count": 31,
-    "open_pr_count": 6,
+    "open_pr_count": 7,
     "repository": "projectdiscovery/katana",
     "created_at": "2023-10-01T18:00:50Z",
     "updated_at": "2026-03-10T10:38:59Z",
@@ -385,10 +385,10 @@
       "💎 Bounty"
     ],
     "comment_count": 45,
-    "open_pr_count": 8,
+    "open_pr_count": 9,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-14T06:50:35Z",
+    "updated_at": "2026-03-14T21:53:37Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -565,31 +565,6 @@
       "technical_hint": "Focus on reorganizing files by separating logic into `.c` source files and `.h` header files, ensuring proper dependency management and minimal changes to existing functionality.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 500,
-      "is_hidden_gem": false
-    }
-  },
-  {
-    "number": 1834,
-    "title": "[$250 bounty] Move CAN ignition hooks and add test",
-    "url": "https://github.com/commaai/opendbc/issues/1834",
-    "state": "open",
-    "labels": [
-      "enhancement",
-      "car safety",
-      "bounty"
-    ],
-    "comment_count": 23,
-    "open_pr_count": 3,
-    "repository": "commaai/opendbc",
-    "created_at": "2025-02-24T21:25:35Z",
-    "updated_at": "2026-03-11T05:55:54Z",
-    "author": "adeebshihadeh",
-    "body": "CAN ignition lives in [board/drivers/can_common.h](https://github.com/commaai/panda/blob/master/board/drivers/can_common.h). This is the last car-specific code in panda and should be moved here.\n\nIt should also be possible to fully validate these signals in CI. Assert that the hook doesn't unintentionally trip on all the other cars, etc.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Refactor CAN ignition hooks from can_common.h into a dedicated module and implement CI tests to validate car-specific signal integrity across all supported vehicles.",
-      "bounty_tier": "A-Tier",
-      "bounty_amount": 250,
       "is_hidden_gem": false
     }
   },
