@@ -28,7 +28,7 @@
       "$100"
     ],
     "comment_count": 35,
-    "open_pr_count": 10,
+    "open_pr_count": 11,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
     "updated_at": "2026-03-15T02:41:06Z",
@@ -52,24 +52,6 @@
     "updated_at": "2026-03-14T17:09:49Z",
     "author": "anze3db",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhen running an authenticated scan using a secret file nuclei starts executing templates immediately, before the secret file finishes, causing some requests to not be authenticated.\n\ncommand that I'm running:\n\n```\nnuclei3.4.dev -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\nWhen I print the server logs I see all requests before the secret file finishes as unauthenticated (See AnyonymousUser):\n\n\n```\n15:32:48.443 | WARNING | django.request - Not Found: /wp-content/plugins/flash-album-gallery/readme.txt\n15:32:48.446 | WARNING | django.server - \"GET /wp-content/plugins/flash-album-gallery/readme.txt HTTP/1.1\" 404 23770\n15:32:48.450 | WARNING | django.request - Not Found: /wp-content/plugins/skysa-official/readme.txt\nAnonymousUser\nAnonymousUser\n15:32:48.491 | WARNING | django.server - \"GET /wp-content/plugins/skysa-official/readme.txt HTTP/1.1\" 404 23750\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.554 | WARNING | django.request - Not Found: /login-x.php\nAnonymousUser\n15:32:48.641 | WARNING | django.server - \"GET /login-x.php HTTP/1.1\" 404 23619\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\nAnonymousUser\n15:32:48.946 | WARNING | django.request - Not Found: /guest_auth/guestIsUp.php\n15:32:48.950 | WARNING | django.server - \"POST /guest_auth/guestIsUp.php HTTP/1.1\" 404 23672\n15:32:48.950 | INFO    | django.server - code 400, message Bad HTTP/0.9 request type ('mac=1\u0026ip=127.0.0.1|wget')\n15:32:48.950 | WARNING | django.server - \"mac=1\u0026ip=127.0.0.1|wget d46bv7aqko33m6d2te7g4b8fu93o1zo7w.oast.me\" 400 -\nAnonymousUser\n15:32:48.994 | WARNING | django.request - Not Found: /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx\n15:32:48.996 | WARNING | django.server - \"POST /tplus/ajaxpro/Ufida.T.CodeBehind._PriorityLevel,App_Code.ashx?method=GetStoreWarehouseByStore HTTP/1.1\" 404 23884\nAnonymousUser\n15:32:49.290 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n \u003cengbot@example.com\u003e\n15:32:49.476 | WARNING | django.request - Not Found: /wp-content/plugins/featurific-for-wordpress/readme.txt\n15:32:49.482 | WARNING | django.server - \"GET /wp-content/plugins/featurific-for-wordpress/readme.txt HTTP/1.1\" 404 23791\n \u003cengbot@example.com\u003e\n15:32:49.592 | WARNING | django.request - Not Found: /wp-content/plugins/clickdesk-live-support-chat/readme.txt\n15:32:49.599 | WARNING | django.server - \"GET /wp-content/plugins/clickdesk-live-support-chat/readme.txt HTTP/1.1\" 404 23803\n15:32:49.655 | WARNING | django.request - Not Found: /lcms/index.php\n15:32:49.657 | WARNING | django.server - \"POST /lcms/index.php HTTP/1.1\" 404 23632\n \u003cengbot@example.com\u003e\n15:32:49.683 | WARNING | django.security.csrf - Forbidden (CSRF cookie not set.): /\n15:32:49.690 | WARNING | django.request - Not Found: /wp-content/plugins/all-in-one-event-calendar/readme.txt\n15:32:49.694 | INFO    | django.server - \"GET /?+config-create+/\u0026lang=../../../../../../../../../../../usr/local/lib/php/pearcmd\u0026/safedog()+sBV3dCd1eI.log HTTP/1.1\" 302 0\n15:32:49.695 | WARNING | django.server - \"GET /wp-content/plugins/all-in-one-event-calendar/readme.txt HTTP/1.1\" 404 23795\n \u003cengbot@example.com\u003e\n```\n\nOnly once `POST /accounts/login/` finishes do the requests start being authenticated (see engbot@example.com) instead of Anonymous user.\n\n### Expected Behavior\n\nI would expect nuclei to first run the secret-file and only after it finishes start running the other templates. This was the behavior on Nuclei 3.4.7, before the [authenticated scan regression in 3.4.8](https://github.com/projectdiscovery/nuclei/issues/6463).\n\nThis is how the server logs look when I run the same code on 3.4.7:\n\n\n```\nnuclei3.4.7 -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n```\nAnonymousUser\n15:50:23.744 | INFO    | django.server - \"GET /accounts/login/ HTTP/1.1\" 200 25860\nAnonymousUser\n15:50:23.931 | INFO    | django.server - \"POST /accounts/login/ HTTP/1.1\" 302 0\n \u003cengbot@example.com\u003e\n15:50:25.028 | WARNING | django.request - Not Found: /export/classroom-course-statistics\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n15:50:25.031 | WARNING | django.server - \"GET /export/classroom-course-statistics?fileNames[]=../../../../../../../etc/passwd HTTP/1.1\" 404 23797\n \u003cengbot@example.com\u003e\n15:50:25.058 | WARNING | django.request - Not Found: /cgi-bin/rpc\n15:50:25.059 | WARNING | django.server - \"POST /cgi-bin/rpc HTTP/1.1\" 404 23618\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n \u003cengbot@example.com\u003e\n15:50:25.364 | WARNING | django.request - Not Found: /zentao/user-login.html\n15:50:25.365 | WARNING | django.server - \"POST /zentao/user-login.html HTTP/1.1\" 404 23663\n15:50:25.370 | WARNING | django.request - Not Found: /general/index/UploadFile.php\n15:50:25.371 | WARNING | django.request - Not Found: /webadm/\n```\n\n### Steps To Reproduce\n\n1. Run nuclei with a secret-file\n\n```\nnuclei -secret-file django-login.yaml -target http://localhost:8000/ -v\n```\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: Macos\n- Nuclei: 3.4.10 53af79a39290c86857f433bb2f40e4567982fed0\n- Go: go version go1.24.2 darwin/arm64\n```\n\n### Anything else?\n\n_No response_"
-  },
-  {
-    "number": 6532,
-    "title": "Integrate typos tool into CI",
-    "url": "https://github.com/projectdiscovery/nuclei/issues/6532",
-    "state": "open",
-    "labels": [
-      "Type: Maintenance",
-      "💎 Bounty",
-      "$100"
-    ],
-    "comment_count": 39,
-    "open_pr_count": 14,
-    "repository": "projectdiscovery/nuclei",
-    "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-15T10:16:20Z",
-    "author": "coderabbitai[bot]",
-    "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890"
   },
   {
     "number": 6403,
@@ -279,11 +261,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 45,
+    "comment_count": 46,
     "open_pr_count": 9,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-14T21:53:37Z",
+    "updated_at": "2026-03-15T18:06:54Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -301,7 +283,7 @@
     "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2026-02-20T18:44:57Z",
-    "updated_at": "2026-03-04T22:25:10Z",
+    "updated_at": "2026-03-15T16:44:41Z",
     "author": "adeebshihadeh",
     "body": "Let's replace ModemManager with ~200 lines of Python. Faster boot times, better [reliability](https://github.com/commaai/openpilot/blob/b27fa58444766c47f1ef980af79d324a669012c4/system/hardware/hardwared.py#L135), and tinier AGNOS.\n\n---\n\nBounty targets\n* All of openpilot works\n* Works on both comma 3X and comma four\n* At least 10 Discord users run it for a ~week and sign off on it, both with prime and non-prime service\n\nMisc notes:\n* comma 3X uses [Quectel EG25](https://www.quectel.com/product/lte-eg25-g/)\n* comma four uses [Quectl EG916](https://www.quectel.com/product/lte-cat-1-bis-eg916q-gl/)\n* Let's try not to make the comma 3X and comma four code paths too different if possible\n  * comma 3X currently uses QMI, but I think we can get away with just AT commands\n* routing priority still needs to work properly (e.g. WiFi \u003e LTE when both are up)\n* We'll need to replace dbus, maybe just write a dumb state file to `/dev/shm/modem_state.txt`?\n\n**Bonus target ($500):** `ping -c 1 google.com` works \u003c1 min after powering up a comma four with comma prime."
   },
@@ -382,7 +364,7 @@
       "bounty"
     ],
     "comment_count": 4,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/flash",
     "created_at": "2025-04-03T18:35:54Z",
     "updated_at": "2026-03-10T18:00:37Z",
@@ -400,7 +382,7 @@
       "bounty"
     ],
     "comment_count": 16,
-    "open_pr_count": 4,
+    "open_pr_count": 5,
     "repository": "commaai/panda",
     "created_at": "2025-03-13T11:02:22Z",
     "updated_at": "2026-03-04T12:22:13Z",
@@ -452,7 +434,7 @@
       "bounty"
     ],
     "comment_count": 14,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/agnos-builder",
     "created_at": "2024-07-25T18:11:36Z",
     "updated_at": "2026-02-25T21:09:49Z",
@@ -487,7 +469,7 @@
       "bounty"
     ],
     "comment_count": 8,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-06-10T23:15:21Z",
     "updated_at": "2026-01-05T17:02:48Z",
@@ -539,11 +521,11 @@
       "good first issue",
       "bounty"
     ],
-    "comment_count": 31,
+    "comment_count": 32,
     "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-25T18:55:45Z",
-    "updated_at": "2026-03-15T07:50:51Z",
+    "updated_at": "2026-03-15T14:50:24Z",
     "author": "adeebshihadeh",
     "body": "Takes ~1-2s per car. That's a big hit since we support nearly 300 different cars.\r\n\r\nGoal is \u003c=0.2s avg and \u003c1s max on the CI machine, with the same test coverage. There's likely two or three things slowing this test down that'll be obvious with a bit of profiling.\r\n\r\nCommand to run:\r\n```\r\npytest --durations=0 selfdrive/car/tests/test_car_interfaces.py \r\n```\r\n\r\nCurrent output on my workstation\r\n```\r\nbatman:sixpilot$ pytest --durations=10 selfdrive/car/tests/test_car_interfaces.py\r\n=============================================================== test session starts ===============================================================\r\nplatform linux -- Python 3.11.4, pytest-8.2.0, pluggy-1.5.0\r\nUsing --randomly-seed=431984017\r\nrootdir: /dev/shm/openpilot/sixpilot\r\nconfigfile: pyproject.toml\r\nplugins: randomly-3.15.0, subtests-0.12.1, anyio-4.3.0, cov-5.0.0, xdist-3.6.1, cpp-2.5.0, hypothesis-6.47.5, mock-3.14.0, timeout-2.3.1, flaky-3.8.1, asyncio-0.23.6\r\nasyncio: mode=Mode.STRICT\r\n32 workers [209 items]\r\n........................................................................................................................................... [ 65%]\r\n......................................................................                                                                      [100%]\r\n============================================================== slowest 10 durations ===============================================================\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_138_MAZDA_CX9_2021\r\n2.15s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_037_GENESIS_GV60_EV_1ST_GEN\r\n2.05s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_147_SKODA_FABIA_MK4\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_094_HYUNDAI_VELOSTER\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_005_AUDI_Q3_MK2\r\n1.87s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_059_HONDA_PILOT\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_113_KIA_OPTIMA_H_G4_FL\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_076_HYUNDAI_IONIQ_PHEV_2019\r\n1.78s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_095_JEEP_GRAND_CHEROKEE\r\n============================================================== 209 passed in 13.32s ===============================================================\r\n```\r\n\r\n\r\n"
   },
@@ -577,7 +559,7 @@
     "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
-    "updated_at": "2025-07-16T22:00:26Z",
+    "updated_at": "2026-03-15T16:44:58Z",
     "author": "adeebshihadeh",
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)"
   },
@@ -614,7 +596,7 @@
     "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-03T00:23:19Z",
-    "updated_at": "2026-03-07T06:34:55Z",
+    "updated_at": "2026-03-15T16:44:58Z",
     "author": "adeebshihadeh",
     "body": "`systemd-analyze` reports this for the latest AGNOS:\r\n```\r\nStartup finished in 3.650s (kernel) + 7.343s (userspace) = 10.994s\r\ngraphical.target reached after 7.059s in userspace\r\n```\r\n\r\nGet the kernel part of that down to \u003c1s in a self-contained way that doesn't delay the rest of the openpilot.\r\n* can't just defer stuff to later and cost boot time at later stages\r\n* can turn off stuff openpilot doesn't use (NFC, bluetooth, etc.)\r\n\r\nAGNOS is built with https://github.com/commaai/agnos-builder"
   },
@@ -666,7 +648,7 @@
       "bounty"
     ],
     "comment_count": 15,
-    "open_pr_count": 2,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2023-09-29T14:28:48Z",
     "updated_at": "2026-03-11T01:31:38Z",
