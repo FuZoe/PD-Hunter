@@ -85,10 +85,10 @@
       "$100"
     ],
     "comment_count": 39,
-    "open_pr_count": 13,
+    "open_pr_count": 14,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-10-14T10:19:21Z",
-    "updated_at": "2026-03-14T21:14:21Z",
+    "updated_at": "2026-03-15T10:16:20Z",
     "author": "coderabbitai[bot]",
     "body": "## Description\n\nWe should integrate the typos tool (https://github.com/crate-ci/typos) into our CI pipeline to automatically catch typos in future PRs and maintain code quality consistently.\n\n## Reference\n\n- GitHub Action documentation: https://github.com/crate-ci/typos/blob/master/docs/github-action.md\n- Related PR: https://github.com/projectdiscovery/nuclei/pull/6521\n- Requested by: @dwisiswant0 in https://github.com/projectdiscovery/nuclei/pull/6521#discussion_r1234567890",
     "hunter_intelligence": {
@@ -161,7 +161,7 @@
       "$200"
     ],
     "comment_count": 47,
-    "open_pr_count": 10,
+    "open_pr_count": 11,
     "repository": "projectdiscovery/katana",
     "created_at": "2025-08-13T16:00:24Z",
     "updated_at": "2026-03-11T13:47:26Z",
@@ -214,7 +214,7 @@
     "open_pr_count": 10,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-08-09T14:14:00Z",
-    "updated_at": "2026-03-14T17:56:21Z",
+    "updated_at": "2026-03-15T09:33:40Z",
     "author": "hubrandesk789",
     "body": "### tlsx version:\nVersion: v1.2.0\nOperative System: linux\nArchitecture: amd64\nGo Version: go1.24.4\n\n### Current Behavior:\nServing targets as prefixes with the option -u work.\n./tlsx -u 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24\n\nUsing the option -l / -list filename.txt where the filename.txt contain a one line, comma-separated prefixes does not. \n`[WRN] Could not connect input 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24:443 [auto,ztls:RUNTIME] failed to setup connection <- [:RUNTIME] cause=\"no address found for host\" <- could not dial address <- could not connect to host`\n\n### Expected Behavior:\nSame behavior using -u or -l filename.txt\n\n### Steps To Reproduce:\nPick some prefixes of your chose who are reachable, save them inside filename.txt as prefix1,prefix2,prefix3\n./tlsx -l filename.txt -v\n",
     "hunter_intelligence": {
@@ -261,10 +261,10 @@
       "$200"
     ],
     "comment_count": 70,
-    "open_pr_count": 16,
+    "open_pr_count": 17,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-14T20:51:35Z",
+    "updated_at": "2026-03-15T10:41:07Z",
     "author": "ehsandeep",
     "body": "",
     "hunter_intelligence": {
@@ -749,11 +749,11 @@
       "good first issue",
       "bounty"
     ],
-    "comment_count": 29,
+    "comment_count": 31,
     "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-25T18:55:45Z",
-    "updated_at": "2026-03-15T06:23:25Z",
+    "updated_at": "2026-03-15T07:50:51Z",
     "author": "adeebshihadeh",
     "body": "Takes ~1-2s per car. That's a big hit since we support nearly 300 different cars.\r\n\r\nGoal is <=0.2s avg and <1s max on the CI machine, with the same test coverage. There's likely two or three things slowing this test down that'll be obvious with a bit of profiling.\r\n\r\nCommand to run:\r\n```\r\npytest --durations=0 selfdrive/car/tests/test_car_interfaces.py \r\n```\r\n\r\nCurrent output on my workstation\r\n```\r\nbatman:sixpilot$ pytest --durations=10 selfdrive/car/tests/test_car_interfaces.py\r\n=============================================================== test session starts ===============================================================\r\nplatform linux -- Python 3.11.4, pytest-8.2.0, pluggy-1.5.0\r\nUsing --randomly-seed=431984017\r\nrootdir: /dev/shm/openpilot/sixpilot\r\nconfigfile: pyproject.toml\r\nplugins: randomly-3.15.0, subtests-0.12.1, anyio-4.3.0, cov-5.0.0, xdist-3.6.1, cpp-2.5.0, hypothesis-6.47.5, mock-3.14.0, timeout-2.3.1, flaky-3.8.1, asyncio-0.23.6\r\nasyncio: mode=Mode.STRICT\r\n32 workers [209 items]\r\n........................................................................................................................................... [ 65%]\r\n......................................................................                                                                      [100%]\r\n============================================================== slowest 10 durations ===============================================================\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_138_MAZDA_CX9_2021\r\n2.15s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_037_GENESIS_GV60_EV_1ST_GEN\r\n2.05s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_147_SKODA_FABIA_MK4\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_094_HYUNDAI_VELOSTER\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_005_AUDI_Q3_MK2\r\n1.87s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_059_HONDA_PILOT\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_113_KIA_OPTIMA_H_G4_FL\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_076_HYUNDAI_IONIQ_PHEV_2019\r\n1.78s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_095_JEEP_GRAND_CHEROKEE\r\n============================================================== 209 passed in 13.32s ===============================================================\r\n```\r\n\r\n\r\n",
     "hunter_intelligence": {
