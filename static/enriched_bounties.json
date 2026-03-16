@@ -84,11 +84,11 @@
       "💎 Bounty",
       "$250"
     ],
-    "comment_count": 43,
-    "open_pr_count": 13,
+    "comment_count": 45,
+    "open_pr_count": 15,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-20T09:01:19Z",
-    "updated_at": "2026-03-13T09:20:41Z",
+    "updated_at": "2026-03-16T10:35:44Z",
     "author": "Ice3man543",
     "body": "### Describe your feature request\n\nMany hosts on shodan have all the matchers from nuclei in order to fool scanner (show each vuln as matching). we should have some sort of detection to match such scenarios and ignore their matches (at least inform user)\n\n\n### Describe the use case of the feature\n\nReduce noise while scanning\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n\n```html\n\n<!--\n--\n<Username Level=\"40/40\" Dispatch=\"account\">admin</Username><User1><Password Level=\"40/40\" Dispatch=\"account\">admin</Password></User1>\n/var/pinglog\n<TITLE>Login</TITLE>\n<a href=\"jpg.html\">LIVE JPEG</a><br>\n<a href=\"liveie.html\">Internet Monitor (Microsoft Internet Explorer 8, 9, 10, 11) </a><br>\n<a href=\"DVRRemoteAP.exe\">Download 32 bits DVR Client (Windows 7, Windows 8, Windows 10)</a><br>\n<a href=\"DVRRemoteAP_X64.exe\">Download 64 bits DVR Client (Windows 7, Windows 8, Windows 10)</a><br>\n<a href=\"DVFPlayer.zip\">Download 32/64 bits File Player (Windows 7, Windows 8, Windows 10)</a><br>\n<\\?xml version=\"1.0\" encoding=\"utf-8\"?><base64Binary xmlns=\"http://micros-hosting.com/EGateway/\">\nLocation: /admin\n<meta name=\"generator\" content=\"vBulletin 5.5.4\" />\nLocation: http://120.26.237.211:80/relogin.htm?_t=3541144909\nLocation: http://120.26.237.211:80/syscmd.htm\"\nLocation: /ui/login\n/cgi-bin/webctrl.cgi?action=index_page\nPDR-M800\nfunction btnPing()\n<HTML><HEAD><TITLE>302 Moved</TITLE></HEAD><BODY><H1>302 Moved</H1>.The document has moved<A HREF=\"http://120.26.237.211:80/relogin.htm?_t=179439949\">here</A></BODY></HTML>\n<link type=\"image/x-icon\" rel=\"shortcut icon\" href=\"/themes/img/icon/cisco_shortcut.png\">\n<link type=\"image/x-icon\" rel=\"shortcut icon\" href=\"/themes/img/icon/cisco_logo.png\">\n<td class=\"Copyright\" colspan=\"2\" style=\"text-align:justify\" height=\"20\" valign=\"bottom\">© 2017 Cisco Systems, Inc. All Rights Reserved.\n<br>Cisco, Cisco Systems, and the Cisco Systems logo are registered\ntrademarks or trademarks of Cisco Systems, Inc. and/or it's affiliates\nin the United States and certain other countries.\n</td>\n:\n#\n>\n$\nSSH key is good\nis not a valid ref and may not be archived\npcPassword2\n'&sessionKey=790148060;'\nname=\"sessionKey\" value=\"790148060\"\nSet-Cookie: loginName=admin\nvar fgt_lang = /dev/cmdb/sslvpn_websession\nphp 8.1.0-dev exit\nspringframework\nTomcat\nDEVICE.ACCOUNT=admin\nAUTHORIZED_GROUP=1\n<uid></uid>\n<name>Admin</name>\n<usrid></usrid>\n<password>admin</password>\n<group></group>\ncpto /tmp/\"root\"\nModel=AC1450\nFirmware=V1.0.0.36_10.0.17\n\"exceptionMessageValue\":\"javax.servlet.ServletException: No valid forensics analysis solrDocIds parameter found.\"\nBIG-IP release 15.0.0\nuser:root\n12345admin123'\nFailed to process image\n \nLocation: http://192.168.0.1:52869/picsdesc.xml\nYou don't have permission to access /vpns/ on this server.\n[global]\nworkgroup = intranet\nencrypt passwords = Yes\nupdate encrypted = Yes\n \nfuncionando\nsystem_sofia\nname resolve order\nInfoOS:Linux node01 uid=0(root) gid=0(root) groups=0(root)OSInfo\n<b>File Uploaded !!!</b><br>\nant=951d11e51392117311602d0c25435d7f\n38ee63071a04dc5e04ed22624c38e648\n6f3249aa304055d63828af3bfab778f6\n<h1> a8748198bf4c454b078f069b109f91af </h1>\n[local]\ntid = OGRjYjc0YTY0ZGM5ODRmYjlhYmUzZTdjMjAxZjgxMGQ5ZWM5MGVkOGU0Y2E3M2M2M2ZiNDliZTFmYmMyM2IwZDIxPT0=\naddr = 120.26.237.211\n\"Powered by vBulletin Version 5.5.4\"\n789551\nLinear eMerge\nSuperSign\nubiq\nYacht\nZeroshell\nFastWeb\nAuthInfo:\nloadingIndicator_bk\nZyxel\nskyrouter\nWAP54\norg.apache.spark.ui\n \nCVE-2024-50379-CONFIRMED HTTP/1.1\nHost: 120.26.237.211:12577\nSec-Ch-Ua-Mobile:\nRESULT=0\n \n\n<br class=\"Apple-interchange-newline\">\n```",
     "hunter_intelligence": {
@@ -110,11 +110,11 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 41,
+    "comment_count": 42,
     "open_pr_count": 17,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2025-08-19T23:49:00Z",
-    "updated_at": "2026-03-14T17:12:04Z",
+    "updated_at": "2026-03-16T07:46:27Z",
     "author": "Mzack9999",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nRef: https://github.com/projectdiscovery/nuclei/actions/runs/17080437183/job/48437074486?pr=6393 failing `integration_tests/fuzz/fuzz-path-sqli.yaml `\n\n`dev` branch version skips some items in path based fuzzing:\n\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.8\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.8 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 51.435875ms. No results found.\n```\n\n`main` branch version correctly fuzzes all the path parts:\n```\nmzack@MacBookPro nuclei % go run . -t  ../../integration_tests/fuzz/fuzz-path-sqli.yaml -l ../../integration_tests/fuzz/testData/ginandjuice.proxify.yaml -im yaml -verbose\n\n                     __     _\n   ____  __  _______/ /__  (_)\n  / __ \\/ / / / ___/ / _ \\/ /\n / / / / /_/ / /__/ /  __/ /\n/_/ /_/\\__,_/\\___/_/\\___/_/   v3.4.7\n\n                projectdiscovery.io\n\n[VER] Started metrics server at localhost:9092\n[INF] Current nuclei version: v3.4.7 (latest)\n[INF] Current nuclei-templates version: v10.2.7 (latest)\n[WRN] Scan results upload to cloud is disabled.\n[INF] New templates added in latest release: 55\n[INF] Templates loaded for current scan: 1\n[WRN] Loading 1 unsigned templates for scan. Use with caution.\n[INF] Targets loaded for current scan: 9\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/reset-password) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] fuzz: target(http://127.0.0.1:8082/user) not applicable for fuzzing\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user%20OR%20True/55/profile\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/post?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog%20OR%20True/posts\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/host-header-lab%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/post%20OR%20True?postId=3&source=proxify\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/blog/posts%20OR%20True\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55%20OR%20True/profile\n[path-based-sqli] [http] [info] http://127.0.0.1:8082/user/55%2520OR%2520True/profile [path:/user/55] [GET]\n[VER] [path-based-sqli] Sent HTTP request to http://127.0.0.1:8082/user/55/profile%20OR%20True\n[INF] Scan completed in 17.943209ms. 1 matches found.\n```\n\n### Expected Behavior\n\nCorrect fuzzing of all path items\n\n### Steps To Reproduce\n\n/\n\n### Relevant log output\n\n```shell\n\n```\n\n### Environment\n\n```markdown\n- OS: osx\n- Nuclei: dev\n- Go: 1.25\n```\n\n### Anything else?\n\nPotentially something got altered in the fuzzing engine (or fuzzy playground) in latest PRs",
     "hunter_intelligence": {
@@ -161,7 +161,7 @@
       "$100"
     ],
     "comment_count": 39,
-    "open_pr_count": 11,
+    "open_pr_count": 9,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
     "updated_at": "2026-03-09T22:09:52Z",
@@ -186,7 +186,7 @@
       "$75"
     ],
     "comment_count": 26,
-    "open_pr_count": 10,
+    "open_pr_count": 9,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-08-09T14:14:00Z",
     "updated_at": "2026-03-15T09:33:40Z",
@@ -211,7 +211,7 @@
       "$1.2k"
     ],
     "comment_count": 42,
-    "open_pr_count": 15,
+    "open_pr_count": 14,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-05-09T10:47:31Z",
     "updated_at": "2026-03-13T23:00:10Z",
@@ -239,7 +239,7 @@
     "open_pr_count": 17,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-11-19T06:19:43Z",
-    "updated_at": "2026-03-15T10:41:07Z",
+    "updated_at": "2026-03-16T10:01:09Z",
     "author": "ehsandeep",
     "body": "",
     "hunter_intelligence": {
