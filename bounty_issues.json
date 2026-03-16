@@ -27,11 +27,11 @@
       "💎 Bounty",
       "$100"
     ],
-    "comment_count": 35,
+    "comment_count": 36,
     "open_pr_count": 11,
     "repository": "projectdiscovery/dnsx",
     "created_at": "2025-12-04T20:55:07Z",
-    "updated_at": "2026-03-15T02:41:06Z",
+    "updated_at": "2026-03-15T20:03:24Z",
     "author": "xhzeem",
     "body": "Hi,\n\nCould you add an **auto wildcard discovery** feature similar to what `puredns` does?\n\nWhat I’m looking for:\n\n* Ability to detect wildcard DNS automatically across **multiple domains** in a single run (no need to specify `-wd` per domain).\n* Filter out wildcard-based results automatically.\n* Expose this via a simple flag, e.g. `--auto-wildcard` (or similar), so existing behaviour doesn’t change.\n\nIdea is basically:\n`puredns` handles wildcard detection automatically can you implement a similar optional mode/flag in `dnsx`?\n\nThanks!\n"
   },
@@ -119,7 +119,7 @@
       "$100"
     ],
     "comment_count": 39,
-    "open_pr_count": 10,
+    "open_pr_count": 11,
     "repository": "projectdiscovery/httpx",
     "created_at": "2025-08-13T02:24:40Z",
     "updated_at": "2026-03-09T22:09:52Z",
@@ -265,7 +265,7 @@
     "open_pr_count": 9,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-03-15T18:06:54Z",
+    "updated_at": "2026-03-15T20:01:58Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
