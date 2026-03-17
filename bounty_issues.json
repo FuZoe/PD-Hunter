@@ -13,7 +13,7 @@
     "open_pr_count": 21,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2026-03-03T04:24:36Z",
-    "updated_at": "2026-03-14T07:29:15Z",
+    "updated_at": "2026-03-17T18:27:20Z",
     "author": "mebishnusahu0595",
     "body": "### Is there an existing issue for this?\n\n- [x] I have searched the existing issues.\n\n### Current Behavior\n\nWhile reviewing the XSS context analyzer introduced in PR #7076,\nI noticed a few context-classification edge cases that may impact detection accuracy.\n\nObserved cases:\n\n1. `javascript:` URIs inside attributes are classified as `ContextAttribute`\n   instead of `ContextScript`.\n\n   Example:\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. `\u003cscript type=\"application/json\"\u003e` blocks are treated as executable script context.\n\n   Example:\n   \u003cscript type=\"application/json\"\u003enucleiXSScanary\u003c/script\u003e\n\n3. Reflection detection is case-sensitive, which may miss transformed\n   reflections in responses.\n\n4. `srcdoc` attributes allow full HTML injection but are currently treated\n   as simple attribute contexts.\n\n### Expected Behavior\n\nThese cases should be classified more accurately:\n\n- `javascript:` URIs should be treated as executable script context.\n- `\u003cscript type=\"application/json\"\u003e` blocks should not be treated as executable.\n- Reflection detection should not depend on case.\n- `srcdoc` should be treated as HTML injection context.\n\nImproving these cases would reduce false positives and improve fuzzing precision.\n\n### Steps To Reproduce\n\n1. Use an HTTP response containing:\n\n   \u003ca href=\"javascript:alert(nucleiXSScanary)\"\u003e\n\n2. Trigger XSS fuzzing analyzer.\n\n3. Observe context classification result.\n\nThe current classification marks it as ContextAttribute instead of ContextScript.\n\n### Relevant log output\n\n```shell\nNo runtime errors observed.\nIssue relates to context classification logic in pkg/fuzz/analyzers/xss/context.go\n```\n\n### Environment\n\n```markdown\n- OS: Ubuntu (Linux)\n- Nuclei: dev branch (local build, not installed globally)\n- Go: go1.22.2\n```\n\n### Anything else?\n\nI have prepared a minimal patch locally with regression tests\naddressing these cases and can open a PR if maintainers agree\nwith this direction."
   },
@@ -140,7 +140,7 @@
     "open_pr_count": 9,
     "repository": "projectdiscovery/tlsx",
     "created_at": "2025-08-09T14:14:00Z",
-    "updated_at": "2026-03-15T09:33:40Z",
+    "updated_at": "2026-03-17T18:26:27Z",
     "author": "hubrandesk789",
     "body": "### tlsx version:\nVersion: v1.2.0\nOperative System: linux\nArchitecture: amd64\nGo Version: go1.24.4\n\n### Current Behavior:\nServing targets as prefixes with the option -u work.\n./tlsx -u 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24\n\nUsing the option -l / -list filename.txt where the filename.txt contain a one line, comma-separated prefixes does not. \n`[WRN] Could not connect input 192.168.1.0/24,192.168.2.0/24,192.168.3.0/24:443 [auto,ztls:RUNTIME] failed to setup connection \u003c- [:RUNTIME] cause=\"no address found for host\" \u003c- could not dial address \u003c- could not connect to host`\n\n### Expected Behavior:\nSame behavior using -u or -l filename.txt\n\n### Steps To Reproduce:\nPick some prefixes of your chose who are reachable, save them inside filename.txt as prefix1,prefix2,prefix3\n./tlsx -l filename.txt -v\n"
   },
@@ -208,11 +208,11 @@
       "💎 Bounty",
       "$150"
     ],
-    "comment_count": 39,
+    "comment_count": 40,
     "open_pr_count": 14,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2024-08-25T07:46:54Z",
-    "updated_at": "2026-03-14T20:07:13Z",
+    "updated_at": "2026-03-17T18:00:45Z",
     "author": "tarunKoyalwar",
     "body": "### Describe your feature request\n\n- template profiles or config.yaml file contains all flag config in yaml format which can be directly passed to nuclei instead of adding each flag , this way it is easy to maintain and scalable and shareable\r\n- this config file is merged with flags passed to nuclei with priority given to flags that way common / regularly used configs can be maintained and passed via config files\r\n- we should add below new features related to config or template profiles\r\n\r\n- [ ] ignore extra fields ( if we aren't already) that way info can be specified in fields like id , name , purpose yaml keys instead of commenting it out like we do in current template profiles\r\n- [ ] update goflags to allow embedding file content , this way instead of passing auth related data via a file we can embed it in goflags under `secrets` key and goflags can generate a temporary file to handle and pass it internally\n\n### Describe the use case of the feature\n\nthis will allow maintaining a single config file to be used with nuclei and users can maintain a different set of configs  specific to targets thereby keeping all config modular\r\n\r\nexample: a user who intends to vuln scan pd will have their template profile for this scan in this format\r\n\r\n```yaml\r\nname: projectdiscovery-scan\r\npurpose: Config File for Scanning\r\ndescription: single config file that contains every config related to scanning a specific target with specific templates and features\r\n\r\n# targets list file\r\nlist |\r\n  cve.projectdiscovery.io\r\n  chaos.projectdiscovery.io\r\n  ....\r\n  api.projectdiscovery.io\r\n\r\n# templates related config\r\ntype:\r\n  - http\r\n  - tcp\r\n  - javascript\r\n  - dns\r\n  - ssl\r\n\r\nexclude-tags:\r\n  - dos\r\n  - fuzz\r\n  - osint\r\n\r\n# other options\r\ntemplate-concurrency: 5\r\nhost-concurrency: 100\r\nstats: true\r\ntimeout: 30\r\n\r\nsecrets:\r\n  static:\r\n  # 4. Custom Header based auth\r\n  - type: header\r\n    domains:\r\n      - api.projectdiscovery.io\r\n      - cve.projectdiscovery.io\r\n      - chaos.projectdiscovery.io\r\n    headers:\r\n      - key: x-pdcp-key\r\n        value: \u003capi-key-here\u003e\r\n  dynamic:\r\n    - template: custom-oauth-flow.yaml\r\n      variables:\r\n        - name: username\r\n          value: pdteam\r\n        - name: password\r\n          value: nuclei-fuzz\r\n      type: cookie\r\n      domains:\r\n        - .*.projectdiscovery.io\r\n      headers:\r\n        - key: Authorization\r\n          value: Bearer {{token}}\r\n```\n\n### Describe alternatives you've considered\n\n_No response_\n\n### Additional context\n\n_No response_"
   },
@@ -245,10 +245,10 @@
       "$25"
     ],
     "comment_count": 11,
-    "open_pr_count": 2,
+    "open_pr_count": 3,
     "repository": "projectdiscovery/nuclei",
     "created_at": "2022-05-25T11:24:01Z",
-    "updated_at": "2026-03-03T08:39:35Z",
+    "updated_at": "2026-03-17T16:52:03Z",
     "author": "forgedhallpass",
     "body": ""
   },
@@ -469,7 +469,7 @@
       "bounty"
     ],
     "comment_count": 8,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-06-10T23:15:21Z",
     "updated_at": "2026-01-05T17:02:48Z",
