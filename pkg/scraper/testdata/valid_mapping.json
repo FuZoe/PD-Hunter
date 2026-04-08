@@ -1,0 +1,14 @@
+{
+  "organizations": [
+    {
+      "name": "testorg",
+      "labels": ["bounty", "💎 Bounty"],
+      "note": "Test organization"
+    },
+    {
+      "name": "anotherorg",
+      "labels": ["reward"],
+      "note": "Another test org"
+    }
+  ]
+}

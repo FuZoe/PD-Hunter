@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+body {
+  background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 50%, #0a0a0f 100%);
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .glow-green {
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  }
+  .glow-cyan {
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  }
+  .glow-purple {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  }
+  .card-glow:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
+    transform: translateY(-2px);
+  }
+  .s-tier-glow {
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  .friction-low {
+    border-left: 3px solid #00ff88;
+  }
+  .friction-medium {
+    border-left: 3px solid #fbbf24;
+  }
+  .friction-high {
+    border-left: 3px solid #ef4444;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #12121a;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #1e1e2e;
+    border-radius: 3px;
+  }
+}

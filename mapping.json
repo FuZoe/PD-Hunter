@@ -14,6 +14,66 @@
       "name": "commaai",
       "labels": ["bounty"],
       "note": "Autonomous driving bounties, often $1,000+."
+    },
+    {
+      "name": "appwrite",
+      "labels": ["bounty"],
+      "note": "Open-source backend-as-a-service platform."
+    },
+    {
+      "name": "supabase",
+      "labels": ["bounty"],
+      "note": "Open-source Firebase alternative."
+    },
+    {
+      "name": "cal-com",
+      "labels": ["bounty", "💰 Bounty"],
+      "note": "Open-source scheduling infrastructure."
+    },
+    {
+      "name": "twentyhq",
+      "labels": ["bounty"],
+      "note": "Open-source CRM platform."
+    },
+    {
+      "name": "formbricks",
+      "labels": ["bounty"],
+      "note": "Open-source survey and experience management."
+    },
+    {
+      "name": "documenso",
+      "labels": ["bounty"],
+      "note": "Open-source DocuSign alternative."
+    },
+    {
+      "name": "highlight",
+      "labels": ["bounty"],
+      "note": "Open-source full-stack monitoring platform."
+    },
+    {
+      "name": "trigger-dev",
+      "labels": ["bounty"],
+      "note": "Open-source background job framework."
+    },
+    {
+      "name": "algora-io",
+      "labels": ["bounty", "💎 Bounty"],
+      "note": "Bounty marketplace for open-source."
+    },
+    {
+      "name": "hoppscotch",
+      "labels": ["bounty"],
+      "note": "Open-source API development ecosystem."
+    },
+    {
+      "name": "nhost",
+      "labels": ["bounty"],
+      "note": "Open-source Firebase alternative with GraphQL."
+    },
+    {
+      "name": "zeropsio",
+      "labels": ["bounty"],
+      "note": "Cloud platform with open-source bounties."
     }
   ]
 }

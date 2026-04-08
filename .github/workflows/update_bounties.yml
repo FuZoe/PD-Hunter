@@ -3,10 +3,21 @@ name: Update Bounty Intelligence (Multi-Org)
 on:
   schedule:
     - cron: '0 */6 * * *'  # Every 6 hours
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      organization:
+        description: 'Specific organization to scan (leave empty for all)'
+        required: false
+        default: ''
+      skip_enrich:
+        description: 'Skip AI enrichment step'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   update-bounties:
@@ -30,24 +41,63 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install openai
+          pip install -r requirements.txt
 
-      - name: Fetch latest bounty issues (3 organizations)
+      - name: Fetch latest bounty issues
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Scanning: projectdiscovery, onyx-dot-app, commaai"
-          go run fetch_bounty_issues.go
+          echo "Scanning organizations from mapping.json..."
+          go run ./cmd/hunter scan --config mapping.json --output bounty_issues.json
+
+      - name: Validate fetched data
+        run: |
+          if [ ! -f bounty_issues.json ]; then
+            echo "ERROR: bounty_issues.json not found"
+            exit 1
+          fi
+          ISSUE_COUNT=$(python3 -c "import json; print(len(json.load(open('bounty_issues.json'))))")
+          echo "Fetched $ISSUE_COUNT issues"
+          if [ "$ISSUE_COUNT" -eq 0 ]; then
+            echo "WARNING: No issues fetched, skipping update"
+            exit 1
+          fi
 
       - name: Enrich bounties with AI (preserving expert hints)
+        if: ${{ github.event.inputs.skip_enrich != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
         run: |
           python enrich_bounties.py
 
-      - name: Copy enriched data to static folder
+      - name: Validate enriched data
+        run: |
+          python3 -c "
+          import json, sys
+          data = json.load(open('enriched_bounties.json'))
+          errors = []
+          for item in data:
+              if 'hunter_intelligence' not in item:
+                  errors.append(f'Issue #{item.get(\"number\", \"?\")} missing hunter_intelligence')
+              else:
+                  hi = item['hunter_intelligence']
+                  if hi.get('friction_level') not in ('High', 'Medium', 'Low'):
+                      errors.append(f'Issue #{item[\"number\"]} invalid friction_level: {hi.get(\"friction_level\")}')
+                  if hi.get('bounty_tier') not in ('S-Tier', 'A-Tier', 'B-Tier'):
+                      errors.append(f'Issue #{item[\"number\"]} invalid bounty_tier: {hi.get(\"bounty_tier\")}')
+          if errors:
+              print(f'Validation errors ({len(errors)}):')
+              for e in errors[:10]:
+                  print(f'  - {e}')
+              sys.exit(1)
+          print(f'Validated {len(data)} enriched issues successfully')
+          "
+
+      - name: Copy enriched data to static and frontend
         run: |
           cp enriched_bounties.json static/enriched_bounties.json
+          mkdir -p frontend/public/data
+          cp enriched_bounties.json frontend/public/data/enriched_bounties.json
 
       - name: Check for changes
         id: changes
@@ -59,6 +109,21 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add bounty_issues.json enriched_bounties.json static/enriched_bounties.json
-          git commit -m "🔄 Auto-update bounty radar [$(date -u +%Y-%m-%d)]"
+          git add bounty_issues.json enriched_bounties.json static/enriched_bounties.json frontend/public/data/enriched_bounties.json
+          git commit -m "chore: auto-update bounty radar [$(date -u +%Y-%m-%d)]"
           git push
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Bounty update pipeline failed - ${new Date().toISOString().split('T')[0]}`;
+            const body = `The automated bounty update pipeline failed.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\nPlease investigate.`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['bug', 'pipeline']
+            });
