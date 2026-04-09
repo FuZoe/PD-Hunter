@@ -9,10 +9,10 @@
       "💎 Bounty"
     ],
     "comment_count": 66,
-    "open_pr_count": 22,
+    "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-04-07T20:04:15Z",
+    "updated_at": "2026-04-08T19:56:58Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -34,7 +34,7 @@
       "comma three"
     ],
     "comment_count": 12,
-    "open_pr_count": 1,
+    "open_pr_count": 2,
     "repository": "commaai/openpilot",
     "created_at": "2026-02-20T18:44:57Z",
     "updated_at": "2026-03-15T16:44:41Z",
@@ -58,7 +58,7 @@
       "bounty"
     ],
     "comment_count": 5,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2025-10-28T21:29:59Z",
     "updated_at": "2026-01-20T06:47:02Z",
@@ -130,7 +130,7 @@
       "bounty"
     ],
     "comment_count": 2,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/opendbc",
     "created_at": "2025-07-03T02:52:35Z",
     "updated_at": "2026-03-04T12:49:24Z",
@@ -153,7 +153,7 @@
       "bounty"
     ],
     "comment_count": 4,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/flash",
     "created_at": "2025-04-03T18:35:54Z",
     "updated_at": "2026-03-10T18:00:37Z",
@@ -178,7 +178,7 @@
       "bounty"
     ],
     "comment_count": 24,
-    "open_pr_count": 5,
+    "open_pr_count": 1,
     "repository": "commaai/panda",
     "created_at": "2025-03-13T11:02:22Z",
     "updated_at": "2026-04-08T16:58:14Z",
@@ -202,7 +202,7 @@
       "bounty"
     ],
     "comment_count": 8,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/panda",
     "created_at": "2024-12-13T00:02:02Z",
     "updated_at": "2026-03-31T18:16:40Z",
@@ -325,7 +325,7 @@
       "bounty"
     ],
     "comment_count": 13,
-    "open_pr_count": 2,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-06-03T23:14:00Z",
     "updated_at": "2026-03-02T16:38:21Z",
@@ -349,7 +349,7 @@
       "bounty"
     ],
     "comment_count": 20,
-    "open_pr_count": 0,
+    "open_pr_count": 3,
     "repository": "commaai/agnos-builder",
     "created_at": "2024-05-25T23:05:47Z",
     "updated_at": "2025-03-03T19:43:04Z",
@@ -374,7 +374,7 @@
       "bounty"
     ],
     "comment_count": 32,
-    "open_pr_count": 0,
+    "open_pr_count": 2,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-25T18:55:45Z",
     "updated_at": "2026-03-15T14:50:24Z",
@@ -398,7 +398,7 @@
       "bounty"
     ],
     "comment_count": 5,
-    "open_pr_count": 3,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
     "updated_at": "2026-03-04T10:24:05Z",
@@ -422,7 +422,7 @@
       "comma three"
     ],
     "comment_count": 9,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
     "updated_at": "2026-03-15T16:44:58Z",
@@ -448,7 +448,7 @@
       "hyundai"
     ],
     "comment_count": 3,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-10T01:55:23Z",
     "updated_at": "2026-02-27T04:18:28Z",
@@ -473,7 +473,7 @@
       "comma three"
     ],
     "comment_count": 4,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-03T00:23:19Z",
     "updated_at": "2026-03-15T16:44:58Z",
@@ -524,7 +524,7 @@
       "ford"
     ],
     "comment_count": 66,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2023-10-21T16:57:07Z",
     "updated_at": "2025-07-17T01:11:58Z",
@@ -549,7 +549,7 @@
       "bounty"
     ],
     "comment_count": 15,
-    "open_pr_count": 4,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2023-09-29T14:28:48Z",
     "updated_at": "2026-03-11T01:31:38Z",
