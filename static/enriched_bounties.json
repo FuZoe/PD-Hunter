@@ -8,11 +8,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 67,
+    "comment_count": 69,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-04-10T06:14:22Z",
+    "updated_at": "2026-04-10T12:28:11Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -120,7 +120,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 71,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
@@ -151,7 +151,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 67,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
@@ -177,12 +177,12 @@
       "bounty_tier": "S-Tier",
       "bounty_amount": 4000,
       "is_hidden_gem": true,
-      "bounty_score": 68,
+      "bounty_score": 67,
       "score_breakdown": {
         "amount": 80,
         "feasibility": 30,
         "competition": 81,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -522,12 +522,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 46,
+      "bounty_score": 45,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -655,7 +655,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
