@@ -74,6 +74,36 @@
       "name": "zeropsio",
       "labels": ["bounty"],
       "note": "Cloud platform with open-source bounties."
+    },
+    {
+      "name": "qdrant",
+      "labels": ["bounty"],
+      "note": "High-performance vector search engine."
+    },
+    {
+      "name": "remotion-dev",
+      "labels": ["bounty"],
+      "note": "Programmatic video creation framework."
+    },
+    {
+      "name": "golemcloud",
+      "labels": ["bounty"],
+      "note": "Invincible distributed computing platform."
+    },
+    {
+      "name": "million-js",
+      "labels": ["bounty"],
+      "note": "Extremely fast virtual DOM for React."
+    },
+    {
+      "name": "zio",
+      "labels": ["bounty"],
+      "note": "Type-safe composable asynchronous programming for Scala."
+    },
+    {
+      "name": "keephq",
+      "labels": ["bounty"],
+      "note": "Open-source alert management platform."
     }
   ]
 }

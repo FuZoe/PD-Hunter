@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/FuZoe/PD-Hunter/pkg/exporter"
 	"github.com/FuZoe/PD-Hunter/pkg/scraper"
@@ -10,8 +11,9 @@ import (
 )
 
 var (
-	configFile string
-	outputFile string
+	configFile   string
+	outputFile   string
+	enrichScript string
 )
 
 func main() {
@@ -27,10 +29,19 @@ func main() {
 		RunE:  runScan,
 	}
 
+	enrichCmd := &cobra.Command{
+		Use:   "enrich",
+		Short: "Enrich bounty issues with AI-powered analysis",
+		Long:  "Run AI-powered analysis on bounty issues using GPT-4o via GitHub Models.\nRequires GITHUB_TOKEN environment variable.",
+		RunE:  runEnrich,
+	}
+
 	scanCmd.Flags().StringVarP(&configFile, "config", "c", "mapping.json", "Path to organization config file")
 	scanCmd.Flags().StringVarP(&outputFile, "output", "o", "bounty_issues.json", "Output JSON file path")
+	enrichCmd.Flags().StringVarP(&enrichScript, "script", "s", "enrich_bounties.py", "Path to Python enrichment script")
 
 	rootCmd.AddCommand(scanCmd)
+	rootCmd.AddCommand(enrichCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -61,5 +72,25 @@ func runScan(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("exporting: %w", err)
 	}
 
+	return nil
+}
+
+func runEnrich(cmd *cobra.Command, args []string) error {
+	token := os.Getenv("GITHUB_TOKEN")
+	if token == "" {
+		return fmt.Errorf("GITHUB_TOKEN environment variable is required for AI enrichment")
+	}
+
+	fmt.Printf("Running AI enrichment via %s...\n", enrichScript)
+	c := exec.Command("python3", enrichScript)
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	c.Env = os.Environ()
+
+	if err := c.Run(); err != nil {
+		return fmt.Errorf("enrichment failed: %w", err)
+	}
+
+	fmt.Println("Enrichment complete!")
 	return nil
 }

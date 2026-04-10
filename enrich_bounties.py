@@ -14,6 +14,7 @@ import json
 import os
 import re
 import time
+from datetime import datetime, timezone
 from openai import OpenAI
 
 INPUT_FILE = "bounty_issues.json"
@@ -76,6 +77,46 @@ def get_bounty_tier(amount: int) -> str:
         return "A-Tier"
     else:
         return "B-Tier"
+
+def calculate_bounty_score(issue: dict, intel: dict) -> tuple:
+    """Calculate comprehensive bounty score (0-100) with breakdown.
+    
+    Score = 0.35 * AmountScore + 0.25 * FeasibilityScore + 0.25 * CompetitionScore + 0.15 * FreshnessScore
+    """
+    # Amount score: $5000+ = 100
+    amount = intel.get("bounty_amount", 0)
+    amount_score = min(amount / 50, 100)
+    
+    # Feasibility score based on friction level
+    friction = intel.get("friction_level", "Medium")
+    feasibility_map = {"Low": 90, "Medium": 60, "High": 30}
+    feasibility_score = feasibility_map.get(friction, 60)
+    
+    # Competition score: fewer PRs and comments = higher score
+    open_prs = issue.get("open_pr_count", 0)
+    comments = issue.get("comment_count", 0)
+    competition_score = max(0, 100 - open_prs * 15 - comments * 2)
+    
+    # Freshness score: more recently updated = higher score
+    updated = issue.get("updated_at", "")
+    try:
+        updated_date = datetime.fromisoformat(updated.replace("Z", "+00:00"))
+        days_old = (datetime.now(timezone.utc) - updated_date).days
+        freshness_score = max(0, 100 - days_old * 0.5)
+    except (ValueError, TypeError):
+        freshness_score = 50
+    
+    total = int(0.35 * amount_score + 0.25 * feasibility_score + 0.25 * competition_score + 0.15 * freshness_score)
+    total = max(0, min(100, total))
+    
+    breakdown = {
+        "amount": int(amount_score),
+        "feasibility": int(feasibility_score),
+        "competition": int(competition_score),
+        "freshness": int(freshness_score)
+    }
+    
+    return total, breakdown
 
 def is_hidden_gem(issue: dict) -> bool:
     """Check if issue is a Hidden Gem (low competition opportunity)
@@ -214,14 +255,21 @@ def main():
             print(f"[{i}/{len(issues)}] PRESERVED: #{issue_num} - {issue['title'][:50]}...")
             
             hidden_gem = is_hidden_gem(issue)
+            partial_intel = {
+                "friction_level": existing.get("friction_level", "Medium"),
+                "bounty_amount": bounty_amount,
+            }
+            score, score_breakdown = calculate_bounty_score(issue, partial_intel)
             enriched_issue = {
                 **issue,
                 "hunter_intelligence": {
                     "friction_level": existing.get("friction_level", "Medium"),
                     "technical_hint": existing.get("technical_hint", "Review the issue details."),
-                    "bounty_tier": bounty_tier,  # Recalculate tier in case bounty changed
+                    "bounty_tier": bounty_tier,
                     "bounty_amount": bounty_amount,
-                    "is_hidden_gem": hidden_gem
+                    "is_hidden_gem": hidden_gem,
+                    "bounty_score": score,
+                    "score_breakdown": score_breakdown
                 }
             }
             preserved_count += 1
@@ -232,6 +280,11 @@ def main():
             ai_analysis = analyze_issue_with_ai(client, issue)
             
             hidden_gem = is_hidden_gem(issue)
+            new_intel = {
+                "friction_level": ai_analysis.get("friction_level", "Medium"),
+                "bounty_amount": bounty_amount,
+            }
+            score, score_breakdown = calculate_bounty_score(issue, new_intel)
             enriched_issue = {
                 **issue,
                 "hunter_intelligence": {
@@ -239,7 +292,9 @@ def main():
                     "technical_hint": ai_analysis.get("technical_hint", "Review the issue details."),
                     "bounty_tier": bounty_tier,
                     "bounty_amount": bounty_amount,
-                    "is_hidden_gem": hidden_gem
+                    "is_hidden_gem": hidden_gem,
+                    "bounty_score": score,
+                    "score_breakdown": score_breakdown
                 }
             }
             

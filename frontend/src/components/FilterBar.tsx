@@ -133,6 +133,7 @@ export default function FilterBar({
             onChange={(e) => setSortOption(e.target.value as SortOption)}
             className="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-green outline-none"
           >
+            <option value="score-desc">Score: Best Match</option>
             <option value="bounty-desc">Bounty: High &rarr; Low</option>
             <option value="bounty-asc">Bounty: Low &rarr; High</option>
             <option value="friction-asc">Friction: Low &rarr; High</option>

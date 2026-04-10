@@ -2,12 +2,35 @@
 
 import { BountyIssue } from "@/lib/types";
 import { formatBounty, formatDate, tierColors, frictionConfig, cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface BountyCardProps {
   bounty: BountyIssue;
+  index?: number;
 }
 
-export default function BountyCard({ bounty }: BountyCardProps) {
+function ScoreBadge({ score }: { score: number }) {
+  const color =
+    score >= 75
+      ? "border-hacker-green text-hacker-green"
+      : score >= 50
+      ? "border-hacker-yellow text-hacker-yellow"
+      : "border-hacker-red text-hacker-red";
+
+  return (
+    <div
+      className={cn(
+        "w-10 h-10 rounded-full flex items-center justify-center text-xs font-mono font-bold border-2",
+        color
+      )}
+      title={`BountyScore: ${score}/100`}
+    >
+      {score}
+    </div>
+  );
+}
+
+export default function BountyCard({ bounty, index = 0 }: BountyCardProps) {
   const intel = bounty.hunter_intelligence;
   const tier = tierColors[intel.bounty_tier] || tierColors["B-Tier"];
   const friction = frictionConfig[intel.friction_level];
@@ -16,7 +39,10 @@ export default function BountyCard({ bounty }: BountyCardProps) {
   const updatedDate = formatDate(bounty.updated_at);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
       className={cn(
         "bg-hacker-card rounded-xl border overflow-hidden card-glow transition-all duration-300",
         isSTier ? "border-hacker-yellow s-tier-glow" : "border-hacker-border",
@@ -36,20 +62,30 @@ export default function BountyCard({ bounty }: BountyCardProps) {
               #{bounty.number}
             </span>
           </div>
-          <div className="text-right">
-            <div
-              className={cn(
-                "text-2xl font-mono font-bold",
-                isSTier ? "text-hacker-yellow glow-green" : "text-hacker-green"
-              )}
-            >
-              {formatBounty(intel.bounty_amount)}
+          <div className="flex items-center gap-3">
+            {intel.bounty_score !== undefined && (
+              <ScoreBadge score={intel.bounty_score} />
+            )}
+            <div className="text-right">
+              <div
+                className={cn(
+                  "text-2xl font-mono font-bold",
+                  isSTier ? "text-hacker-yellow glow-green" : "text-hacker-green"
+                )}
+              >
+                {formatBounty(intel.bounty_amount)}
+              </div>
             </div>
           </div>
         </div>
-        <h3 className="font-semibold text-hacker-text leading-tight line-clamp-2 mb-2">
-          {bounty.title}
-        </h3>
+        <a
+          href={`/bounty/${bounty.number}`}
+          className="block"
+        >
+          <h3 className="font-semibold text-hacker-text leading-tight line-clamp-2 mb-2 hover:text-hacker-cyan transition-colors cursor-pointer">
+            {bounty.title}
+          </h3>
+        </a>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-hacker-cyan font-mono">{repoName}</span>
           <span className="text-hacker-muted">&bull;</span>
@@ -99,6 +135,6 @@ export default function BountyCard({ bounty }: BountyCardProps) {
           HUNT &rarr;
         </a>
       </div>
-    </div>
+    </motion.div>
   );
 }

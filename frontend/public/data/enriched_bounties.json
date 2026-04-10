@@ -20,7 +20,14 @@
       "technical_hint": "Review the connector creation guidelines in the provided README and ensure proper handling of Jira API pagination and authentication mechanisms.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 22,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 30,
+        "competition": 0,
+        "freshness": 99
+      }
     }
   },
   {
@@ -45,7 +52,14 @@
       "technical_hint": "Focus on implementing AT command handling for both Quectel modems and ensure routing priority logic is preserved while replacing dbus with a lightweight state management approach like a shared memory file.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 500,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 43,
+      "score_breakdown": {
+        "amount": 10,
+        "feasibility": 60,
+        "competition": 46,
+        "freshness": 87
+      }
     }
   },
   {
@@ -69,7 +83,14 @@
       "technical_hint": "Investigate the rendering pipeline in the UI code for frame synchronization issues and ensure vertical sync (vsync) is properly implemented to eliminate tearing.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 75,
+        "freshness": 60
+      }
     }
   },
   {
@@ -93,7 +114,14 @@
       "technical_hint": "Ensure the pip package includes all necessary firmware files and dependencies, and update pyproject.toml in openpilot to reference the new package for CI validation.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 71,
+        "freshness": 78
+      }
     }
   },
   {
@@ -117,7 +145,14 @@
       "technical_hint": "Focus on analyzing branches with low coverage using the coverage report and prioritize removing or rewriting redundant logic before adding tests.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 67,
+        "freshness": 78
+      }
     }
   },
   {
@@ -141,7 +176,14 @@
       "technical_hint": "⚠️ Physical Access Required. This is a Hardware Bounty. Do not attempt unless you own or have access to a 2025+ Rivian and a comma 3X. Simulated PRs will be rejected immediately by maintainers.",
       "bounty_tier": "S-Tier",
       "bounty_amount": 4000,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 68,
+      "score_breakdown": {
+        "amount": 80,
+        "feasibility": 30,
+        "competition": 81,
+        "freshness": 82
+      }
     }
   },
   {
@@ -164,7 +206,14 @@
       "technical_hint": "Create a professional-quality video walkthrough of flash.comma.ai, ensuring clear visuals and audio, and submit a PR embedding the video on the site as per the examples provided.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 100,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 55,
+      "score_breakdown": {
+        "amount": 2,
+        "feasibility": 90,
+        "competition": 77,
+        "freshness": 85
+      }
     }
   },
   {
@@ -189,7 +238,14 @@
       "technical_hint": "Focus on reorganizing files by separating logic into `.c` source files and `.h` header files, ensuring proper dependency management and minimal changes to existing functionality.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 500,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 42,
+      "score_breakdown": {
+        "amount": 10,
+        "feasibility": 60,
+        "competition": 37,
+        "freshness": 99
+      }
     }
   },
   {
@@ -213,7 +269,14 @@
       "technical_hint": "Implement a custom cppcheck rule to detect implicit conversions of integers to booleans, test it locally, and prepare a patch for upstream submission.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 54,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 69,
+        "freshness": 95
+      }
     }
   },
   {
@@ -238,7 +301,14 @@
       "technical_hint": "Ensure macOS compatibility by debugging dependencies and environment setup in test_metadrive_bridge.py, focusing on any Linux-specific assumptions or hardcoded paths.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 54,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 69,
+        "freshness": 98
+      }
     }
   },
   {
@@ -262,7 +332,14 @@
       "technical_hint": "Analyze the build.yaml file to identify redundant steps, optimize dependency installation, and implement parallelization using GitHub Actions' 'matrix' strategy.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 600,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 45,
+      "score_breakdown": {
+        "amount": 12,
+        "feasibility": 60,
+        "competition": 57,
+        "freshness": 78
+      }
     }
   },
   {
@@ -286,7 +363,14 @@
       "technical_hint": "Implement a function in the Panda firmware to read CAN messages from the SD card in a predefined format and replay them, leveraging existing CAN transmission logic.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 43,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 83,
+        "freshness": 0
+      }
     }
   },
   {
@@ -311,7 +395,14 @@
       "technical_hint": "Use git bisect to identify the specific Hypothesis version and commit that introduced the performance regression, then analyze changes related to example generation or test strategies.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 47,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 69,
+        "freshness": 53
+      }
     }
   },
   {
@@ -336,7 +427,14 @@
       "technical_hint": "Optimize pytest configuration by reducing unnecessary plugins and test discovery paths, and consider using pytest's `--disable-warnings` and `--cache-clear` options to streamline collection.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 41,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 59,
+        "freshness": 81
+      }
     }
   },
   {
@@ -360,7 +458,14 @@
       "technical_hint": "Use `scripts/check_space.sh` to identify and remove unnecessary build-time dependencies and package caches, then consider creating an 'AGNOS dev' package for optional extras.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 18,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 15,
+        "freshness": 0
+      }
     }
   },
   {
@@ -385,7 +490,14 @@
       "technical_hint": "Profile the test using `pytest --durations=0` to identify bottlenecks, and optimize repeated or expensive operations in the `test_car_interfaces` logic, such as mocking external dependencies or caching results.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 22,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 30,
+        "competition": 6,
+        "freshness": 87
+      }
     }
   },
   {
@@ -409,7 +521,14 @@
       "technical_hint": "Review the existing fuzzing implementation for rx messages in the linked PR and adapt it to target tx message logic, ensuring compatibility with both openpilot and panda's safety checks.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 46,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 75,
+        "freshness": 82
+      }
     }
   },
   {
@@ -433,7 +552,14 @@
       "technical_hint": "Requires expertise in AT Commands and Linux Networking (Route Metrics). The key is to strip ModemManager to ~200 lines of Python. Bounty requires 10+ Discord users to sign off.",
       "bounty_tier": "S-Tier",
       "bounty_amount": 1000,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 44,
+      "score_breakdown": {
+        "amount": 20,
+        "feasibility": 30,
+        "competition": 67,
+        "freshness": 87
+      }
     }
   },
   {
@@ -459,7 +585,14 @@
       "technical_hint": "Review the Hyundai-specific logic in `selfdrive/car/hyundai` and `panda/board/safety/safety_hyundai.h` to align button behavior with stock functionality, focusing on differentiating CAN and CAN FD signals for main and pause/resume buttons.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 54,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 79,
+        "freshness": 79
+      }
     }
   },
   {
@@ -484,7 +617,14 @@
       "technical_hint": "Analyze the AGNOS kernel configuration in the agnos-builder repository to disable unnecessary modules (e.g., NFC, Bluetooth) and optimize boot parameters using tools like `systemd-analyze` and `dmesg` for bottleneck identification.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true
+      "is_hidden_gem": true,
+      "bounty_score": 54,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 90,
+        "competition": 77,
+        "freshness": 87
+      }
     }
   },
   {
@@ -509,7 +649,14 @@
       "technical_hint": "Ensure the MetaDrive simulation runs deterministically by mocking any external dependencies and verify compatibility with GitHub Actions' resource constraints.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 42,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 57,
+        "freshness": 91
+      }
     }
   },
   {
@@ -535,7 +682,14 @@
       "technical_hint": "Investigate the Ford Q4 Harness initialization sequence and CAN-FD message handling for potential misconfigurations or conflicts when the USB-C cable is connected but OpenPilot is not actively running.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 200,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 8,
+      "score_breakdown": {
+        "amount": 4,
+        "feasibility": 30,
+        "competition": 0,
+        "freshness": 0
+      }
     }
   },
   {
@@ -560,7 +714,14 @@
       "technical_hint": "Investigate the 'deleter' process handling logic to ensure it properly ignores or cleans up non-openpilot created files, focusing on file ownership checks and error handling mechanisms.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false
+      "is_hidden_gem": false,
+      "bounty_score": 41,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 55,
+        "freshness": 85
+      }
     }
   }
 ]

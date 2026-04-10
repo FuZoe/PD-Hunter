@@ -35,6 +35,22 @@ jobs:
       - name: Build CLI
         run: go build -o hunter ./cmd/hunter
 
+  python-check:
+    name: Python Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest tests/ -v --cov=enrich_bounties --cov-report=term-missing
+
   frontend-check:
     name: Frontend Lint & Build
     runs-on: ubuntu-latest
@@ -61,3 +77,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t pd-hunter:test .

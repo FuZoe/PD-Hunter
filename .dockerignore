@@ -1,0 +1,13 @@
+.git
+.github
+.windsurf
+frontend/node_modules
+frontend/.next
+frontend/out
+__pycache__
+*.exe
+hunter
+hunter.exe
+*.md
+!requirements.txt
+static/

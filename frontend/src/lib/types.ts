@@ -1,9 +1,18 @@
+export interface ScoreBreakdown {
+  amount: number;
+  feasibility: number;
+  competition: number;
+  freshness: number;
+}
+
 export interface HunterIntelligence {
   friction_level: "High" | "Medium" | "Low";
   technical_hint: string;
   bounty_tier: "S-Tier" | "A-Tier" | "B-Tier";
   bounty_amount: number;
   is_hidden_gem: boolean;
+  bounty_score?: number;
+  score_breakdown?: ScoreBreakdown;
 }
 
 export interface BountyIssue {
@@ -25,6 +34,7 @@ export interface BountyIssue {
 export type TierFilter = "all" | "S-Tier" | "A-Tier" | "B-Tier";
 
 export type SortOption =
+  | "score-desc"
   | "bounty-desc"
   | "bounty-asc"
   | "friction-asc"

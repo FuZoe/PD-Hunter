@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import Fuse from "fuse.js";
 import { BountyIssue, TierFilter, SortOption } from "@/lib/types";
 
 interface GemThresholds {
@@ -10,7 +11,7 @@ interface GemThresholds {
 
 export function useFilters(bounties: BountyIssue[]) {
   const [tierFilter, setTierFilter] = useState<TierFilter>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("bounty-desc");
+  const [sortOption, setSortOption] = useState<SortOption>("score-desc");
   const [hiddenGemsMode, setHiddenGemsMode] = useState(false);
   const [gemThresholds, setGemThresholds] = useState<GemThresholds>({
     maxPR: 3,
@@ -22,20 +23,27 @@ export function useFilters(bounties: BountyIssue[]) {
     setHiddenGemsMode((prev) => !prev);
   }, []);
 
+  const fuse = useMemo(() => {
+    return new Fuse(bounties, {
+      keys: [
+        { name: "title", weight: 0.3 },
+        { name: "repository", weight: 0.2 },
+        { name: "labels", weight: 0.15 },
+        { name: "hunter_intelligence.technical_hint", weight: 0.2 },
+        { name: "body", weight: 0.15 },
+      ],
+      threshold: 0.4,
+      includeScore: true,
+    });
+  }, [bounties]);
+
   const filtered = useMemo(() => {
     let result = [...bounties];
 
-    // Search filter
+    // Fuse.js fuzzy search
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (b) =>
-          b.title.toLowerCase().includes(q) ||
-          b.repository.toLowerCase().includes(q) ||
-          b.labels.some((l) => l.toLowerCase().includes(q)) ||
-          b.hunter_intelligence.technical_hint.toLowerCase().includes(q) ||
-          b.body?.toLowerCase().includes(q)
-      );
+      const fuseResults = fuse.search(searchQuery);
+      result = fuseResults.map((r) => r.item);
     }
 
     // Hidden gems filter
@@ -57,6 +65,13 @@ export function useFilters(bounties: BountyIssue[]) {
     // Sort
     const frictionOrder = { Low: 1, Medium: 2, High: 3 };
     switch (sortOption) {
+      case "score-desc":
+        result.sort(
+          (a, b) =>
+            (b.hunter_intelligence.bounty_score ?? 0) -
+            (a.hunter_intelligence.bounty_score ?? 0)
+        );
+        break;
       case "bounty-desc":
         result.sort(
           (a, b) =>
@@ -87,7 +102,7 @@ export function useFilters(bounties: BountyIssue[]) {
     }
 
     return result;
-  }, [bounties, tierFilter, sortOption, hiddenGemsMode, gemThresholds, searchQuery]);
+  }, [bounties, tierFilter, sortOption, hiddenGemsMode, gemThresholds, searchQuery, fuse]);
 
   return {
     filtered,

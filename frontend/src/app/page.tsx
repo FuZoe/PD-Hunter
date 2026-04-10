@@ -5,6 +5,8 @@ import { useFilters } from "@/hooks/useFilters";
 import StatsPanel from "@/components/StatsPanel";
 import FilterBar from "@/components/FilterBar";
 import BountyCard from "@/components/BountyCard";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function Home() {
   const { bounties, loading, stats } = useBounties();
@@ -44,6 +46,14 @@ export default function Home() {
                 </h1>
               </div>
               <span className="text-hacker-muted font-mono text-sm">v2.0.0</span>
+              <nav className="hidden sm:flex items-center gap-4 ml-6">
+                <Link href="/" className="text-hacker-green font-mono text-sm border-b border-hacker-green pb-0.5">
+                  Dashboard
+                </Link>
+                <Link href="/explore" className="text-hacker-muted font-mono text-sm hover:text-hacker-green transition-colors">
+                  Explore
+                </Link>
+              </nav>
             </div>
             <div className="flex items-center gap-6">
               <div className="text-right">
@@ -104,7 +114,12 @@ export default function Home() {
           <>
             {/* Featured S-Tier Section */}
             {showFeatured && (
-              <section className="mb-10">
+              <motion.section
+                className="mb-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-2xl">{"\u26A1"}</span>
                   <h2 className="text-xl font-mono font-bold text-hacker-yellow">
@@ -112,11 +127,11 @@ export default function Home() {
                   </h2>
                 </div>
                 <div className="grid gap-6">
-                  {sTierBounties.map((b) => (
-                    <BountyCard key={b.url} bounty={b} />
+                  {sTierBounties.map((b, i) => (
+                    <BountyCard key={b.url} bounty={b} index={i} />
                   ))}
                 </div>
-              </section>
+              </motion.section>
             )}
 
             {/* All Bounties */}
@@ -131,8 +146,8 @@ export default function Home() {
                 </span>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(showFeatured ? otherBounties : filtered).map((b) => (
-                  <BountyCard key={b.url} bounty={b} />
+                {(showFeatured ? otherBounties : filtered).map((b, i) => (
+                  <BountyCard key={b.url} bounty={b} index={i} />
                 ))}
               </div>
             </section>

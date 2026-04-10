@@ -1,7 +1,12 @@
 "use client";
 
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { useEffect } from "react";
+
 interface StatsPanelProps {
   stats: {
+    total: number;
+    totalValue: number;
     sTier: number;
     aTier: number;
     bTier: number;
@@ -10,72 +15,49 @@ interface StatsPanelProps {
   };
 }
 
+function AnimatedNumber({ value, prefix = "" }: { value: number; prefix?: string }) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (v) => `${prefix}${Math.round(v).toLocaleString()}`);
+
+  useEffect(() => {
+    const controls = animate(count, value, {
+      duration: 1.2,
+      ease: "easeOut",
+    });
+    return controls.stop;
+  }, [value, count]);
+
+  return <motion.span>{rounded}</motion.span>;
+}
+
 const statItems = [
-  {
-    label: "S-TIER",
-    key: "sTier" as const,
-    colorBg: "bg-hacker-yellow/20",
-    colorText: "text-hacker-yellow",
-    display: "S",
-  },
-  {
-    label: "A-TIER",
-    key: "aTier" as const,
-    colorBg: "bg-hacker-purple/20",
-    colorText: "text-hacker-purple",
-    display: "A",
-  },
-  {
-    label: "B-TIER",
-    key: "bTier" as const,
-    colorBg: "bg-hacker-cyan/20",
-    colorText: "text-hacker-cyan",
-    display: "B",
-  },
-  {
-    label: "LOW FRICTION",
-    key: "lowFriction" as const,
-    colorBg: "bg-hacker-green/20",
-    colorText: "text-hacker-green",
-    display: "\u2713",
-  },
-  {
-    label: "HIDDEN GEMS",
-    key: "hiddenGems" as const,
-    colorBg: "bg-hacker-orange/20",
-    colorText: "text-hacker-orange",
-    display: "\uD83D\uDC8E",
-  },
-];
+  { key: "sTier", label: "S-TIER", color: "text-hacker-yellow" },
+  { key: "aTier", label: "A-TIER", color: "text-hacker-purple" },
+  { key: "bTier", label: "B-TIER", color: "text-hacker-cyan" },
+  { key: "lowFriction", label: "LOW FRICTION", color: "text-hacker-green" },
+  { key: "hiddenGems", label: "HIDDEN GEMS", color: "text-hacker-orange" },
+] as const;
 
 export default function StatsPanel({ stats }: StatsPanelProps) {
   return (
     <section className="border-b border-hacker-border bg-hacker-card/30">
       <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {statItems.map((item) => (
-            <div
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          {statItems.map((item, i) => (
+            <motion.div
               key={item.key}
-              className="bg-hacker-card rounded-lg p-4 border border-hacker-border"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+              className="text-center"
             >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-lg ${item.colorBg} flex items-center justify-center`}
-                >
-                  <span className={`${item.colorText} font-bold`}>
-                    {item.display}
-                  </span>
-                </div>
-                <div>
-                  <div className="text-hacker-muted text-xs font-mono">
-                    {item.label}
-                  </div>
-                  <div className={`${item.colorText} font-mono font-bold`}>
-                    {stats[item.key]}
-                  </div>
-                </div>
+              <div className={`text-2xl font-mono font-bold ${item.color}`}>
+                <AnimatedNumber value={stats[item.key]} />
               </div>
-            </div>
+              <div className="text-hacker-muted text-xs font-mono mt-1">
+                {item.label}
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -1,1 +1,3 @@
-openai>=1.0.0
+openai
+pytest
+pytest-cov
