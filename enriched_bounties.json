@@ -120,7 +120,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 71,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -151,7 +151,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 67,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -182,7 +182,7 @@
         "amount": 80,
         "feasibility": 30,
         "competition": 81,
-        "freshness": 81
+        "freshness": 80
       }
     }
   },
@@ -289,11 +289,11 @@
       "PC",
       "simulation"
     ],
-    "comment_count": 8,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-04-12T05:49:16Z",
+    "updated_at": "2026-04-12T07:18:10Z",
     "author": "adeebshihadeh",
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py.",
     "hunter_intelligence": {
@@ -306,7 +306,7 @@
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
-        "competition": 69,
+        "competition": 67,
         "freshness": 100
       }
     }
@@ -527,7 +527,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 81
+        "freshness": 80
       }
     }
   },
@@ -655,7 +655,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
