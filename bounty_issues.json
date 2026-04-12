@@ -167,7 +167,7 @@
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-04-06T01:16:05Z",
+    "updated_at": "2026-04-12T05:49:16Z",
     "author": "adeebshihadeh",
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py."
   },
