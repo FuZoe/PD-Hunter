@@ -333,12 +333,12 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 600,
       "is_hidden_gem": false,
-      "bounty_score": 45,
+      "bounty_score": 44,
       "score_breakdown": {
         "amount": 12,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
