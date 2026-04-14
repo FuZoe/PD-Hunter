@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { BountyIssue } from "@/lib/types";
 import { formatBounty, formatDate, tierColors, frictionConfig, cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -78,14 +79,14 @@ export default function BountyCard({ bounty, index = 0 }: BountyCardProps) {
             </div>
           </div>
         </div>
-        <a
+        <Link
           href={`/bounty/${bounty.number}`}
           className="block"
         >
           <h3 className="font-semibold text-hacker-text leading-tight line-clamp-2 mb-2 hover:text-hacker-cyan transition-colors cursor-pointer">
             {bounty.title}
           </h3>
-        </a>
+        </Link>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-hacker-cyan font-mono">{repoName}</span>
           <span className="text-hacker-muted">&bull;</span>

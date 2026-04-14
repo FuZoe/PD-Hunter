@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { BountyIssue, ScoreBreakdown } from "@/lib/types";
 import { formatBounty, formatDate, tierColors, frictionConfig, cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -109,7 +110,7 @@ export default function BountyDetailClient({ bounty }: BountyDetailClientProps) 
     >
       {/* Breadcrumb */}
       <nav className="text-sm font-mono text-hacker-muted mb-6">
-        <a href="/" className="hover:text-hacker-green transition-colors">Home</a>
+        <Link href="/" className="hover:text-hacker-green transition-colors">Home</Link>
         <span className="mx-2">/</span>
         <span className="text-hacker-cyan">{bounty.repository}</span>
         <span className="mx-2">/</span>
@@ -268,12 +269,12 @@ export default function BountyDetailClient({ bounty }: BountyDetailClientProps) 
             >
               HUNT THIS BOUNTY &rarr;
             </a>
-            <a
+            <Link
               href="/"
               className="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-xl border border-hacker-border text-hacker-muted font-mono text-sm hover:text-hacker-text hover:border-hacker-green transition-colors"
             >
               &larr; Back to Dashboard
-            </a>
+            </Link>
           </div>
         </div>
       </div>
