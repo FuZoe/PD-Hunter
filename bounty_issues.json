@@ -86,23 +86,6 @@
     "body": "Your goal is to [enable](https://github.com/commaai/opendbc/pull/2555) the branch coverage check and carefully fix all the violations.\n\nFor each violation:\n1. can we remove this branch?\n2. can we rewrite this branch?\n3. add test coverage\n\nOur test coverage should be fairly complete, so this should mostly be removing and rewriting.\n\nHere's where we're at now:\n\u003cimg width=\"2016\" height=\"932\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/d507c6e3-bc5b-415c-ab6a-4054b60be69b\" /\u003e"
   },
   {
-    "number": 2431,
-    "title": "[$4000 bounty] Rivian Gen2 port",
-    "url": "https://github.com/commaai/opendbc/issues/2431",
-    "state": "open",
-    "labels": [
-      "rivian",
-      "bounty"
-    ],
-    "comment_count": 3,
-    "open_pr_count": 1,
-    "repository": "commaai/opendbc",
-    "created_at": "2025-07-03T02:52:35Z",
-    "updated_at": "2026-04-17T09:05:57Z",
-    "author": "adeebshihadeh",
-    "body": "Let's get Gen2 Rivians supported! Any model is eligible.\n\nRequires a harness design/schematic, a high quality lateral port, and at least a proof-of-concept for longitudinal support."
-  },
-  {
     "number": 128,
     "title": "[$100 bounty] Make a high quality video walkthrough",
     "url": "https://github.com/commaai/flash/issues/128",

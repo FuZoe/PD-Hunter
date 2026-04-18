@@ -156,37 +156,6 @@
     }
   },
   {
-    "number": 2431,
-    "title": "[$4000 bounty] Rivian Gen2 port",
-    "url": "https://github.com/commaai/opendbc/issues/2431",
-    "state": "open",
-    "labels": [
-      "rivian",
-      "bounty"
-    ],
-    "comment_count": 3,
-    "open_pr_count": 1,
-    "repository": "commaai/opendbc",
-    "created_at": "2025-07-03T02:52:35Z",
-    "updated_at": "2026-04-17T09:05:57Z",
-    "author": "adeebshihadeh",
-    "body": "Let's get Gen2 Rivians supported! Any model is eligible.\n\nRequires a harness design/schematic, a high quality lateral port, and at least a proof-of-concept for longitudinal support.",
-    "hunter_intelligence": {
-      "friction_level": "High",
-      "technical_hint": "⚠️ Physical Access Required. This is a Hardware Bounty. Do not attempt unless you own or have access to a 2025+ Rivian and a comma 3X. Simulated PRs will be rejected immediately by maintainers.",
-      "bounty_tier": "S-Tier",
-      "bounty_amount": 4000,
-      "is_hidden_gem": true,
-      "bounty_score": 70,
-      "score_breakdown": {
-        "amount": 80,
-        "feasibility": 30,
-        "competition": 79,
-        "freshness": 100
-      }
-    }
-  },
-  {
     "number": 128,
     "title": "[$100 bounty] Make a high quality video walkthrough",
     "url": "https://github.com/commaai/flash/issues/128",
@@ -338,7 +307,7 @@
         "amount": 12,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
