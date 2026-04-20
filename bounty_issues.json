@@ -216,11 +216,11 @@
       "CI / testing",
       "bounty"
     ],
-    "comment_count": 13,
+    "comment_count": 15,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-06-03T23:14:00Z",
-    "updated_at": "2026-03-02T16:38:21Z",
+    "updated_at": "2026-04-19T23:14:33Z",
     "author": "sshane",
     "body": "Currently it takes ~6-7s with these plugins:\r\n\r\n```\r\nplatform linux -- Python 3.11.4, pytest-8.2.1, pluggy-1.5.0\r\nbenchmark: 4.0.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\r\nUsing --randomly-seed=3123610973\r\nrootdir: /home/batman/openpilot\r\nconfigfile: pyproject.toml\r\ntestpaths: tools/, common/, system/, selfdrive/\r\nplugins: anyio-4.3.0, timeout-2.3.1, xdist-3.6.1, cpp-2.5.0, cov-5.0.0, mock-3.14.0, forked-1.6.0, dash-2.11.1, benchmark-4.0.0, randomly-3.15.0, subtests-0.12.1, flaky-3.8.1, hypothesis-6.47.5, asyncio-0.23.7, nbmake-1.5.3, repeat-0.9.3\r\nasyncio: mode=Mode.STRICT\r\n\r\n============================================================================= 4011 tests collected in 6.46s ==============================================================================\r\n\r\nreal    0m8.935s\r\nuser    0m10.833s\r\nsys     0m2.163s\r\n```\r\n\r\n\r\nVerification:\r\n\r\nRun `time pytest --collect-only` in the root openpilot directory and post both the `real` time and the collection time as reported by pytest (`=== 4011 tests collected in 6.61s ===`). Include the times before and after your PR."
   },
