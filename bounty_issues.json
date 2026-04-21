@@ -8,11 +8,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 80,
+    "comment_count": 82,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-04-20T23:32:17Z",
+    "updated_at": "2026-04-21T14:21:53Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -286,7 +286,7 @@
       "comma three"
     ],
     "comment_count": 9,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
     "updated_at": "2026-03-15T16:44:58Z",
