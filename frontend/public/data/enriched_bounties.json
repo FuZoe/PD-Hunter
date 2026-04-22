@@ -307,7 +307,7 @@
         "amount": 12,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 73
+        "freshness": 72
       }
     }
   },
@@ -510,7 +510,7 @@
       "comma three"
     ],
     "comment_count": 9,
-    "open_pr_count": 0,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
     "updated_at": "2026-03-15T16:44:58Z",
@@ -522,11 +522,11 @@
       "bounty_tier": "S-Tier",
       "bounty_amount": 1000,
       "is_hidden_gem": true,
-      "bounty_score": 47,
+      "bounty_score": 43,
       "score_breakdown": {
         "amount": 20,
         "feasibility": 30,
-        "competition": 82,
+        "competition": 67,
         "freshness": 81
       }
     }
