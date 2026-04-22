@@ -35,23 +35,6 @@
     "body": "Let's replace ModemManager with ~200 lines of Python. Faster boot times, better [reliability](https://github.com/commaai/openpilot/blob/b27fa58444766c47f1ef980af79d324a669012c4/system/hardware/hardwared.py#L135), and tinier AGNOS.\n\n---\n\nBounty targets\n* All of openpilot works\n* Works on both comma 3X and comma four\n* At least 10 Discord users run it for a ~week and sign off on it, both with prime and non-prime service\n\nMisc notes:\n* comma 3X uses [Quectel EG25](https://www.quectel.com/product/lte-eg25-g/)\n* comma four uses [Quectl EG916](https://www.quectel.com/product/lte-cat-1-bis-eg916q-gl/)\n* Let's try not to make the comma 3X and comma four code paths too different if possible\n  * comma 3X currently uses QMI, but I think we can get away with just AT commands\n* routing priority still needs to work properly (e.g. WiFi \u003e LTE when both are up)\n* We'll need to replace dbus, maybe just write a dumb state file to `/dev/shm/modem_state.txt`?\n\n**Bonus target ($500):** `ping -c 1 google.com` works \u003c1 min after powering up a comma four with comma prime."
   },
   {
-    "number": 36515,
-    "title": "ui: get 60fps working on comma 3X",
-    "url": "https://github.com/commaai/openpilot/issues/36515",
-    "state": "open",
-    "labels": [
-      "enhancement",
-      "bounty"
-    ],
-    "comment_count": 5,
-    "open_pr_count": 1,
-    "repository": "commaai/openpilot",
-    "created_at": "2025-10-28T21:29:59Z",
-    "updated_at": "2026-01-20T06:47:02Z",
-    "author": "adeebshihadeh",
-    "body": "60FPS has some occasional tearing when scrolling, and probably a couple other issues we don't know about.\n\nSee: https://github.com/commaai/openpilot/pull/36502#issuecomment-3453714116\n\nMust run at 60FPS with no issues for the bounty.\n\n---\n\nFor reference: https://github.com/commaai/openpilot/pull/36502\n"
-  },
-  {
     "number": 2239,
     "title": "Setup proper pip package",
     "url": "https://github.com/commaai/panda/issues/2239",
@@ -189,24 +172,6 @@
     "body": "[panda jungle v2](https://comma.ai/shop/panda-jungle) has an SD card slot. The goal is to use that SD card to replay CAN messages from an openpilot route instead of having to run [can_replay.py](https://github.com/commaai/openpilot/blob/master/tools/replay/can_replay.py).\r\n\r\nThe on-disk format doesn't matter; we just need an easy script to \"provision\" the SD card. "
   },
   {
-    "number": 32693,
-    "title": "Determine cause of hypothesis slow example generation in newer versions",
-    "url": "https://github.com/commaai/openpilot/issues/32693",
-    "state": "open",
-    "labels": [
-      "good first issue",
-      "CI / testing",
-      "bounty"
-    ],
-    "comment_count": 8,
-    "open_pr_count": 1,
-    "repository": "commaai/openpilot",
-    "created_at": "2024-06-10T23:15:21Z",
-    "updated_at": "2026-01-05T17:02:48Z",
-    "author": "sshane",
-    "body": "Related to https://github.com/commaai/openpilot/issues/32536. This bounty is for determining *why* newer versions of hypothesis (6.103.1 vs our pinned 6.47) are so much slower at example generation for [test_car_interfaces.py](https://github.com/commaai/openpilot/blob/master/selfdrive/car/tests/test_car_interfaces.py).\r\n\r\nBounty\r\n---\r\n\r\nBounty is awarded for determining the exact cause and a solution for optimizing/fixing either the hypothesis library itself, or openpilot to improve the example generation times.\r\n\r\n---\r\n\r\nOn `AMD Ryzen Threadripper PRO 3955WX 16-Cores` on hypothesis==6.47.0:\r\n\r\n```python\r\nbatman@workstation-shane:~/openpilot/selfdrive/car/tests$ pytest -n8 test_car_interfaces.py\r\n/home/batman/.pyenv/versions/3.11.4/lib/python3.11/site-packages/pytest_benchmark/logger.py:46: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.\r\n  warner(PytestBenchmarkWarning(text))\r\nTest session starts (platform: linux, Python 3.11.4, pytest 8.2.1, pytest-sugar 1.0.0)\r\nbenchmark: 4.0.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\r\nUsing --randomly-seed=4244670443\r\nrootdir: /home/batman/openpilot\r\nconfigfile: pyproject.toml\r\nplugins: timeout-2.3.1, xdist-3.6.1, cpp-2.5.0, cov-5.0.0, mock-3.14.0, forked-1.6.0, hypothesis-6.47.0, dash-2.11.1, benchmark-4.0.0, sugar-1.0.0, randomly-3.15.0, subtests-0.12.1, flaky-3.8.1, asyncio-0.23.7, anyio-4.4.0, nbmake-1.5.3, repeat-0.9.3\r\nasyncio: mode=Mode.STRICT\r\n8 workers [209 items]   collecting ... \r\n\r\n selfdrive/car/tests/test_car_interfaces.py ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ 56% █████▋    \r\n                                            ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓                       100% ██████████\r\n============================================================================ slowest 10 durations =============================================================================\r\n1.16s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_028_FORD_F_150_LIGHTNING_MK1\r\n1.08s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_030_FORD_MAVERICK_MK1\r\n1.06s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_024_FORD_BRONCO_SPORT_MK1\r\n1.03s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_025_FORD_ESCAPE_MK4\r\n1.03s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_031_FORD_MUSTANG_MACH_E_MK1\r\n1.02s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_029_FORD_F_150_MK14\r\n0.99s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_026_FORD_EXPLORER_MK6\r\n0.98s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_074_HYUNDAI_IONIQ_HEV_2022\r\n0.96s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n0.95s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_151_SKODA_OCTAVIA_MK3\r\n\r\nResults (22.66s):\r\n     209 passed\r\n```\r\n\r\nand on latest hypothesis==6.103.1\r\n\r\n```python\r\nbatman@workstation-shane:~/openpilot/selfdrive/car/tests$ pytest -n8 test_car_interfaces.py\r\n/home/batman/.pyenv/versions/3.11.4/lib/python3.11/site-packages/pytest_benchmark/logger.py:46: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.\r\n  warner(PytestBenchmarkWarning(text))\r\nTest session starts (platform: linux, Python 3.11.4, pytest 8.2.1, pytest-sugar 1.0.0)\r\nbenchmark: 4.0.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\r\nUsing --randomly-seed=264861645\r\nrootdir: /home/batman/openpilot\r\nconfigfile: pyproject.toml\r\nplugins: timeout-2.3.1, xdist-3.6.1, cpp-2.5.0, cov-5.0.0, mock-3.14.0, forked-1.6.0, dash-2.11.1, benchmark-4.0.0, hypothesis-6.103.1, sugar-1.0.0, randomly-3.15.0, subtests-0.12.1, flaky-3.8.1, asyncio-0.23.7, anyio-4.4.0, nbmake-1.5.3, repeat-0.9.3\r\nasyncio: mode=Mode.STRICT\r\n8 workers [209 items]   collecting ... \r\n\r\n selfdrive/car/tests/test_car_interfaces.py ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ 56% █████▋    \r\n                                            ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓                       100% ██████████\r\n============================================================================ slowest 10 durations =============================================================================\r\n1.70s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_029_FORD_F_150_MK14\r\n1.65s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n1.62s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_025_FORD_ESCAPE_MK4\r\n1.61s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_026_FORD_EXPLORER_MK6\r\n1.56s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_028_FORD_F_150_LIGHTNING_MK1\r\n1.56s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_108_KIA_NIRO_PHEV\r\n1.51s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_030_FORD_MAVERICK_MK1\r\n1.51s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_151_SKODA_OCTAVIA_MK3\r\n1.50s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_150_SKODA_KODIAQ_MK1\r\n1.49s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_149_SKODA_KAROQ_MK1\r\n\r\nResults (36.67s):\r\n     209 passed\r\n```"
-  },
-  {
     "number": 32611,
     "title": "Improve pytest collection time to \u003c1s",
     "url": "https://github.com/commaai/openpilot/issues/32611",
@@ -252,7 +217,7 @@
       "bounty"
     ],
     "comment_count": 32,
-    "open_pr_count": 2,
+    "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-25T18:55:45Z",
     "updated_at": "2026-03-15T14:50:24Z",
