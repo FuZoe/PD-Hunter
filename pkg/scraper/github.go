@@ -78,6 +78,39 @@ func (c *Client) ScanAll(config *Config) ([]Issue, error) {
 		}
 	}
 
+	// Scan GitHub Projects V2 boards
+	for _, proj := range config.Projects {
+		fmt.Printf("\n=== Scanning project: %s/%d ===\n", proj.OrgLogin, proj.ProjectNumber)
+		fmt.Printf("Note: %s\n", proj.Note)
+
+		ghIssues, err := c.FetchProjectItems(proj.OrgLogin, proj.ProjectNumber)
+		if err != nil {
+			fmt.Printf("Warning: Error fetching project %s/%d: %v\n", proj.OrgLogin, proj.ProjectNumber, err)
+			continue
+		}
+
+		newCount := 0
+		for _, ghIssue := range ghIssues {
+			if ghIssue.PullRequest != nil || seen[ghIssue.HTMLURL] {
+				continue
+			}
+			seen[ghIssue.HTMLURL] = true
+			newCount++
+
+			issue := c.convertIssue(ghIssue)
+			title := ghIssue.Title
+			if len(title) > 50 {
+				title = title[:50]
+			}
+			fmt.Printf("  [project] Issue #%d: %d open PRs, %d comments - %s\n",
+				issue.Number, issue.OpenPRCount, issue.CommentCount, title)
+
+			allIssues = append(allIssues, issue)
+		}
+		fmt.Printf("  Project %s/%d: %d total items, %d new (not seen in label scan)\n",
+			proj.OrgLogin, proj.ProjectNumber, len(ghIssues), newCount)
+	}
+
 	fmt.Printf("\n=== Summary ===\n")
 	fmt.Printf("Total bounty issues found: %d\n", len(allIssues))
 	return allIssues, nil

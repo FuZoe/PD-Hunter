@@ -105,5 +105,12 @@
       "labels": ["bounty"],
       "note": "Open-source alert management platform."
     }
+  ],
+  "projects": [
+    {
+      "org_login": "commaai",
+      "project_number": 26,
+      "note": "openpilot bounties board — captures issue-linked items that may lack the bounty label."
+    }
   ]
 }

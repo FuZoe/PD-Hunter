@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,12 +15,19 @@ import (
 // Configuration structures
 type Config struct {
 	Organizations []Organization `json:"organizations"`
+	Projects      []ProjectBoard `json:"projects,omitempty"`
 }
 
 type Organization struct {
 	Name   string   `json:"name"`
 	Labels []string `json:"labels"`
 	Note   string   `json:"note"`
+}
+
+type ProjectBoard struct {
+	OrgLogin      string `json:"org_login"`
+	ProjectNumber int    `json:"project_number"`
+	Note          string `json:"note"`
 }
 
 type Issue struct {
@@ -144,6 +152,57 @@ func main() {
 				allIssues = append(allIssues, issue)
 			}
 		}
+	}
+
+	// Scan GitHub Projects V2 boards
+	for _, proj := range config.Projects {
+		fmt.Printf("\n=== Scanning project: %s/%d ===\n", proj.OrgLogin, proj.ProjectNumber)
+		fmt.Printf("Note: %s\n", proj.Note)
+
+		projIssues, err := fetchProjectItems(proj.OrgLogin, proj.ProjectNumber, token)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: Error fetching project %s/%d: %v\n", proj.OrgLogin, proj.ProjectNumber, err)
+			continue
+		}
+
+		newCount := 0
+		for _, ghIssue := range projIssues {
+			if ghIssue.PullRequest != nil || seenIssues[ghIssue.HTMLURL] {
+				continue
+			}
+			seenIssues[ghIssue.HTMLURL] = true
+			newCount++
+
+			labels := make([]string, len(ghIssue.Labels))
+			for j, l := range ghIssue.Labels {
+				labels[j] = l.Name
+			}
+
+			repoName := extractRepoName(ghIssue.HTMLURL)
+
+			time.Sleep(requestDelay)
+			openPRCount := getOpenPRCount(repoName, ghIssue.Number, token)
+			fmt.Printf("  [project] Issue #%d: %d open PRs, %d comments - %s\n",
+				ghIssue.Number, openPRCount, ghIssue.Comments, ghIssue.Title[:min(50, len(ghIssue.Title))])
+
+			issue := Issue{
+				Number:       ghIssue.Number,
+				Title:        ghIssue.Title,
+				URL:          ghIssue.HTMLURL,
+				State:        ghIssue.State,
+				Labels:       labels,
+				CommentCount: ghIssue.Comments,
+				OpenPRCount:  openPRCount,
+				Repository:   repoName,
+				CreatedAt:    ghIssue.CreatedAt,
+				UpdatedAt:    ghIssue.UpdatedAt,
+				Author:       ghIssue.User.Login,
+				Body:         ghIssue.Body,
+			}
+			allIssues = append(allIssues, issue)
+		}
+		fmt.Printf("  Project %s/%d: %d total items, %d new (not seen in label scan)\n",
+			proj.OrgLogin, proj.ProjectNumber, len(projIssues), newCount)
 	}
 
 	fmt.Printf("\n=== Summary ===\n")
@@ -312,6 +371,247 @@ func getOpenPRCount(repoFullName string, issueNumber int, token string) int {
 	}
 
 	return result.TotalCount
+}
+
+// GraphQL types for GitHub Projects V2
+type gqlRequest struct {
+	Query     string                 `json:"query"`
+	Variables map[string]interface{} `json:"variables"`
+}
+
+type gqlResponse struct {
+	Data   gqlData    `json:"data"`
+	Errors []gqlError `json:"errors,omitempty"`
+}
+
+type gqlError struct {
+	Message string `json:"message"`
+}
+
+type gqlData struct {
+	Organization gqlOrg `json:"organization"`
+}
+
+type gqlOrg struct {
+	ProjectV2 *gqlProject `json:"projectV2"`
+}
+
+type gqlProject struct {
+	Items gqlItems `json:"items"`
+}
+
+type gqlItems struct {
+	PageInfo gqlPageInfo   `json:"pageInfo"`
+	Nodes    []gqlItemNode `json:"nodes"`
+}
+
+type gqlPageInfo struct {
+	HasNextPage bool   `json:"hasNextPage"`
+	EndCursor   string `json:"endCursor"`
+}
+
+type gqlItemNode struct {
+	Content *gqlIssueContent `json:"content"`
+}
+
+type gqlIssueContent struct {
+	Number     int             `json:"number"`
+	Title      string          `json:"title"`
+	URL        string          `json:"url"`
+	State      string          `json:"state"`
+	CreatedAt  string          `json:"createdAt"`
+	UpdatedAt  string          `json:"updatedAt"`
+	Author     *gqlAuthor      `json:"author"`
+	Body       string          `json:"body"`
+	Labels     gqlLabels       `json:"labels"`
+	Repository gqlRepo         `json:"repository"`
+	Comments   gqlCommentCount `json:"comments"`
+}
+
+type gqlAuthor struct {
+	Login string `json:"login"`
+}
+
+type gqlLabels struct {
+	Nodes []gqlLabelNode `json:"nodes"`
+}
+
+type gqlLabelNode struct {
+	Name string `json:"name"`
+}
+
+type gqlRepo struct {
+	NameWithOwner string `json:"nameWithOwner"`
+}
+
+type gqlCommentCount struct {
+	TotalCount int `json:"totalCount"`
+}
+
+const projectItemsQueryLegacy = `
+query($org: String!, $number: Int!, $cursor: String) {
+  organization(login: $org) {
+    projectV2(number: $number) {
+      items(first: 100, after: $cursor) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          content {
+            ... on Issue {
+              number
+              title
+              url
+              state
+              createdAt
+              updatedAt
+              author { login }
+              body
+              labels(first: 20) {
+                nodes { name }
+              }
+              repository {
+                nameWithOwner
+              }
+              comments { totalCount }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`
+
+func doGraphQLRequest(query string, variables map[string]interface{}, token string) ([]byte, error) {
+	reqBody := gqlRequest{
+		Query:     query,
+		Variables: variables,
+	}
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling GraphQL request: %w", err)
+	}
+
+	maxRetries := 3
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		if attempt > 0 {
+			waitTime := time.Duration(attempt*5) * time.Second
+			fmt.Printf("  Retrying GraphQL in %v (attempt %d/%d)...\n", waitTime, attempt+1, maxRetries)
+			time.Sleep(waitTime)
+		}
+
+		req, err := http.NewRequest("POST", "https://api.github.com/graphql", bytes.NewReader(bodyBytes))
+		if err != nil {
+			return nil, err
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/json")
+		if token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+
+		resp, err := httpClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		if resp.StatusCode == http.StatusOK {
+			return body, nil
+		}
+
+		if resp.StatusCode == 429 || resp.StatusCode == 403 {
+			if attempt < maxRetries-1 {
+				continue
+			}
+		}
+
+		return nil, fmt.Errorf("GraphQL HTTP %d: %s", resp.StatusCode, string(body))
+	}
+
+	return nil, fmt.Errorf("GraphQL max retries exceeded")
+}
+
+func fetchProjectItems(orgLogin string, projectNumber int, token string) ([]GitHubIssue, error) {
+	var allIssues []GitHubIssue
+	var cursor *string
+
+	for {
+		variables := map[string]interface{}{
+			"org":    orgLogin,
+			"number": projectNumber,
+		}
+		if cursor != nil {
+			variables["cursor"] = *cursor
+		}
+
+		time.Sleep(requestDelay)
+
+		data, err := doGraphQLRequest(projectItemsQueryLegacy, variables, token)
+		if err != nil {
+			return nil, fmt.Errorf("fetching project items: %w", err)
+		}
+
+		var resp gqlResponse
+		if err := json.Unmarshal(data, &resp); err != nil {
+			return nil, fmt.Errorf("parsing GraphQL response: %w", err)
+		}
+
+		if len(resp.Errors) > 0 {
+			return nil, fmt.Errorf("GraphQL error: %s", resp.Errors[0].Message)
+		}
+
+		if resp.Data.Organization.ProjectV2 == nil {
+			return nil, fmt.Errorf("project %s/%d not found or not accessible", orgLogin, projectNumber)
+		}
+
+		items := resp.Data.Organization.ProjectV2.Items
+
+		for _, node := range items.Nodes {
+			if node.Content == nil {
+				continue
+			}
+			if node.Content.Number == 0 {
+				continue
+			}
+
+			labels := make([]GitHubLabel, len(node.Content.Labels.Nodes))
+			for i, l := range node.Content.Labels.Nodes {
+				labels[i] = GitHubLabel{Name: l.Name}
+			}
+
+			author := ""
+			if node.Content.Author != nil {
+				author = node.Content.Author.Login
+			}
+
+			ghIssue := GitHubIssue{
+				Number:    node.Content.Number,
+				Title:     node.Content.Title,
+				HTMLURL:   node.Content.URL,
+				State:     node.Content.State,
+				Labels:    labels,
+				Comments:  node.Content.Comments.TotalCount,
+				CreatedAt: node.Content.CreatedAt,
+				UpdatedAt: node.Content.UpdatedAt,
+				User:      GitHubUser{Login: author},
+				Body:      node.Content.Body,
+			}
+			allIssues = append(allIssues, ghIssue)
+		}
+
+		if !items.PageInfo.HasNextPage {
+			break
+		}
+		cursor = &items.PageInfo.EndCursor
+	}
+
+	return allIssues, nil
 }
 
 func getBountyIssues(org, repo, label, token string) ([]GitHubIssue, error) {
