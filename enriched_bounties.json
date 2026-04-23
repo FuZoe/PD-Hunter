@@ -339,7 +339,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 55,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -371,38 +371,6 @@
         "feasibility": 60,
         "competition": 15,
         "freshness": 0
-      }
-    }
-  },
-  {
-    "number": 32536,
-    "title": "Speedup `test_car_interfaces`",
-    "url": "https://github.com/commaai/openpilot/issues/32536",
-    "state": "open",
-    "labels": [
-      "enhancement",
-      "good first issue",
-      "bounty"
-    ],
-    "comment_count": 32,
-    "open_pr_count": 1,
-    "repository": "commaai/openpilot",
-    "created_at": "2024-05-25T18:55:45Z",
-    "updated_at": "2026-03-15T14:50:24Z",
-    "author": "adeebshihadeh",
-    "body": "Takes ~1-2s per car. That's a big hit since we support nearly 300 different cars.\r\n\r\nGoal is <=0.2s avg and <1s max on the CI machine, with the same test coverage. There's likely two or three things slowing this test down that'll be obvious with a bit of profiling.\r\n\r\nCommand to run:\r\n```\r\npytest --durations=0 selfdrive/car/tests/test_car_interfaces.py \r\n```\r\n\r\nCurrent output on my workstation\r\n```\r\nbatman:sixpilot$ pytest --durations=10 selfdrive/car/tests/test_car_interfaces.py\r\n=============================================================== test session starts ===============================================================\r\nplatform linux -- Python 3.11.4, pytest-8.2.0, pluggy-1.5.0\r\nUsing --randomly-seed=431984017\r\nrootdir: /dev/shm/openpilot/sixpilot\r\nconfigfile: pyproject.toml\r\nplugins: randomly-3.15.0, subtests-0.12.1, anyio-4.3.0, cov-5.0.0, xdist-3.6.1, cpp-2.5.0, hypothesis-6.47.5, mock-3.14.0, timeout-2.3.1, flaky-3.8.1, asyncio-0.23.6\r\nasyncio: mode=Mode.STRICT\r\n32 workers [209 items]\r\n........................................................................................................................................... [ 65%]\r\n......................................................................                                                                      [100%]\r\n============================================================== slowest 10 durations ===============================================================\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_138_MAZDA_CX9_2021\r\n2.15s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_037_GENESIS_GV60_EV_1ST_GEN\r\n2.05s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_147_SKODA_FABIA_MK4\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_094_HYUNDAI_VELOSTER\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_005_AUDI_Q3_MK2\r\n1.87s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_059_HONDA_PILOT\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_113_KIA_OPTIMA_H_G4_FL\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_076_HYUNDAI_IONIQ_PHEV_2019\r\n1.78s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_095_JEEP_GRAND_CHEROKEE\r\n============================================================== 209 passed in 13.32s ===============================================================\r\n```\r\n\r\n\r\n",
-    "hunter_intelligence": {
-      "friction_level": "High",
-      "technical_hint": "Profile the test using `pytest --durations=0` to identify bottlenecks, and optimize repeated or expensive operations in the `test_car_interfaces` logic, such as mocking external dependencies or caching results.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 24,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 30,
-        "competition": 21,
-        "freshness": 81
       }
     }
   },
@@ -595,38 +563,6 @@
         "feasibility": 30,
         "competition": 0,
         "freshness": 0
-      }
-    }
-  },
-  {
-    "number": 30102,
-    "title": "deleter: handle non-openpilot created files",
-    "url": "https://github.com/commaai/openpilot/issues/30102",
-    "state": "open",
-    "labels": [
-      "bug",
-      "good first issue",
-      "bounty"
-    ],
-    "comment_count": 15,
-    "open_pr_count": 1,
-    "repository": "commaai/openpilot",
-    "created_at": "2023-09-29T14:28:48Z",
-    "updated_at": "2026-03-11T01:31:38Z",
-    "author": "alan-polk",
-    "body": "### Describe the bug\r\n\r\nCruise control would not engaged, error would pop up \"Process Not Running deleter\"\r\n\r\n### Provide a route where the issue occurs\r\n\r\n24574459dd7fb3e0|2023-09-29--00-06-58--0\r\n\r\n### openpilot version\r\n\r\nhttps://github.com/rwxr-xr-x/openpilot/commit/ac97ef3d9162020558f5b3597823e0315fd4c715\r\n\r\n### Additional info\r\n\r\ncrashed on the previous route (24574459dd7fb3e0|2023-09-28--23-39-47--0) and still would don't work after a power cycle of the unit.\r\n\r\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Investigate the 'deleter' process handling logic to ensure it properly ignores or cleans up non-openpilot created files, focusing on file ownership checks and error handling mechanisms.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 40,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 55,
-        "freshness": 79
       }
     }
   }
