@@ -511,11 +511,11 @@
       "CI / testing",
       "bounty"
     ],
-    "comment_count": 14,
+    "comment_count": 15,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2023-12-12T05:05:30Z",
-    "updated_at": "2026-03-22T12:30:11Z",
+    "updated_at": "2026-04-23T09:15:10Z",
     "author": "adeebshihadeh",
     "body": "Requirements:\r\n* runs on the free for open source Actions instances (can't use a higher tier one)\r\n* reliable, passes 20+ times in a row\r\n* runs in real time: 1m of driving in openpilot is equivalent to 1m in CI time\r\n* logs (qlog, rlog, and camera files) uploaded as an artifact\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_sim_bridge.py",
     "hunter_intelligence": {
@@ -524,12 +524,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 41,
+      "bounty_score": 43,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 57,
-        "freshness": 84
+        "competition": 55,
+        "freshness": 100
       }
     }
   },
