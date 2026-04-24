@@ -76,11 +76,11 @@
     "labels": [
       "bounty"
     ],
-    "comment_count": 4,
+    "comment_count": 5,
     "open_pr_count": 1,
     "repository": "commaai/flash",
     "created_at": "2025-04-03T18:35:54Z",
-    "updated_at": "2026-03-10T18:00:37Z",
+    "updated_at": "2026-04-24T02:29:20Z",
     "author": "adeebshihadeh",
     "body": "Make a video walkthrough of flash.comma.ai, then make a PR to embed it onto the site.\n\nGood example videos:\n* https://www.youtube.com/watch?v=NAz5NGnaDKs\u0026list=PLawfivpGQ-voT2siiz61hgVhdhtfy2y0P\n* https://www.youtube.com/watch?v=gNnRmEyVSVQ\u0026t=89s\n\nMust be high quality!"
   },
@@ -313,5 +313,2600 @@
     "updated_at": "2025-07-17T01:11:58Z",
     "author": "coffee-cake-isaac",
     "body": "### Describe the bug\n\nThere's currently an issue with F150 Lightnings on the Ford Q4 Harness/CAN-FD platform. This is specific to the Lightning as the ICE variants do not have this issue nor do the Mustang Mach Es.\r\n\r\n1. Install Ford Q4 Harness into F150 Lightning.\r\n2. Turn on Vehicle and notice no errors\r\n3. Install Comma Power and plug into harness\r\n4. Turn on vehicle and notice no errors\r\n5. Plug in Comma provided USB-C cable to harness (leaving unplugged from Comma 3/3X)\r\n6. Notice the number of errors received (Traction Control, Park Assist, One Pedal Drive)\r\n7. Plug in Comma 3X (with a working release of OpenPilot) and notice issue persist.\r\n8. Allow Openpilot to fully boot and open the relay on the harness and observe the car faults disappearing\n\n### Which car does this affect?\n\n2022+ Ford F150 Lightning\n\n### Provide a route where the issue occurs\n\nN/A - Happens prior to openpilot\n\n### openpilot version\n\n0.9.5\n\n### Additional info\n\nI've spoken with Discord and they're pretty confused on why this is happening as well. Additionally, there's now 2 Lightnings that are observing this behavior -- mine and one other persons.\r\n\r\nI've also emailed support and they were a bit confused as well. "
+  },
+  {
+    "number": 30706,
+    "title": "Speedup CI setup to \u003c20s",
+    "url": "https://github.com/commaai/openpilot/issues/30706",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 21,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-12-13T01:26:14Z",
+    "updated_at": "2026-02-24T02:21:42Z",
+    "author": "adeebshihadeh",
+    "body": "The best case time of the `setup-with-retry` stage that runs in most of our CI jobs is ~1m4s. All it does is setup the openpilot environment, and most of that time is pulling an already built docker image. This puts a hard limit on how fast our jobs can finish; a job that finishes in 1m is 10x better than one that finishes in 2-3m.\r\n\r\nSome possible strategies:\r\n* make the docker image smaller\r\n* move the docker cache somewhere faster\r\n* ditch docker, install directly on the 20.04 runner, and cache the apt and pip packages\r\n\r\nRequirements for the bounty:\r\n* all `setup-with-retry` on the final PR commit must finish in less than \u003c20s\r\n* must run on the normal free-for-open-source GH actions runner\r\n\r\nSub-bounty of $100 for \u003c40s if you can't get to \u003c20s. $500 is for \u003c20s. Bounties don't stack.\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/.github/workflows/setup-with-retry/action.yaml"
+  },
+  {
+    "number": 22663,
+    "title": "[$300 bounty] GM: implement FW query",
+    "url": "https://github.com/commaai/openpilot/issues/22663",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty",
+      "car"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2021-10-22T21:30:56Z",
+    "updated_at": "2024-01-31T00:49:04Z",
+    "author": "adeebshihadeh",
+    "body": "Examples PRs for other brands: #1540 #20271\r\n\r\nBounty is for a clean, working PR that you work with us to upstream. Has to work on our Bolt without a comma power. "
+  },
+  {
+    "number": 1173,
+    "title": "[$300 Bounty] Toyota: cancel cruise without chime",
+    "url": "https://github.com/commaai/opendbc/issues/1173",
+    "state": "OPEN",
+    "labels": [
+      "enhancement",
+      "car",
+      "toyota"
+    ],
+    "comment_count": 21,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2021-12-15T03:08:40Z",
+    "updated_at": "2026-03-30T01:22:52Z",
+    "author": "adeebshihadeh",
+    "body": "The way openpilot cancels cruise control on most Toyotas has the side effect of a chime from the car and a momentary fault on the dash. When openpilot sends the cancellation message, it also sends a message to play a good chime to mask the fault chime that would play, so start by [removing that](https://github.com/commaai/openpilot/blob/fa62b9d3f9882ec33559ceb7377fa991be1d4fb5/selfdrive/car/toyota/toyotacan.py#L82). Once you remove the good chime, you should hear the fault chime, which we're trying to get rid of.\r\n\r\nThe Lexus IS uses a [different cancellation message](https://github.com/commaai/openpilot/blob/fa62b9d3f9882ec33559ceb7377fa991be1d4fb5/selfdrive/car/toyota/carcontroller.py#L94) than the rest of the Toyotas, so that's probably a good place to start.\r\n\r\n$200 for a merged PR that meets this criteria:\r\n1. no chime sound or even momentary fault display\r\n2. reliable, i.e. always immediately cancels cruise\r\n3. generic across all Toyotas\r\n\r\nFeel free to open a PR once steps 1 and 2 are done to lock the bounty pending confirmation of 3."
+  },
+  {
+    "number": 24189,
+    "title": "camerad: Use the ISP for debayering, save CPU / GPU / ram bandwidth.",
+    "url": "https://github.com/commaai/openpilot/issues/24189",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2022-04-11T23:46:36Z",
+    "updated_at": "2024-11-08T00:03:54Z",
+    "author": "geohot",
+    "body": "Parts 1 and 2 of #24187 are prereqs for this. The ISP has a custom mini program to do things. Might be possible to get from Pixel 3.\r\n\r\nSee [camera_fixups_isp](https://github.com/commaai/openpilot/tree/camera_fixups_isp) for some work toward this.\r\n\r\nThere's two ISPs, so the dcam will have to be a little late, which should be okay. I suspect these ISPs can debayer super fast."
+  },
+  {
+    "number": 24523,
+    "title": "switch to new json library",
+    "url": "https://github.com/commaai/openpilot/issues/24523",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "good first issue",
+      "bounty",
+      "PC",
+      "development"
+    ],
+    "comment_count": 15,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2022-05-13T12:33:16Z",
+    "updated_at": "2025-01-12T20:16:59Z",
+    "author": "ebadi",
+    "body": "### Describe the bug\r\n\r\nI updated `logmessaged.py` as below to see why I keep receiving an error message when I execute  manager.py.\r\n```\r\n    if level \u003e= log_level:\r\n      print(\"record:::\",record)    \r\n      log_handler.emit(record)\r\n```\r\n\r\nBelow is the result, the json message that is sent by logmessaged.py is not formatted correctly and https://github.com/commaai/openpilot/blob/master/common/logging_extra.py#L100 cannot parse it. (this part is not valid: {\"created\": 1652444715,3936491, ...)\r\n```\r\n((openpilot) ) hamid@hamid:~/openpilot/selfdrive/manager$ PASSIVE=0 NOSENSOR=1 USE_WEBCAM=1 ./manager.py\r\nselfdrive/loggerd/bootlog.cc: bootlog to /home/hamid/.comma/media/0/realdata/boot/2022-05-13--14-25-13\r\nmissing public key: /home/hamid/.comma/persist/comma/id_rsa.pub\r\nselfdrive/logmessaged.py: needs update\r\nrecord::: {\"created\": 1652444715,3936491, \"ctx\": {\"daemon\": \"soundd\", \"device\": \"pc\", \"dirty\": true, \"dongle_id\": \"UnregisteredDevice\", \"version\": \"0.8.14\"}, \"filename\": \"selfdrive/ui/soundd/sound.cc\", \"funcname\": \"Sound::Sound(QObject *)\", \"levelnum\": 20, \"lineno\": 16, \"msg\": \"default audio device:  \\\"\\\"\"}\r\n--- Logging error ---\r\nTraceback (most recent call last):\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/logging/__init__.py\", line 1085, in emit\r\n    msg = self.format(record)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/logging/__init__.py\", line 929, in format\r\n    return fmt.format(record)\r\n  File \"/home/hamid/openpilot/common/logging_extra.py\", line 100, in format\r\n    v = json.loads(record)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/json/__init__.py\", line 357, in loads\r\n    return _default_decoder.decode(s)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/json/decoder.py\", line 337, in decode\r\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/json/decoder.py\", line 353, in raw_decode\r\n    obj, end = self.scan_once(s, idx)\r\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 24 (char 23)\r\nCall stack:\r\n  File \"./manager.py\", line 205, in \u003cmodule\u003e\r\n    main()\r\n  File \"./manager.py\", line 182, in main\r\n    manager_thread()\r\n  File \"./manager.py\", line 134, in manager_thread\r\n    ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)\r\n  File \"/home/hamid/openpilot/selfdrive/manager/process.py\", line 313, in ensure_running\r\n    p.start()\r\n  File \"/home/hamid/openpilot/selfdrive/manager/process.py\", line 245, in start\r\n    self.proc.start()\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/process.py\", line 121, in start\r\n    self._popen = self._Popen(self)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/context.py\", line 224, in _Popen\r\n    return _default_context.get_context().Process._Popen(process_obj)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/context.py\", line 277, in _Popen\r\n    return Popen(process_obj)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/popen_fork.py\", line 19, in __init__\r\n    self._launch(process_obj)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/popen_fork.py\", line 75, in _launch\r\n    code = process_obj._bootstrap(parent_sentinel=child_r)\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/process.py\", line 315, in _bootstrap\r\n    self.run()\r\n  File \"/home/hamid/.pyenv/versions/3.8.10/lib/python3.8/multiprocessing/process.py\", line 108, in run\r\n    self._target(*self._args, **self._kwargs)\r\n  File \"/home/hamid/openpilot/selfdrive/manager/process.py\", line 43, in launcher\r\n    getattr(mod, 'main')()\r\n  File \"/home/hamid/openpilot/selfdrive/logmessaged.py\", line 29, in main\r\n    log_handler.emit(record)\r\nUnable to print the message and arguments - possible formatting error.\r\nUse the traceback above to help find the error.\r\nrecord::: {\"msg\": \"System time valid\", \"ctx\": {}, \"level\": \"INFO\", \"levelnum\": 20, \"name\": \"swaglog\", \"filename\": \"manager.py\", \"lineno\": 31, \"pathname\": \"./manager.py\", \"module\": \"manager\", \"funcName\": \"manager_init\", \"host\": \"hamid\", \"process\": 11907, \"thread\": 140079618852672, \"threadName\": \"MainThread\", \"created\": 1652444713.9832933}\r\nrecord::: {\"msg\": \"missing public key: /home/hamid/.comma/persist/comma/id_rsa.pub\", \"ctx\": {}, \"level\": \"WARNING\", \"levelnum\": 30, \"name\": \"swaglog\", \"filename\": \"manager.py\", \"lineno\": 83, \"pathname\": \"./manager.py\", \"module\": \"manager\", \"funcName\": \"manager_init\", \"host\": \"hamid\", \"process\": 11907, \"thread\": 140079618852672, \"threadName\": \"MainThread\", \"created\": 1652444714.1361263}\r\nrecord::: {\"msg\": \"starting process ui\", \"ctx\": {\"dongle_id\": \"UnregisteredDevice\", \"version\": \"0.8.14\", \"dirty\": true, \"device\": \"pc\"}, \"level\": \"INFO\", \"levelnum\": 20, \"name\": \"swaglog\", \"filename\": \"manager.py\", \"lineno\": 171, \"pathname\": \"./manager.py\", \"module\": \"manager\", \"funcName\": \"main\", \"host\": \"hamid\", \"process\": 11907, \"thread\": 140079618852672, \"threadName\": \"MainThread\", \"created\": 1652444714.969782}\r\nrecord::: {\"msg\": \"preimporting selfdrive.locationd.calibrationd\", \"ctx\": {\"dongle_id\": \"UnregisteredDevice\", \"version\": \"0.8.14\", \"dirty\": true, \"device\": \"pc\"}, \"level\": \"INFO\", \"levelnum\": 20, \"name\": \"swaglog\", \"filename\": \"manager.py\", \"lineno\": 102, \"pathname\": \"./manager.py\", \"module\": \"manager\", \"funcName\": \"manager_prepare\", \"host\": \"hamid\", \"process\": 11907, \"thread\": 140079618852672, \"threadName\": \"MainThread\", \"created\": 1652444714.9746444}\r\n\r\n```\r\np.s: the manger seems to continue working without any issue. \r\n\r\n\r\n### OS Version\r\n\r\n20.04\r\n\r\n### openpilot version or commit\r\n\r\n_No response_\r\n\r\n### Additional info\r\n\r\n_No response_"
+  },
+  {
+    "number": 24590,
+    "title": "[$100 bounty] Add back webcam support in new daemon",
+    "url": "https://github.com/commaai/openpilot/issues/24590",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty",
+      "PC"
+    ],
+    "comment_count": 8,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2022-05-18T23:58:46Z",
+    "updated_at": "2024-01-11T19:12:16Z",
+    "author": "adeebshihadeh",
+    "body": "The replay and webcam cameras were deleted in #24554 in an effort to re-focus camerad on being as clean, stable, and performant as possible on the comma three. The replay camera had already been superseded by the new replay tool, but the webcam currently has no replacement. Now that visionipc has a nice python interface, I think it makes sense to re-write the webcam version of camerad as a small python daemon, which should also make it easier to hack on to support different configurations. This already works well enough for the CARLA simulator bridge."
+  },
+  {
+    "number": 26739,
+    "title": "[$300 bounty] nav: switch to MapLibre widget",
+    "url": "https://github.com/commaai/openpilot/issues/26739",
+    "state": "CLOSED",
+    "labels": [
+      "refactor",
+      "good first issue",
+      "bounty",
+      "nav"
+    ],
+    "comment_count": 7,
+    "open_pr_count": 1,
+    "repository": "commaai/openpilot",
+    "created_at": "2022-12-09T19:12:34Z",
+    "updated_at": "2024-03-26T18:36:18Z",
+    "author": "adeebshihadeh",
+    "body": "Seems like it's being actively developed now: https://github.com/maplibre/maplibre-gl-native.\r\n\r\nBounty is for making the simplest PR that moves to MapLibre. Requirements:\r\n* performance must be same or better\r\n* map must look the same (or very good reason if not)\r\n\r\nThis can be done on PC, and we can do final testing on a comma 3X."
+  },
+  {
+    "number": 29454,
+    "title": "[$300 bounty] Multilang: check translation accuracy",
+    "url": "https://github.com/commaai/openpilot/issues/29454",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty",
+      "multilanguage"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-08-17T22:53:02Z",
+    "updated_at": "2023-12-31T18:58:37Z",
+    "author": "sshane",
+    "body": "ie. with some API that can evaluate how accurate translations are. No translation should be egregiously wrong or inappropriate. \r\n\r\nPerhaps something like [Libre Translate](https://libretranslate.com/) ran through https://github.com/mjpost/sacrebleu?"
+  },
+  {
+    "number": 29500,
+    "title": "[$100 bounty] scons: enable --warn=all",
+    "url": "https://github.com/commaai/openpilot/issues/29500",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-08-21T02:27:33Z",
+    "updated_at": "2024-01-11T19:16:19Z",
+    "author": "adeebshihadeh",
+    "body": "Need to fix violations and enable this config on all submodules first"
+  },
+  {
+    "number": 30102,
+    "title": "deleter: handle non-openpilot created files",
+    "url": "https://github.com/commaai/openpilot/issues/30102",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 15,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-09-29T14:28:48Z",
+    "updated_at": "2026-04-22T23:54:10Z",
+    "author": "alan-polk",
+    "body": "### Describe the bug\r\n\r\nCruise control would not engaged, error would pop up \"Process Not Running deleter\"\r\n\r\n### Provide a route where the issue occurs\r\n\r\n24574459dd7fb3e0|2023-09-29--00-06-58--0\r\n\r\n### openpilot version\r\n\r\nhttps://github.com/rwxr-xr-x/openpilot/commit/ac97ef3d9162020558f5b3597823e0315fd4c715\r\n\r\n### Additional info\r\n\r\ncrashed on the previous route (24574459dd7fb3e0|2023-09-28--23-39-47--0) and still would don't work after a power cycle of the unit.\r\n\r\n"
+  },
+  {
+    "number": 30161,
+    "title": "[$100 bounty] Scons: don't use abspath anywhere",
+    "url": "https://github.com/commaai/openpilot/issues/30161",
+    "state": "CLOSED",
+    "labels": [
+      "refactor",
+      "good first issue",
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-10-04T00:35:05Z",
+    "updated_at": "2024-03-15T18:07:13Z",
+    "author": "jnewb1",
+    "body": "### Describe the bug\r\n\r\nany abspath that we use will cause cache invalidation in CI because the workspace folder changes\r\n\r\nThis is an issue in:\r\n- jenkins (workspace folder is different every time)\r\n- devcontainer (workspace is /workspaces/openpilot, whereas cache is /tmp/openpilot from regular CI)\r\n- was an issue in the sim and docs images, until I moved the workspace to /tmp/openpilot"
+  },
+  {
+    "number": 30272,
+    "title": "[$300 bounty] foxglove support",
+    "url": "https://github.com/commaai/openpilot/issues/30272",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "tools"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-10-17T19:38:46Z",
+    "updated_at": "2024-04-03T22:44:28Z",
+    "author": "adeebshihadeh",
+    "body": "We want to support https://foxglove.dev/ similar to how we support PlotJuggler. There's a demo and start on this work here: https://github.com/jon-chuang/openpilot-foxglove."
+  },
+  {
+    "number": 30694,
+    "title": "[$500 bounty] Drive a loop in MetaDrive",
+    "url": "https://github.com/commaai/openpilot/issues/30694",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-12-12T05:08:29Z",
+    "updated_at": "2024-05-22T17:04:45Z",
+    "author": "adeebshihadeh",
+    "body": "Extend the MetaDrive test to drive a defined course and ensure it stays in the line. Requirements:\r\n* at least 1 minute of driving\r\n* passes reliably: 20+ times in a row\r\n* test fails if a reasonable user would have disengaged during the loop (drives out of lane, etc.)\r\n\r\nIdeally, we can also configure the distance and/or runtime of the test with a simple parameter so that we can run a quick one in CI, and perhaps a longer version on master.\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_sim_bridge.py"
+  },
+  {
+    "number": 30702,
+    "title": "[$300 bounty] timed: get time and timezone from the modem",
+    "url": "https://github.com/commaai/openpilot/issues/30702",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-12-12T22:55:35Z",
+    "updated_at": "2024-01-22T22:29:19Z",
+    "author": "adeebshihadeh",
+    "body": "The comma 3/3X has a [Quectel EG25-G ](https://www.quectel.com/product/lte-eg25-g), and we should be able to pull the time and timezone from the cell network. If this ends up working well, this will remove the timezoned daemon, a bunch of panda RTC code, and dependence on an RTC battery.\r\n\r\nThe goal is to write a small Python daemon to get the current time and timezone. Requirements:\r\n* works without a SIM, an inactive SIM, and an active SIM\r\n* must replace the `timezoned` functionality\r\n* must be fast (aside from modem bootup and ModemManager startup time)\r\n* works with ModemManager running\r\n* needs a unit test, [this](https://github.com/commaai/openpilot/blob/master/system/qcomgpsd/tests/test_qcomgpsd.py) is a good example of one already using the modem"
+  },
+  {
+    "number": 30715,
+    "title": "[$100 bounty] Setup a PR review bot",
+    "url": "https://github.com/commaai/openpilot/issues/30715",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-12-13T18:54:45Z",
+    "updated_at": "2024-01-17T14:36:18Z",
+    "author": "adeebshihadeh",
+    "body": "To start, I'm thinking the bot's review just consists of checking that a template is filled out in the PR body. \r\n* keep PRs as drafts until the bot is done with its \"review\"\r\n* also add a special `bot-review` label while a PR is in the bot review phase\r\n* must run in GitHub Actions\r\n\r\nSet this up on your own fork of openpilot, then make a PR here."
+  },
+  {
+    "number": 1770,
+    "title": "add more MISRA mutation test cases",
+    "url": "https://github.com/commaai/panda/issues/1770",
+    "state": "CLOSED",
+    "labels": [
+      "tests",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/panda",
+    "created_at": "2023-12-09T23:32:57Z",
+    "updated_at": "2024-01-20T23:52:48Z",
+    "author": "adeebshihadeh",
+    "body": "See https://github.com/commaai/panda/blob/master/tests/misra/test_mutation.py"
+  },
+  {
+    "number": 16,
+    "title": "Use Upstream Weston",
+    "url": "https://github.com/commaai/agnos-builder/issues/16",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 25,
+    "open_pr_count": 2,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2021-11-15T22:29:24Z",
+    "updated_at": "2025-09-23T22:24:44Z",
+    "author": "VirtuallyChris",
+    "body": "We currently use the closed source Thundercomm version of Weston.\r\n\r\nGet open source Weston working in AGNOS for a $5000 bounty.\r\nhttps://github.com/wayland-project/weston"
+  },
+  {
+    "number": 7,
+    "title": "[$500 Bounty] Switch from fastboot to EDL/QDL",
+    "url": "https://github.com/commaai/flash/issues/7",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 16,
+    "open_pr_count": 0,
+    "repository": "commaai/flash",
+    "created_at": "2023-08-10T18:03:28Z",
+    "updated_at": "2026-04-15T14:01:28Z",
+    "author": "adeebshihadeh",
+    "body": "[QDL](https://en.wikipedia.org/wiki/Qualcomm_EDL_mode) should be a strict improvement\r\n* unbrickable\r\n* easier to get into than the [fastboot dance](https://youtu.be/gNnRmEyVSVQ?t=88)\r\n* 2 -\u003e 1 cables required\r\n* save 3s off the boot time of the device waiting for fastboot USB enumeration\r\n\r\nSeems like there's two options here:\r\n1. flash the whole thing with firehose\r\n2. load an EDL loader with fastboot and use the existing stuff to flash\r\n\r\nHere's a good Python implementation: https://github.com/bkerler/edl."
+  },
+  {
+    "number": 30883,
+    "title": "[$100 bounty] Script for doing UI translations with an LLM",
+    "url": "https://github.com/commaai/openpilot/issues/30883",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty",
+      "ui"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-02T00:44:27Z",
+    "updated_at": "2024-01-06T19:57:38Z",
+    "author": "adeebshihadeh",
+    "body": "Use an LLM (either OpenAI API or something local) to generate UI translations: https://github.com/commaai/openpilot/tree/master/selfdrive/ui/translations.\r\n\r\n* local is preferred if possible (GPU required is fine), but we can use GPT4 if the translations are actually better\r\n* there should be a flag for either doing all the translations or just filling in the unfinished ones"
+  },
+  {
+    "number": 30884,
+    "title": "[$200 bounty] Voice entry demo",
+    "url": "https://github.com/commaai/openpilot/issues/30884",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-02T01:01:35Z",
+    "updated_at": "2024-01-22T21:16:04Z",
+    "author": "adeebshihadeh",
+    "body": "We want to use voice entry for setting nav destinations and more. The goal of this is to get a small, self-contained demo working of detecting a phrase like \"Hey comma, navigate home\". The script will run forever: detect start of speech, detect end of speech, do speech to text, then print it out. \r\n\r\nRequirements:\r\n* wake word detection needs to be local and fast\r\n* speech to text can use an API\r\n* must be low latency (\u003c1s)\r\n* new dependencies must be used only when necessary\r\n* doesn't use any GPU; CPU and DSP are available though\r\n* has to work reliably in the expected use case\r\n  * mounted on the windshield and speaking \r\n  * while openpilot is onroad (everything running)\r\n  * can't make the rest of openpilot lag\r\n\r\nSee how we're running other models on the device: https://github.com/commaai/openpilot/tree/master/selfdrive/modeld"
+  },
+  {
+    "number": 26956,
+    "title": "[$100 bounty] Car docs diff bot: use generated file",
+    "url": "https://github.com/commaai/openpilot/issues/26956",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "docs",
+      "car"
+    ],
+    "comment_count": 8,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-01-14T01:17:50Z",
+    "updated_at": "2024-06-10T22:04:11Z",
+    "author": "sshane",
+    "body": "## Bounty:\r\n\r\nRemove tedious flow of checking out the old commit, dumping the Python `CarInfo` objects to a file, and then loading it back which can break if the `CarInfo` structure changes. Instead it should take the [CARS.md](https://github.com/commaai/openpilot/blob/master/docs/CARS.md) file from the base PR commit, then compare it with the latest one.\r\n\r\n- [ ] Read the related files to understand how they work and so you can match its behavior with diffs\r\n- [ ] Delete https://github.com/commaai/openpilot/blob/master/selfdrive/debug/print_docs_diff.py and https://github.com/commaai/openpilot/blob/master/selfdrive/debug/dump_car_info.py (of course replacing with the new shorter script)\r\n- [ ] Add missing info to the CARS.md file, such as the detail sentence for the website (as a tooltip).\r\n- [ ] Simply matches platform names, so bumping the model year shows that change, instead of showing as a removal and addition\r\n- [ ] Should be simpler than our current approach (less tokens)\r\n\r\n---\r\nRelated: https://github.com/commaai/openpilot/pull/26955"
+  },
+  {
+    "number": 1794,
+    "title": "Finish MISRA coverage",
+    "url": "https://github.com/commaai/panda/issues/1794",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "MISRA",
+      "bounty"
+    ],
+    "comment_count": 8,
+    "open_pr_count": 0,
+    "repository": "commaai/panda",
+    "created_at": "2024-01-13T21:52:05Z",
+    "updated_at": "2024-09-13T21:39:53Z",
+    "author": "adeebshihadeh",
+    "body": "In https://github.com/commaai/panda/pull/926, we updated cppcheck to the latest version which completed cppcheck's MISRA coverage. These new checks were suppressed in that PR in order to get the cppcheck version updated, and now we want to enable those checks and fix the violations.\r\n\r\nRead about MISRA C:2012 [here](https://en.wikipedia.org/wiki/MISRA_C); the guidelines and information about them can be found searching online (ChatGPT also knows about it).\r\n\r\n$50 for each rule addressed, either fixed all violations or suppressed for good reason. There's 28 new rules to enable, and progress can be checked [here](https://github.com/commaai/panda/blob/master/tests/misra/suppressions.txt).\r\n* each rule should get its own PR\r\n* PR title should be something like \"enable misra-c2012-2.2\"\r\n\r\nExample for `misra-c2012-2.2`: f64ba24685fb3c71e37c720734d24d6b9d995617.\r\n\r\n"
+  },
+  {
+    "number": 31007,
+    "title": "[$500 bounty] Post UI screenshots on PRs that modify the UI",
+    "url": "https://github.com/commaai/openpilot/issues/31007",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 5,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-15T18:56:32Z",
+    "updated_at": "2024-06-25T02:41:50Z",
+    "author": "adeebshihadeh",
+    "body": "We have a CI job that generates a bunch of UI screenshots in various states. The goal of this bounty is to get those screenshots posted as a comment to PRs:\r\n* only comment if `selfdrive/ui/` has changes in the PR\r\n* comment gets updated when new commits are pushed\r\n* must be formatted nicely (e.g. doesn't take up the whole screen). maybe put them in a table?\r\n\r\nhttps://github.com/commaai/openpilot/blob/c9531b463a6cb4a2a56792046fd69f9041006d81/.github/workflows/selfdrive_tests.yaml#L320"
+  },
+  {
+    "number": 31052,
+    "title": "[$500 bounty] Ford: reliable fuzzy fingerprinting",
+    "url": "https://github.com/commaai/openpilot/issues/31052",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "fingerprint",
+      "bounty",
+      "car",
+      "ford"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-18T20:27:05Z",
+    "updated_at": "2024-05-08T03:29:00Z",
+    "author": "sshane",
+    "body": "**Context:** You will improve the reliability of Ford fingerprinting by giving openpilot an understanding of the FW versions.\r\n\r\nWe have already implemented FW version parsing with specific brand understanding for [Hyundai](https://github.com/commaai/openpilot/blob/292f2ea2884f52b0e2729c2b493521546197a5b3/selfdrive/car/hyundai/values.py#L313-L380) and [Toyota](https://github.com/commaai/openpilot/blob/292f2ea2884f52b0e2729c2b493521546197a5b3/selfdrive/car/toyota/values.py#L255-L330). For Hyundai, we have the human-readable platform codes that the auto manufacturer uses, then we filter the fuzzy match by part date for a rough model year identifier. For Toyota, we parse out a region-specific platform code + a version code that describes new control APIs.\r\n\r\nCheck out recent Ford fingerprinting PRs, which ECUs are getting added more often?\r\n\r\n**Goal:** Implement the same type of fuzzy fingerprinting for Ford, which seems to have patterns we can use to identify platforms. The solution should detect and fail to fingerprint a platform with breaking API changes, like a new vehicle generation with new control messages. Conversely, it should also fingerprint every unseen Ford Bronco with a very minimal amount of FW from one seen.\r\n\r\nCertain Ford forums may have user-provided FW dumps to check your theories with, since openpilot has only largely seen one generation of each platform.\r\n\r\nRequired:\r\n- [ ] works for all supported cars, plus the dashcam Q4 platform cars\r\n- [ ] Parse the platform code with a way to split API/MY differences\r\n- [ ] Choose certain or all ECUs to do fuzzy fingerprinting on\r\n- [ ] Tests, if necessary\r\n- [ ] Ship to release with same quality as the other custom fuzzy fingerprinting functions"
+  },
+  {
+    "number": 31058,
+    "title": "[$100 bounty] Setup pre-commit caching in CI",
+    "url": "https://github.com/commaai/openpilot/issues/31058",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-19T00:58:38Z",
+    "updated_at": "2024-01-19T21:06:17Z",
+    "author": "adeebshihadeh",
+    "body": "Currently, we install the pre-commit environment from scratch every time. Let's try caching to see if it's any faster."
+  },
+  {
+    "number": 25141,
+    "title": "Enable tethering doesn't work sometimes",
+    "url": "https://github.com/commaai/openpilot/issues/25141",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "bounty",
+      "comma three"
+    ],
+    "comment_count": 7,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2022-07-12T21:27:56Z",
+    "updated_at": "2025-01-20T02:39:44Z",
+    "author": "adeebshihadeh",
+    "body": "Seems to happen around 1/10 times. It's easy to tell because the IP doesn't change, and the tethering network doesn't show in the wifi list."
+  },
+  {
+    "number": 26927,
+    "title": "[$100 bounty] GM: get VIN",
+    "url": "https://github.com/commaai/openpilot/issues/26927",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty",
+      "car",
+      "gm"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-01-12T06:06:34Z",
+    "updated_at": "2024-01-30T07:24:49Z",
+    "author": "sshane",
+    "body": "You simply need to allow a different subset of addresses to send to in ELM mode (think 0x200 range?)"
+  },
+  {
+    "number": 31100,
+    "title": "[100$ bounty] virtual sound card in openpilot docker image",
+    "url": "https://github.com/commaai/openpilot/issues/31100",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-21T23:52:01Z",
+    "updated_at": "2024-01-23T07:10:19Z",
+    "author": "jnewb1",
+    "body": "Setup a virtual sound card in the docker image with a bash script, similar to setup_xvfb.sh (which is for X11), with the purpose of being able to run soundd for a full e2e test of openpilot.\r\n\r\nRequirements:\r\n- soundd must run within the docker image, sound does not need to be audible (i.e. it can go to a null sink)\r\n- single setup script"
+  },
+  {
+    "number": 5,
+    "title": "[200$ bounty] download and decompress xz images",
+    "url": "https://github.com/commaai/flash/issues/5",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 13,
+    "repository": "commaai/flash",
+    "created_at": "2023-07-28T10:38:15Z",
+    "updated_at": "2024-01-28T01:29:19Z",
+    "author": "incognitojam",
+    "body": "we have a separate step to create .gz images for the flash tool - it should use the .xz images made for openpilot and agnos.py\r\n\r\nSee here https://github.com/commaai/flash/blob/8d9982cc1bdfe04ffc59dee87fb11fd77f811d79/src/workers/image.worker.js#L134"
+  },
+  {
+    "number": 31125,
+    "title": "[$100 bounty] get metadrive test running in CI",
+    "url": "https://github.com/commaai/openpilot/issues/31125",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-23T18:39:40Z",
+    "updated_at": "2024-05-05T23:32:09Z",
+    "author": "jnewb1",
+    "body": "the metadrive test runs okay over here, but it fails about 1/20 times: https://github.com/commaai/openpilot/pull/30775\r\n\r\nthis bounty is to get this test to work 100% of the time in github actions.\r\n\r\nrequirements:\r\n   - no services can be blocked, i.e. soundd and ui, (except the ones here that are normally blocked in the sim) https://github.com/commaai/openpilot/blob/ea57336005f4cf9c587dfbe221662b4de73bd508/tools/sim/launch_openpilot.sh#L9\r\n   - must pass 50 times in CI. you can use a matrix to test lots of runs at once, though I would wait until you have it running consistently locally https://github.com/commaai/openpilot/blob/3001d67e64f22bff0fe9cbc8f29a51aa00ab80e4/.github/workflows/tools_tests.yaml#L67-L70\r\n\r\nThis is a sub-bounty of #30693, which requires that the simulator runs at the full 20 FPS. For this bounty, the simulator can run at 1-2 FPS (while still publishing frames at 20 FPS) as long as the rest of the openpilot stack is running in realtime."
+  },
+  {
+    "number": 200,
+    "title": "[$300 bounty] Switch flashing scripts to use QDL/EDL instead of fastboot",
+    "url": "https://github.com/commaai/agnos-builder/issues/200",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-01-23T18:48:02Z",
+    "updated_at": "2024-04-25T23:34:52Z",
+    "author": "adeebshihadeh",
+    "body": "See https://github.com/commaai/flash/issues/7 for the rationale. Requirements:\r\n* replace all `fastboot` usage in this repo and https://github.com/commaai/agnos\r\n* must have a nice way to install the new flashing tool\r\n\r\nhttps://github.com/bkerler/edl seems nice. #198 is a good starting point."
+  },
+  {
+    "number": 25750,
+    "title": "[$200 bounty] Ford: fingerprint without the OBD port",
+    "url": "https://github.com/commaai/openpilot/issues/25750",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "ford"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2022-09-12T23:35:47Z",
+    "updated_at": "2024-01-30T10:42:35Z",
+    "author": "sshane",
+    "body": "- [ ] Remove the engine ECU and verify all the current platforms continue to fingerprint exactly (if not exactly, it should fuzzy fingerprint, note this in the verification)"
+  },
+  {
+    "number": 31223,
+    "title": "[$100 bounty] test more LogReader scenarios",
+    "url": "https://github.com/commaai/openpilot/issues/31223",
+    "state": "CLOSED",
+    "labels": [
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-01-30T01:16:56Z",
+    "updated_at": "2024-06-10T21:56:28Z",
+    "author": "jnewb1",
+    "body": "```auto_source``` and ```auto_strategy``` have introduced quite a few cases into logreader that can easily break, we want to test each one with a unit test in [```test_logreader```](https://github.com/commaai/openpilot/blob/master/tools/lib/tests/test_logreader.py). All api queries and downloading should be mocked to make this a proper unit test with no network or specific route dependence.\r\n\r\nRequired tests:\r\n- [ ] rlog not available on comma api, but is available from another source (openpilot ci bucket, commaCarSegments), rlogs should be parsed\r\n- [ ] rlogs not available, but qlogs are: should error with ```/r```, pass with ```/q``` and ```/a```\r\n- [ ] rlogs only available for specific segments, but qlogs are available for the rest: should error with ```/r```, pass with ```/a```\r\n- [ ] no logs available -\u003e should error for all query types"
+  },
+  {
+    "number": 31,
+    "title": "[$200 bounty] Get flash.comma.ai working with GitHub pages",
+    "url": "https://github.com/commaai/flash/issues/31",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 2,
+    "repository": "commaai/flash",
+    "created_at": "2024-01-30T01:23:43Z",
+    "updated_at": "2024-01-31T16:00:31Z",
+    "author": "adeebshihadeh",
+    "body": "We want to move this to Pages, and CNAME from there. Get this building as a static site/app, then setup CI to build/deploy it.\r\n\r\nRequirements:\r\n* CI builds the page \r\n* CI deploys it on master\r\n* GH pages demo on your fork"
+  },
+  {
+    "number": 1847,
+    "title": "MISRSA results different in CI and workstation",
+    "url": "https://github.com/commaai/panda/issues/1847",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "bounty"
+    ],
+    "comment_count": 11,
+    "open_pr_count": 0,
+    "repository": "commaai/panda",
+    "created_at": "2024-02-03T23:50:32Z",
+    "updated_at": "2024-02-14T16:36:01Z",
+    "author": "adeebshihadeh",
+    "body": "Running `test_misra.sh` on my workstation, I get no errors, but CI reports a few style violations and doesn't fail. We need to figure out why the results are different and why CI doesn't fail even though errors are reported. Also need to fix these violations.\r\n\r\nhttps://github.com/commaai/panda/actions/runs/7770060952/job/21189783553\r\n\r\n```\r\n** PANDA F4 CODE **\r\nChecking /tmp/openpilot/panda/board/main.c ...\r\nChecking /tmp/openpilot/panda/board/main.c: CAN3=1;PANDA=1;STM32F4=1;UID_BASE=1;STM32F423xx...\r\n/tmp/openpilot/panda/board/health.h:24:9: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\n  float interrupt_load;\r\n        ^\r\n/tmp/openpilot/panda/board/drivers/interrupts.h:35:7: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nfloat interrupt_load = 0.0f;\r\n      ^\r\n/tmp/openpilot/panda/board/health.h:27:12: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\n  uint16_t spi_checksum_error_count;\r\n           ^\r\n/tmp/openpilot/panda/board/drivers/spi.h:43:10: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nuint16_t spi_checksum_error_count = 0;\r\n         ^\r\n/tmp/openpilot/panda/board/main_comms.h:71:58: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nint comms_control_handler(ControlPacket_t *req, uint8_t *resp) {\r\n                                                         ^\r\n/tmp/openpilot/panda/board/drivers/usb.h:82:9: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nuint8_t resp[USBPACKET_MAX_SIZE];\r\n        ^\r\n/tmp/openpilot/panda/board/health.h:26:11: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\n  uint8_t safety_rx_checks_invalid;\r\n          ^\r\n/tmp/openpilot/panda/board/safety_declarations.h:227:6: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nbool safety_rx_checks_invalid = false;\r\n     ^\r\n/tmp/openpilot/panda/board/drivers/can_common.h:280:53: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nbool is_speed_valid(uint32_t speed, const uint32_t *speeds, uint8_t len) {\r\n                                                    ^\r\n/tmp/openpilot/panda/board/stm32fx/llbxcan.h:22:16: style: misra violation (use --rule-texts=\u003cfile\u003e to get proper output) [misra-c2012-5.8]\r\nconst uint32_t speeds[] = {100U, 200U, 500U, 1000U, 1250U, 2500U, 5000U, 10000U};\r\n               ^\r\nnofile:0:0: information: Active checkers: 279/792 (use --checkers-report=\u003cfilename\u003e to see details) [checkersReport]\r\n```"
+  },
+  {
+    "number": 31333,
+    "title": "[$100 bounty] mapsd: switch to static render mode",
+    "url": "https://github.com/commaai/openpilot/issues/31333",
+    "state": "CLOSED",
+    "labels": [
+      "refactor",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-02-06T23:15:33Z",
+    "updated_at": "2026-04-18T18:11:30Z",
+    "author": "adeebshihadeh",
+    "body": "Now that we're on MapLibre (https://github.com/commaai/openpilot/pull/31185), hopefully we can use the static rendering mode here: https://github.com/commaai/openpilot/blob/03c183cb052ff1d9da5c7a927f0abbb37434fe2a/selfdrive/navd/map_renderer.cc#L117.\r\n\r\nCurrently, the map renderer abuses the Qt event loop and forces it to process the full event queue to achieve behavior that we'd expect from the static rendering. The goal is to replace that janky logic with the proper static rendering mode."
+  },
+  {
+    "number": 31420,
+    "title": "[$100 bounty] fix docker caching on submodules",
+    "url": "https://github.com/commaai/openpilot/issues/31420",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-02-12T22:59:27Z",
+    "updated_at": "2024-02-28T04:09:42Z",
+    "author": "jnewb1",
+    "body": "this bounty is to fix docker caching on the core openpilot submodules\r\n\r\nhttps://github.com/commaai/cereal\r\nhttps://github.com/commaai/opendbc\r\nhttps://github.com/commaai/panda\r\nhttps://github.com/commaai/rednose\r\n\r\ncached docker image should be pushed to the ghcr.io docker repo, similar to how openpilot does it. currently this takes 3-4 minutes for every job on the submodules. Open a PR in each of these submodules"
+  },
+  {
+    "number": 31713,
+    "title": "[$100 bounty] ability to modify any part of a platformconfig with python",
+    "url": "https://github.com/commaai/openpilot/issues/31713",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-03-05T20:55:14Z",
+    "updated_at": "2024-06-10T22:01:48Z",
+    "author": "jnewb1",
+    "body": "we'd like the ability to modify the platform configs automatically using python, for automating spec updates, new model years, etc.\r\n\r\nexample:\r\n\r\n```python\r\nfrom selfdrive.car.honda.values import CAR\r\n\r\noriginal_config = CAR.HONDA.config\r\n\r\nnew_config = original_config.copy()\r\n\r\nnew_config.specs.mass = 1400\r\nnew_config.flags |= HondaFlags.EXAMPLE_FLAG\r\n\r\nsave_config(CAR.HONDA, new_config)\r\n```\r\n\r\nand values.py reflects this change with no other diffs, and ideally the formatting remains exactly the same.\r\n\r\nmust be simple and expand easily expand to more fields within the PlatformConfig as they are introduced"
+  },
+  {
+    "number": 31651,
+    "title": "[$100 bounty] Hidden WiFi network entries not persistent.",
+    "url": "https://github.com/commaai/openpilot/issues/31651",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-02-29T22:19:39Z",
+    "updated_at": "2024-03-10T17:11:42Z",
+    "author": "FlyMyPG",
+    "body": "### Describe the bug\n\nWhen manually entering a hidden WiFi network, the connection succeeds, but will not automatically reconnect.\r\n\r\n1. Enter SSID and password for a hidden WiFi network.\r\n2. Go on a drive until that network connection is lost.\r\n3. Return to where the connection was first established.\r\n4. Observe that WiFi does not automatically reconnect to the hidden network.\r\n5. Observe that repeating the first step still works.\n\n### Provide a route where the issue occurs\n\nN/A\n\n### openpilot version\n\n0.9.6\n\n### Additional info\n\n2021 Nissan Leaf SV (40 KWh) with Comma 3X.\r\n\r\nI only got my C3X a month ago (I'm a noob), and my free Connect trial expired last week (no route to share)."
+  },
+  {
+    "number": 31775,
+    "title": "Ability to connect to WiFi networks that have a captive portal",
+    "url": "https://github.com/commaai/openpilot/issues/31775",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 8,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-03-07T20:44:43Z",
+    "updated_at": "2025-03-29T18:45:25Z",
+    "author": "notAreYouScared",
+    "body": "Allow OP to connect to WiFi networks that have a captive portal."
+  },
+  {
+    "number": 1153,
+    "title": "Subaru: camera FW query isn't complete on startup",
+    "url": "https://github.com/commaai/opendbc/issues/1153",
+    "state": "OPEN",
+    "labels": [
+      "bug",
+      "car",
+      "subaru"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-01-25T01:15:50Z",
+    "updated_at": "2025-07-12T01:13:20Z",
+    "author": "sshane",
+    "body": "Brought to our attention from the FW bot, many Subarus return different results for the same ECU and request:\r\n\r\n```python\r\n1c451e9ed3c48243|2024-01-15--16-10-38:\r\n[('ecu', 'fwdCamera'), ('fwVersion', b'\\x00\\x00e\\x9a\\x00\\x00\\x00\\x00\\x00\\x00'), ('address', 1927), ('subAddress', 0), ('responseAddress', 1935), ('request', [b'\"\\xf1\\x82'])\r\nvs\r\n1c451e9ed3c48243|2024-01-15--20-36-22:\r\n[('ecu', 'fwdCamera'), ('fwVersion', b'\\x00\\x00e\\x9a\\x00\\x1f@ 1\\x00'), ('address', 1927), ('subAddress', 0), ('responseAddress', 1935), ('request', [b'\"\\xf1\\x82']) (edited) \r\n```\r\n\r\nRace condition on startup?\r\n\r\nAlso looks like we've been adding them to the database:\r\n\r\n```\r\n    (Ecu.fwdCamera, 0x787, None): [\r\n      b'\\x00\\x00df\\x1f@ \\n',\r\n      b'\\x00\\x00d\\x95\\x00\\x00\\x00\\x00',\r\n      b'\\x00\\x00d\\x95\\x1f@ \\x0f',\r\n      b'\\x00\\x00d\\xfe\\x00\\x00\\x00\\x00',\r\n```\r\n\r\nBounty\r\n---\r\n\r\nAfter 10 seconds our Outback's fwdCamera returns the full non-zero-suffixed FW. b'\\x00\\x00eJ\\x00\\x00\\x00\\x00\\x00\\x00' -\u003e b'\\x00\\x00eJ\\x00\\x1f@ \\x19\\x00'. There is another FW version-related data ID (DID) on 0xf100 when using read data by ID, can we use that instead, or is it the bootloader software version or similar?\r\n\r\nBounty requirements:\r\n- Our existing 0xf182 RDBI query returns the complete FW version every time, even right after startup\r\n- OR using our [commaCarSegments](https://blog.comma.ai/096release/#commacarsegments) database, you can verify that we can use another ECU or DID. There's a EyeSight Monitor ECU that we can query that returns the physical part number and software version for example, but it's a HUD ECU.\r\n  - We can use another ECU or DID if you verify that it has enough information to identify the API of the car reliably -- if it has LKAS and ACC we can control -- and we don't fingerprint on cars without the complete API to control the car."
+  },
+  {
+    "number": 31843,
+    "title": "[100$ bounty] get platform_str from the enum name",
+    "url": "https://github.com/commaai/openpilot/issues/31843",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 12,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-03-12T18:59:15Z",
+    "updated_at": "2024-03-19T18:16:04Z",
+    "author": "jnewb1",
+    "body": "we currently have two separate names for each platform in openpilot, for example\r\n\r\n`BRONCO_SPORT_MK1` (enum name)\r\n`\"FORD BRONCO SPORT 1ST GEN\"` (platform_str)\r\n\r\nthis adds unnecessary complexity and an extra line to every platform config.\r\n\r\nthis bounty is for removing the platform string, and instead having every PlatformConfig have the platform_str of it's enum name automatically. i.e.\r\n\r\n```python\r\nBRONCO_SPORT_MK1 = FordPlatformConfig(\r\n  FordCarInfo(\"Ford Bronco Sport 2021-23\"),\r\n  CarSpecs(mass=1625, wheelbase=2.67, steerRatio=17.7),\r\n)\r\n\r\nassert (BRONCO_SPORT_MK1.platform_str == \"BRONCO_SPORT_MK1\")\r\n```\r\n\r\nwe must also update the [migration table](https://github.com/commaai/openpilot/blob/master/selfdrive/car/fingerprints.py#L54) to reflect these updates"
+  },
+  {
+    "number": 1919,
+    "title": "Setup clang-format",
+    "url": "https://github.com/commaai/panda/issues/1919",
+    "state": "CLOSED",
+    "labels": [],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/panda",
+    "created_at": "2024-03-25T23:45:39Z",
+    "updated_at": "2024-05-16T23:15:45Z",
+    "author": "adeebshihadeh",
+    "body": "The default configuration seems pretty aggressive, but we only want this for very basic checks. \r\n\r\nBounty is to finish up #1918 by getting it to only check our two space indentation style. We need to disable all checks by default and only whitelist the ones we care about."
+  },
+  {
+    "number": 32096,
+    "title": "[$300 bounty] rerun.io support",
+    "url": "https://github.com/commaai/openpilot/issues/32096",
+    "state": "CLOSED",
+    "labels": [
+      "tools"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-04-03T16:47:39Z",
+    "updated_at": "2024-05-18T04:18:42Z",
+    "author": "adeebshihadeh",
+    "body": "We want to support https://rerun.io/ similar to how we support [PlotJuggler](https://github.com/commaai/openpilot/tree/master/tools/plotjuggler).\r\n\r\nThis should look like:\r\n* new folder in tools: `tools/rerun/`\r\n* same command line as PlotJuggler: `./rerun.py a2a0ccea32023010/2023-07-27--13-01-19`\r\n\r\nThis bounty is to get a POC merged. The POC either has to be:\r\na) fully featured (nice starter layout , demo route, etc.)\r\nb) has to be very performant at parsing our logs\r\n\r\nWe'll merge the POC, then we'll likely do a follow up bounty to polish it up if we like rerun."
+  },
+  {
+    "number": 1931,
+    "title": "Remove WebUSB popup",
+    "url": "https://github.com/commaai/panda/issues/1931",
+    "state": "CLOSED",
+    "labels": [
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/panda",
+    "created_at": "2024-04-17T17:06:38Z",
+    "updated_at": "2024-04-17T17:15:41Z",
+    "author": "adeebshihadeh",
+    "body": "![image](https://github.com/commaai/panda/assets/8762862/d1abf60b-4423-419c-9a87-f0fd4f810f99)"
+  },
+  {
+    "number": 217,
+    "title": "fastboot CLI in edl",
+    "url": "https://github.com/commaai/agnos-builder/issues/217",
+    "state": "CLOSED",
+    "labels": [
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-04-17T21:06:10Z",
+    "updated_at": "2024-04-24T20:39:34Z",
+    "author": "adeebshihadeh",
+    "body": "The goal is to make https://github.com/bkerler/edl as nice to use on the command line as [fastboot](https://manpages.ubuntu.com/manpages/focal/man1/fastboot.1.html).\r\n\r\n\r\nMust have\r\n* all commands listed below\r\n* less verbose output; don't need to change edl's output to match fastboot, just show less of it\r\n\r\nMinimum supported commands\r\n```\r\nfastboot devices\r\nfastboot flash\r\nfastboot reboot\r\nfastboot --set-active=a\r\nfastboot continue\r\n```\r\n\r\nExtra $100 for `fastboot format:ext4` support."
+  },
+  {
+    "number": 36,
+    "title": "Move to bun",
+    "url": "https://github.com/commaai/flash/issues/36",
+    "state": "CLOSED",
+    "labels": [
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 11,
+    "repository": "commaai/flash",
+    "created_at": "2024-04-17T21:33:17Z",
+    "updated_at": "2024-04-18T05:20:36Z",
+    "author": "adeebshihadeh",
+    "body": "https://bun.sh/, there's a start at https://github.com/commaai/flash/tree/bun"
+  },
+  {
+    "number": 1175,
+    "title": "[$1000 bounty] Kia EV9 lateral port",
+    "url": "https://github.com/commaai/opendbc/issues/1175",
+    "state": "OPEN",
+    "labels": [
+      "car",
+      "hyundai",
+      "car port"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-04-23T06:14:27Z",
+    "updated_at": "2025-01-28T03:51:07Z",
+    "author": "sshane",
+    "body": "This bounty is for a lateral only port merged into master with a longitudinal proof of concept (ECU disable or intercept if the camera sends longitudinal commands)\r\n\r\n- We should understand the lateral API such that we can guarantee some maximum lateral acceleration at all speeds\r\n- No faults/unexpected alerts from the car\r\n- We should allow smooth and safe user steering blending"
+  },
+  {
+    "number": 32343,
+    "title": "[$100 bounty] Convert remaining unittest to pytest",
+    "url": "https://github.com/commaai/openpilot/issues/32343",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-03T20:41:01Z",
+    "updated_at": "2024-05-19T03:19:45Z",
+    "author": "adeebshihadeh",
+    "body": "All our tests are currently run with pytest, but many of them were originally written with unittest.\r\n\r\nNice tool to help with this: https://github.com/dannysepler/pytestify"
+  },
+  {
+    "number": 32463,
+    "title": "Replace PlotJuggler with Rerun",
+    "url": "https://github.com/commaai/openpilot/issues/32463",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "tools"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-18T04:14:47Z",
+    "updated_at": "2025-08-09T16:54:16Z",
+    "author": "adeebshihadeh",
+    "body": "We've got a proof of concept of https://rerun.io support in `tools/rerun/`. Rerun will support all the things we want out of a visualization tool. The first step is to replace PlotJuggler, which we mostly use for ad-hoc debugging. Once this is done, we can do cool things like showing all three cameras alongside your plots.\r\n\r\nAt a minimum, this means:\r\n* demo route fully loads in \u003c10s\r\n* rerun runs smoothly (\u003e30 fps). the POC seems to have a leak and it's 10 fps on my machine\r\n* can plot all the same things as PlotJuggler, with the same workflow\r\n* nice README, similar to PlotJuggler's\r\n\r\nNo comma account or device needed - just use the demo route. Community feedback/discussion is at https://github.com/commaai/openpilot/discussions/32419.\r\n\r\n---\r\n\r\nTo reach parity with PlotJuggler, we'll need:\r\n- [ ] search for signals\r\n- [ ] drag and drop https://github.com/rerun-io/rerun/issues/7108\r\n\r\n---\r\n\r\nRelevant upstream Rerun issues:\r\n* https://github.com/rerun-io/rerun/issues/7298\r\n* https://github.com/rerun-io/rerun/issues/5233\r\n* https://github.com/rerun-io/rerun/issues/7115\r\n* https://github.com/rerun-io/rerun/issues/7108"
+  },
+  {
+    "number": 32470,
+    "title": "[$100 bounty] tools: split out dev apt dependencies",
+    "url": "https://github.com/commaai/openpilot/issues/32470",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "tools"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-18T21:42:34Z",
+    "updated_at": "2024-05-21T00:35:34Z",
+    "author": "adeebshihadeh",
+    "body": "`tools/install_ubuntu_dependencies.sh` installs *all* dependencies one might want for developing openpilot, including some that most will never need (e.g. `clinfo`). \r\n\r\nSplit out those dependencies and prompt the user to select whether they want the extra packages installed. Needs to support an non-interactive mode via environment variable for cases like our docker build."
+  },
+  {
+    "number": 32516,
+    "title": "[$250 bounty] Update to Python 3.12",
+    "url": "https://github.com/commaai/openpilot/issues/32516",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-22T22:28:56Z",
+    "updated_at": "2024-06-11T20:45:16Z",
+    "author": "adeebshihadeh",
+    "body": "This is a pre-requisite to updating to Ubuntu 24.04.\r\n\r\nHere's a starting point: https://github.com/commaai/openpilot/pull/32296.\r\n\r\nMain blocker is upstreaming 3.12 support to MetaDrive: https://github.com/metadriverse/metadrive."
+  },
+  {
+    "number": 1954,
+    "title": "Complete MISRA coverage",
+    "url": "https://github.com/commaai/panda/issues/1954",
+    "state": "CLOSED",
+    "labels": [
+      "MISRA",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/panda",
+    "created_at": "2024-05-23T20:11:31Z",
+    "updated_at": "2024-07-26T01:57:39Z",
+    "author": "adeebshihadeh",
+    "body": "We've got six suppressions left, and all the remaining ones require thought on how to do cleanly and properly.\r\n\r\n```\r\n# all of the below suppressions are from new checks introduced after updating\r\n# cppcheck from 2.5 -\u003e 2.13. they are listed here to separate the update from\r\n# fixing the violations and all are intended to be removed soon after\r\nmisra-c2012-1.2   # this is from the extensions (e.g. __typeof__) used in the MIN, MAX, ABS, and CLAMP macros\r\nmisra-c2012-2.5   # unused macros. a few legit, rest aren't common between F4/H7 builds. should we do this in the unusedFunction pass?\r\nmisra-c2012-8.7\r\nmisra-c2012-8.4\r\nmisra-c2012-21.15\r\n\r\n# FIXME: violations are in ST's F4 headers\r\nmisra-c2012-12.2\r\n```\r\n\r\nLocked to @dzid26"
+  },
+  {
+    "number": 32522,
+    "title": "[$100 bounty] Switch to uv package manager",
+    "url": "https://github.com/commaai/openpilot/issues/32522",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-23T22:02:24Z",
+    "updated_at": "2024-05-28T22:36:44Z",
+    "author": "adeebshihadeh",
+    "body": "Switch the default package manager from poetry to uv. uv is quite new, so it might be not be ready for us yet. Let's try it out though.\r\n\r\nhttps://github.com/astral-sh/uv"
+  },
+  {
+    "number": 473,
+    "title": "[$500 bounty] Adjust drive definition from unix time range to openpilot route",
+    "url": "https://github.com/commaai/connect/issues/473",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "refactor",
+      "bounty"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-05-25T18:00:56Z",
+    "updated_at": "2024-06-18T05:33:40Z",
+    "author": "adeebshihadeh",
+    "body": "The goal is to change the definition of a viewable \"drive\" in connect from a unix timestamp range to simply be an openpilot route/log ID, `fa7cd420146956ea/1712332179093/1712332850533` -\u003e `fa7cd420146956ea/00000028--7e47f53956`. This was originally done so that multiple drives could be showed together, but this turns out to introduce a bunch of complexity and also not be useful. \r\n\r\nOld: `connect.comma.ai/\u003cdongle_id\u003e/\u003cunix_start_time\u003e/\u003cunix_end_time\u003e`\r\nNew: `connect.comma.ai/\u003cdongle_id\u003e/\u003copenpilot_log_id\u003e`\r\n\r\nGuidelines\r\n* use relative time where possible in components\r\n* need to do something about old connect links, e.g. go to the drive list and set the time range that's in the URL\r\n\r\nThere's a (significant) start at it here: https://github.com/commaai/connect/pull/458"
+  },
+  {
+    "number": 427,
+    "title": "Replace carousel lib with CSS",
+    "url": "https://github.com/commaai/connect/issues/427",
+    "state": "CLOSED",
+    "labels": [
+      "dependencies",
+      "cleanup"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2023-08-22T11:08:05Z",
+    "updated_at": "2024-05-26T18:48:20Z",
+    "author": "incognitojam",
+    "body": "`react-responsive-carousel` is only being used for the [device snapshot images](https://github.com/commaai/connect/blob/master/src/components/DeviceInfo/index.jsx#L376) on mobile. We can implement scrolling with snapping easily using [`scroll-snap-type`](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-type) CSS property."
+  },
+  {
+    "number": 32536,
+    "title": "Speedup `test_car_interfaces`",
+    "url": "https://github.com/commaai/openpilot/issues/32536",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 32,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-25T18:55:45Z",
+    "updated_at": "2026-04-22T20:17:21Z",
+    "author": "adeebshihadeh",
+    "body": "Takes ~1-2s per car. That's a big hit since we support nearly 300 different cars.\r\n\r\nGoal is \u003c=0.2s avg and \u003c1s max on the CI machine, with the same test coverage. There's likely two or three things slowing this test down that'll be obvious with a bit of profiling.\r\n\r\nCommand to run:\r\n```\r\npytest --durations=0 selfdrive/car/tests/test_car_interfaces.py \r\n```\r\n\r\nCurrent output on my workstation\r\n```\r\nbatman:sixpilot$ pytest --durations=10 selfdrive/car/tests/test_car_interfaces.py\r\n=============================================================== test session starts ===============================================================\r\nplatform linux -- Python 3.11.4, pytest-8.2.0, pluggy-1.5.0\r\nUsing --randomly-seed=431984017\r\nrootdir: /dev/shm/openpilot/sixpilot\r\nconfigfile: pyproject.toml\r\nplugins: randomly-3.15.0, subtests-0.12.1, anyio-4.3.0, cov-5.0.0, xdist-3.6.1, cpp-2.5.0, hypothesis-6.47.5, mock-3.14.0, timeout-2.3.1, flaky-3.8.1, asyncio-0.23.6\r\nasyncio: mode=Mode.STRICT\r\n32 workers [209 items]\r\n........................................................................................................................................... [ 65%]\r\n......................................................................                                                                      [100%]\r\n============================================================== slowest 10 durations ===============================================================\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n2.17s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_138_MAZDA_CX9_2021\r\n2.15s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_037_GENESIS_GV60_EV_1ST_GEN\r\n2.05s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_147_SKODA_FABIA_MK4\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_094_HYUNDAI_VELOSTER\r\n1.97s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_005_AUDI_Q3_MK2\r\n1.87s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_059_HONDA_PILOT\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_113_KIA_OPTIMA_H_G4_FL\r\n1.83s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_076_HYUNDAI_IONIQ_PHEV_2019\r\n1.78s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_095_JEEP_GRAND_CHEROKEE\r\n============================================================== 209 passed in 13.32s ===============================================================\r\n```\r\n\r\n\r\n"
+  },
+  {
+    "number": 32553,
+    "title": "[$200 bounty] New Ubuntu setup flow",
+    "url": "https://github.com/commaai/openpilot/issues/32553",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-05-27T18:01:46Z",
+    "updated_at": "2024-06-28T20:54:32Z",
+    "author": "adeebshihadeh",
+    "body": "See the current setup at `tools/ubuntu_setup.sh`. The goal of this bounty is to make the whole setup more interactive and describe what it's going to do. \r\n\r\nIn the setup README, we'll offer two paths:\r\n1. manually install/setup everything, for those who like to manage their own env and tooling\r\n2. an interactive script that'll get you setup from scratch\r\n\r\nThe interactive script will go something like this:\r\n* do you want to install these runtime apt dependencies?\r\n* do you want to install apt development dependencies?\r\n* do you want to install apt nice-to-haves (e.g. valgrind)?\r\n* detect minimum python version\r\n* start a venv\r\n* install python dependencies inside venv\r\n* show how to active venv"
+  },
+  {
+    "number": 476,
+    "title": "Update to latest `react-map-gl`",
+    "url": "https://github.com/commaai/connect/issues/476",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-05-28T04:42:18Z",
+    "updated_at": "2024-06-25T20:40:57Z",
+    "author": "adeebshihadeh",
+    "body": "https://visgl.github.io/react-map-gl/"
+  },
+  {
+    "number": 478,
+    "title": "Fix all linter warnings",
+    "url": "https://github.com/commaai/connect/issues/478",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-05-29T16:51:14Z",
+    "updated_at": "2024-05-31T21:17:18Z",
+    "author": "adeebshihadeh",
+    "body": "Run with `pnpm lint`\r\n\r\n```\r\nbatman:connect$ pnpm lint\r\n\r\n\u003e connect@0.8.0 lint /home/batman/two/connect\r\n\u003e eslint --ext .js,.jsx,.ts,.tsx src\r\n\r\nWarning: React version not specified in eslint-plugin-react settings. See https://github.com/jsx-eslint/eslint-plugin-react#configuration .\r\n\r\n/home/batman/two/connect/src/App.jsx\r\n   45:3  warning  Expected 'this' to be used by class method 'apiErrorResponseCallback'  class-methods-use-this\r\n   80:3  warning  Expected 'this' to be used by class method 'redirectLink'              class-methods-use-this\r\n  100:3  warning  Expected 'this' to be used by class method 'anonymousRoutes'           class-methods-use-this\r\n  111:3  warning  Expected 'this' to be used by class method 'renderLoading'             class-methods-use-this\r\n\r\n/home/batman/two/connect/src/actions/cached.js\r\n   85:22  warning  'expireCacheItems' was used before it was defined  no-use-before-define\r\n  347:14  warning  'fetchCoord' was used before it was defined        no-use-before-define\r\n  348:14  warning  'fetchCoord' was used before it was defined        no-use-before-define\r\n\r\n/home/batman/two/connect/src/actions/files.js\r\n  271:22  warning  Unexpected `await` inside a loop  no-await-in-loop\r\n\r\n/home/batman/two/connect/src/actions/index.js\r\n   15:12  warning  'checkRoutesData' was used before it was defined         no-use-before-define\r\n   24:25  warning  'urlForState' was used before it was defined             no-use-before-define\r\n   78:16  warning  'primeFetchSubscription' was used before it was defined  no-use-before-define\r\n   79:16  warning  'fetchDeviceOnline' was used before it was defined       no-use-before-define\r\n   82:14  warning  'checkRoutesData' was used before it was defined         no-use-before-define\r\n   85:27  warning  'urlForState' was used before it was defined             no-use-before-define\r\n  107:20  warning  'primeGetSubscription' was used before it was defined    no-use-before-define\r\n  144:27  warning  'urlForState' was used before it was defined             no-use-before-define\r\n\r\n/home/batman/two/connect/src/analytics.js\r\n  104:3  warning  Expected a default case  default-case\r\n\r\n/home/batman/two/connect/src/components/AppHeader/TimeFilter.jsx\r\n   80:5  warning  Expected a default case                                      default-case\r\n  157:3  warning  Expected 'this' to be used by class method 'lastWeekText'    class-methods-use-this\r\n  162:3  warning  Expected 'this' to be used by class method 'last2WeeksText'  class-methods-use-this\r\n\r\n/home/batman/two/connect/src/components/Dashboard/DeviceSettingsModal.jsx\r\n  172:3  warning  Expected 'this' to be used by class method 'callOnEnter'  class-methods-use-this\r\n\r\n/home/batman/two/connect/src/components/DeviceInfo/index.jsx\r\n  322:19  warning  Empty block statement  no-empty\r\n\r\n/home/batman/two/connect/src/components/DriveMap/index.jsx\r\n  152:3  warning  Expected 'this' to be used by class method 'onRef'  class-methods-use-this\r\n\r\n/home/batman/two/connect/src/components/DriveView/Media.jsx\r\n  323:3   warning  Expected 'this' to be used by class async method 'shareCurrentRoute'  class-methods-use-this\r\n  660:17  warning  Do not nest ternary expressions                                       no-nested-ternary\r\n  685:17  warning  Do not nest ternary expressions                                       no-nested-ternary\r\n  811:13  warning  Do not nest ternary expressions                                       no-nested-ternary\r\n\r\n/home/batman/two/connect/src/components/Files/UploadQueue.jsx\r\n  193:34  warning  Do not nest ternary expressions  no-nested-ternary\r\n  214:17  warning  Do not nest ternary expressions  no-nested-ternary\r\n  282:19  warning  Do not nest ternary expressions  no-nested-ternary\r\n\r\n/home/batman/two/connect/src/components/IosPwaPopup/index.jsx\r\n  107:19  warning  Empty block statement  no-empty\r\n\r\n/home/batman/two/connect/src/components/Navigation/index.jsx\r\n   506:3   warning  Expected 'this' to be used by class method 'getFavoriteLabelIcon'  class-methods-use-this\r\n   777:3   warning  Expected 'this' to be used by class method 'itemLoc'               class-methods-use-this\r\n   937:3   warning  Expected 'this' to be used by class method 'carLocationCircle'     class-methods-use-this\r\n  1330:21  warning  Do not nest ternary expressions                                    no-nested-ternary\r\n\r\n/home/batman/two/connect/src/components/Prime/PrimeCheckout.jsx\r\n  444:15  warning  Do not nest ternary expressions  no-nested-ternary\r\n\r\n/home/batman/two/connect/src/components/VisibilityHandler/index.jsx\r\n  83:3  warning  Expected 'this' to be used by class method 'render'  class-methods-use-this\r\n\r\n/home/batman/two/connect/src/components/anonymous.jsx\r\n  105:3  warning  Expected 'this' to be used by class method 'componentDidMount'  class-methods-use-this\r\n\r\n/home/batman/two/connect/src/components/explorer.jsx\r\n  182:26  warning  Do not nest ternary expressions  no-nested-ternary\r\n  219:13  warning  Do not nest ternary expressions  no-nested-ternary\r\n\r\n/home/batman/two/connect/src/reducers/globalState.js\r\n   29:7  warning  Unexpected lexical declaration in case block  no-case-declarations\r\n  139:7  warning  Unexpected lexical declaration in case block  no-case-declarations\r\n  140:7  warning  Unexpected lexical declaration in case block  no-case-declarations\r\n\r\n✖ 43 problems (0 errors, 43 warnings)\r\n```"
+  },
+  {
+    "number": 277,
+    "title": "Replace raw files popup with a table",
+    "url": "https://github.com/commaai/connect/issues/277",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2022-10-18T18:00:14Z",
+    "updated_at": "2024-06-25T20:41:04Z",
+    "author": "adeebshihadeh",
+    "body": "In the current UI, clips and raw segment file download are treated pretty equally, which is pretty confusing since most user just want a clip. At the same time, I think we can improve the raw file download experience. I propose making the file popup into a useradmin-style table with all the segments.\r\n\r\n![image](https://user-images.githubusercontent.com/8762862/196507882-ee5f6a50-6573-4639-ada5-8fa607dc0625.png)"
+  },
+  {
+    "number": 400,
+    "title": "pause video when leaving tab",
+    "url": "https://github.com/commaai/connect/issues/400",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2023-07-10T17:51:41Z",
+    "updated_at": "2024-05-30T18:42:04Z",
+    "author": "adeebshihadeh",
+    "body": ""
+  },
+  {
+    "number": 42,
+    "title": "Replace React with something simple",
+    "url": "https://github.com/commaai/flash/issues/42",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 26,
+    "open_pr_count": 1,
+    "repository": "commaai/flash",
+    "created_at": "2024-05-29T21:59:47Z",
+    "updated_at": "2026-01-30T19:05:20Z",
+    "author": "adeebshihadeh",
+    "body": "Replace next/react/etc with a simpler stack. This will be a try-out for [comma connect's](https://github.com/commaai/connect) next framework.\r\n\r\nWe care about simplicity, brevity, and performance.  Some contenders:\r\n* https://www.solidjs.com/\r\n* https://svelte.dev/\r\n\r\nNice site with benchmarks of a bunch of frameworks: https://krausest.github.io/js-framework-benchmark/current.html\r\n\r\n---\r\n\r\nEDIT: Some more context on what we're looking for:\r\n\r\nI just wrote [comma.ai/leaderboard](https://comma.ai/leaderboard). It loads instantly; you click refresh and don't even see it load. It has a defined JS-less experience and only uses JS where absolutely necessary. I simply started with `vi leaderboard.html` and got to work.\r\n\r\nIt was a joy to write, but there were a few pain points:\r\n* preview was slow to refresh\r\n* integrating it with webpack and the rest of the build system\r\n* development vs production (minified version stripped out some spacing)"
+  },
+  {
+    "number": 474,
+    "title": "[$250 bounty] Use a real account for the demo experience",
+    "url": "https://github.com/commaai/connect/issues/474",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-05-25T19:10:10Z",
+    "updated_at": "2024-06-03T23:23:18Z",
+    "author": "adeebshihadeh",
+    "body": "The demo experience is one route with some hardcoded API responses and \"if demo\" in a bunch of places.\r\n\r\nInstead, the demo should be a real user and hit all the same code paths a normal user does.  \r\n\r\nIt'll be a better demo experience, and it should enable external contributors without a device to more effectively contribute. \r\n\r\nEDIT: @sshane has setup a demo account accessible with the below token. $250 bounty for refactoring the demo to use this token and hit all the normal code paths a real user would.\r\n```\r\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDg1ODI0NjUsIm5iZiI6MTcxNzA0NjQ2NSwiaWF0IjoxNzE3MDQ2NDY1LCJpZGVudGl0eSI6IjBkZWNkZGNmZGYyNDFhNjAifQ.g3khyJgOkNvZny6Vh579cuQj1HLLGSDeauZbfZri9jw\r\n```"
+  },
+  {
+    "number": 9,
+    "title": "Test all supported Python versions in CI",
+    "url": "https://github.com/commaai/bodyjim/issues/9",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 3,
+    "repository": "commaai/bodyjim",
+    "created_at": "2024-06-04T18:34:45Z",
+    "updated_at": "2024-06-04T21:47:25Z",
+    "author": "adeebshihadeh",
+    "body": "Add a matrix to the `test` CI job to run on all supported Python versions: https://github.com/commaai/body-jim/blob/2f06d4038c6d440ad2b023c4d2e8848e7d41423c/.github/workflows/tests.yaml#L6\r\n\r\nGitHub has some docs here: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#using-multiple-python-versions"
+  },
+  {
+    "number": 489,
+    "title": "Setup GitHub pages deployment for forks",
+    "url": "https://github.com/commaai/connect/issues/489",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "commaai/connect",
+    "created_at": "2024-06-05T19:19:10Z",
+    "updated_at": "2024-06-06T22:39:23Z",
+    "author": "adeebshihadeh",
+    "body": "We want a nice workflow for contributors to share their work. I'm thinking:\r\n* make your PR\r\n* trigger the workflow\r\n* post link in the PR and Discord for people to test\r\n\r\nIdeally, every PR gets a preview link automatically, but GH pages only gives you one deployment per repo. This should be a good start. \r\n\r\nRequirements:\r\n* connect fully works in GitHub pages\r\n* it's a production build\r\n* workflow is simply: click actions tab -\u003e click \"publish\" workflow -\u003e run workflow on given branch\r\n\r\nRelevant docs: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch"
+  },
+  {
+    "number": 490,
+    "title": "Setup Netlify(?) previews for all PRs",
+    "url": "https://github.com/commaai/connect/issues/490",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-06-05T20:38:02Z",
+    "updated_at": "2024-06-06T01:38:00Z",
+    "author": "adeebshihadeh",
+    "body": "This should make it super easy for reviewers and community members to try out PRs. Just open a PR, and share the link on Discord.\r\n\r\nRequirements:\r\n* auto deploys a hosted preview of PRs \r\n* comments the URL on the PR\r\n* works for internal and external PRs (though not necessarily external branches that aren't PRs)\r\n* avg \u003c$100/mo, free is even better\r\n\r\n[Netlify](https://www.netlify.com/) looks pretty good for this, but I don't care too much about the particular service. Make your own account to test, then before merging, I'll switch it to our account."
+  },
+  {
+    "number": 493,
+    "title": "Replace default time window with last N drives",
+    "url": "https://github.com/commaai/connect/issues/493",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-06-06T02:20:39Z",
+    "updated_at": "2024-06-18T21:51:18Z",
+    "author": "adeebshihadeh",
+    "body": "connect currently only shows the last two weeks of drives by default. Switch it to show the last N drives instead (and load more once you hit the bottom). The date range should still be an input, just an optional one."
+  },
+  {
+    "number": 32660,
+    "title": "[$100 bounty] Remove `setproctitle` dependency",
+    "url": "https://github.com/commaai/openpilot/issues/32660",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-08T16:34:30Z",
+    "updated_at": "2024-06-11T03:16:59Z",
+    "author": "adeebshihadeh",
+    "body": "Replace `setproctitle` with our own small helper in `common/`. Just needs to work on Linux."
+  },
+  {
+    "number": 32662,
+    "title": "[$100 bounty] Remove `timezonefinder` dependency",
+    "url": "https://github.com/commaai/openpilot/issues/32662",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-08T16:35:52Z",
+    "updated_at": "2024-06-20T03:34:58Z",
+    "author": "adeebshihadeh",
+    "body": "We only need the timezone for showing the nav ETA in the UI. Can we get the timezone from the mapbox API while getting the route information?"
+  },
+  {
+    "number": 32663,
+    "title": "[$100 bounty] Remove `markdown-it-py` dependency",
+    "url": "https://github.com/commaai/openpilot/issues/32663",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-08T16:39:36Z",
+    "updated_at": "2024-06-08T16:43:11Z",
+    "author": "adeebshihadeh",
+    "body": "Replace the package with our own small parser. It's just used to read the release notes for updates. Better yet, can we have Qt directly render the Markdown?\r\n\r\nSteps\r\n* remove from pyproject.toml: https://github.com/commaai/openpilot/blob/541b5cbf1387df07e76da55d3e332170d9e756f0/pyproject.toml#L124\r\n* replace this usage with own our implementation in `common/`: https://github.com/commaai/openpilot/blob/541b5cbf1387df07e76da55d3e332170d9e756f0/system/updated/updated.py#L92\r\n* write a small unit test to make sure the output is sane on the release notes"
+  },
+  {
+    "number": 32687,
+    "title": "[$100 bounty] Speedup docs build in CI",
+    "url": "https://github.com/commaai/openpilot/issues/32687",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-10T20:35:13Z",
+    "updated_at": "2024-06-30T17:09:13Z",
+    "author": "adeebshihadeh",
+    "body": "The `build docs` job in CI takes 3-5m each run. Last run from master: https://github.com/commaai/openpilot/actions/runs/9454981147/job/26043750673\r\n\r\nThis can probably be done by caching the build results, but non-cache speedups are even better. `Build docs` step must finish in \u003c30s for the average run to qualify for the bounty."
+  },
+  {
+    "number": 32690,
+    "title": "Car docs bot: diff on generated readme file",
+    "url": "https://github.com/commaai/openpilot/issues/32690",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "docs",
+      "car"
+    ],
+    "comment_count": 10,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-10T22:16:41Z",
+    "updated_at": "2025-01-12T23:20:53Z",
+    "author": "sshane",
+    "body": "We have a bot that uses the car docs Python data structures and prints a pretty diff to each PR, if it changes any car docs. That could be vehicle name, supported trim, minimum steering speed, parts, or detail sentence for the website.\r\n\r\nCurrent bot output: https://github.com/commaai/openpilot/pull/31888#issuecomment-2000768679\r\n\r\nOur current solution requires checkouts and pickling, which is fragile: [print_docs_diff.py](https://github.com/commaai/openpilot/blob/master/selfdrive/debug/print_docs_diff.py) and [selfdrive_tests.yaml#L256-L308](https://github.com/commaai/openpilot/blob/c514ee7212f7ef43c7451d6e638dd54ec0643dcc/.github/workflows/selfdrive_tests.yaml#L256-L308).\r\n\r\nSolution\r\n---\r\n\r\nJust use the base and head commit CARS.md files in the PR, for example:\r\n\r\n```\r\nwget -O master_table.md https://raw.githubusercontent.com/commaai/openpilot/master/docs/CARS.md\r\ndiff master_table.md docs/CARS.md\r\n```\r\n\r\nSee the generated CARS.md README file: https://github.com/commaai/openpilot/blob/master/docs/CARS.md\r\n\r\nDiffing behavior:\r\n- [ ] Should be agnostic to the columns and other changes (you can add or remove without issues)\r\n- [ ] Minimal understanding of the file, which makes this small, simple, and robust. You may need special handling of the detail sentence however, which is fine.\r\n- [ ] Changes to column values should be picked up as a column change, not addition and removal. GitHub already does that for us!"
+  },
+  {
+    "number": 32693,
+    "title": "Determine cause of hypothesis slow example generation in newer versions",
+    "url": "https://github.com/commaai/openpilot/issues/32693",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 8,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-10T23:15:21Z",
+    "updated_at": "2026-04-22T16:55:58Z",
+    "author": "sshane",
+    "body": "Related to https://github.com/commaai/openpilot/issues/32536. This bounty is for determining *why* newer versions of hypothesis (6.103.1 vs our pinned 6.47) are so much slower at example generation for [test_car_interfaces.py](https://github.com/commaai/openpilot/blob/master/selfdrive/car/tests/test_car_interfaces.py).\r\n\r\nBounty\r\n---\r\n\r\nBounty is awarded for determining the exact cause and a solution for optimizing/fixing either the hypothesis library itself, or openpilot to improve the example generation times.\r\n\r\n---\r\n\r\nOn `AMD Ryzen Threadripper PRO 3955WX 16-Cores` on hypothesis==6.47.0:\r\n\r\n```python\r\nbatman@workstation-shane:~/openpilot/selfdrive/car/tests$ pytest -n8 test_car_interfaces.py\r\n/home/batman/.pyenv/versions/3.11.4/lib/python3.11/site-packages/pytest_benchmark/logger.py:46: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.\r\n  warner(PytestBenchmarkWarning(text))\r\nTest session starts (platform: linux, Python 3.11.4, pytest 8.2.1, pytest-sugar 1.0.0)\r\nbenchmark: 4.0.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\r\nUsing --randomly-seed=4244670443\r\nrootdir: /home/batman/openpilot\r\nconfigfile: pyproject.toml\r\nplugins: timeout-2.3.1, xdist-3.6.1, cpp-2.5.0, cov-5.0.0, mock-3.14.0, forked-1.6.0, hypothesis-6.47.0, dash-2.11.1, benchmark-4.0.0, sugar-1.0.0, randomly-3.15.0, subtests-0.12.1, flaky-3.8.1, asyncio-0.23.7, anyio-4.4.0, nbmake-1.5.3, repeat-0.9.3\r\nasyncio: mode=Mode.STRICT\r\n8 workers [209 items]   collecting ... \r\n\r\n selfdrive/car/tests/test_car_interfaces.py ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ 56% █████▋    \r\n                                            ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓                       100% ██████████\r\n============================================================================ slowest 10 durations =============================================================================\r\n1.16s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_028_FORD_F_150_LIGHTNING_MK1\r\n1.08s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_030_FORD_MAVERICK_MK1\r\n1.06s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_024_FORD_BRONCO_SPORT_MK1\r\n1.03s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_025_FORD_ESCAPE_MK4\r\n1.03s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_031_FORD_MUSTANG_MACH_E_MK1\r\n1.02s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_029_FORD_F_150_MK14\r\n0.99s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_026_FORD_EXPLORER_MK6\r\n0.98s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_074_HYUNDAI_IONIQ_HEV_2022\r\n0.96s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n0.95s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_151_SKODA_OCTAVIA_MK3\r\n\r\nResults (22.66s):\r\n     209 passed\r\n```\r\n\r\nand on latest hypothesis==6.103.1\r\n\r\n```python\r\nbatman@workstation-shane:~/openpilot/selfdrive/car/tests$ pytest -n8 test_car_interfaces.py\r\n/home/batman/.pyenv/versions/3.11.4/lib/python3.11/site-packages/pytest_benchmark/logger.py:46: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.\r\n  warner(PytestBenchmarkWarning(text))\r\nTest session starts (platform: linux, Python 3.11.4, pytest 8.2.1, pytest-sugar 1.0.0)\r\nbenchmark: 4.0.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\r\nUsing --randomly-seed=264861645\r\nrootdir: /home/batman/openpilot\r\nconfigfile: pyproject.toml\r\nplugins: timeout-2.3.1, xdist-3.6.1, cpp-2.5.0, cov-5.0.0, mock-3.14.0, forked-1.6.0, dash-2.11.1, benchmark-4.0.0, hypothesis-6.103.1, sugar-1.0.0, randomly-3.15.0, subtests-0.12.1, flaky-3.8.1, asyncio-0.23.7, anyio-4.4.0, nbmake-1.5.3, repeat-0.9.3\r\nasyncio: mode=Mode.STRICT\r\n8 workers [209 items]   collecting ... \r\n\r\n selfdrive/car/tests/test_car_interfaces.py ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓ 56% █████▋    \r\n                                            ✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓                       100% ██████████\r\n============================================================================ slowest 10 durations =============================================================================\r\n1.70s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_029_FORD_F_150_MK14\r\n1.65s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_027_FORD_FOCUS_MK4\r\n1.62s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_025_FORD_ESCAPE_MK4\r\n1.61s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_026_FORD_EXPLORER_MK6\r\n1.56s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_028_FORD_F_150_LIGHTNING_MK1\r\n1.56s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_108_KIA_NIRO_PHEV\r\n1.51s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_030_FORD_MAVERICK_MK1\r\n1.51s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_151_SKODA_OCTAVIA_MK3\r\n1.50s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_150_SKODA_KODIAQ_MK1\r\n1.49s call     selfdrive/car/tests/test_car_interfaces.py::TestCarInterfaces::test_car_interfaces_149_SKODA_KAROQ_MK1\r\n\r\nResults (36.67s):\r\n     209 passed\r\n```"
+  },
+  {
+    "number": 32717,
+    "title": "eSIM user provisioning on comma 3X",
+    "url": "https://github.com/commaai/openpilot/issues/32717",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "comma three"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 1,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-12T01:52:56Z",
+    "updated_at": "2024-08-15T17:34:03Z",
+    "author": "adeebshihadeh",
+    "body": "comma 3X ships with an eSIM that comes provisioned from the factory for [comma prime](https://comma.ai/connect). The goal of this bounty is to come up with a solution for users to provision them with their own service, which we can eventually integrate into the device settings or [comma connect](https://connect.comma.ai).\r\n\r\nThe deliverable is a Python script that sets up an arbitrary eSIM profile on the comma 3X. The input is the eSIM activation code (e.g. `LPA:1$smdp.io$K2-1V5B9M-DD9VC9`).\r\n\r\nNotes\r\n* comma 3X uses the [Quectel EG25](https://www.quectel.com/product/lte-eg25-g/)\r\n* comma 3X comes with an [SGP 32](https://www.gsma.com/solutions-and-impact/technologies/esim/gsma_resources/sgp-32-v1-0/) compliant eSIM\r\n* the SIM can also be ordered separately from [here](https://comma.ai/shop/comma-prime-sim) for $20\r\n* may be possible to do this whole bounty on something other than a comma 3X; we just care if it works on a 3X\r\n\r\nThe EG25 has special firmware with this capability (see [esim.py](https://github.com/commaai/openpilot/blob/master/system/hardware/tici/esim.py)), however the goal of this bounty is to do it without that firmware. \r\n\r\n\r\nReferences:\r\n* https://github.com/estkme-group/lpac\r\n* https://github.com/estkme-group/openeuicc"
+  },
+  {
+    "number": 32791,
+    "title": "[$100 bounty] Bring back macOS CI",
+    "url": "https://github.com/commaai/openpilot/issues/32791",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "PC"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-19T15:36:08Z",
+    "updated_at": "2024-06-26T21:24:10Z",
+    "author": "adeebshihadeh",
+    "body": "We had macOS CI for a long time but it was hard to maintain, in part due to the package cache breaking all the time. Now that dependencies are down, let's see how fast it is without a package cache.\r\n\r\nJust run `tools/mac_setup.sh` and `scons -h` after to make sure it vaguely worked. If that's fast enough to leave enabled on master, we can slowly bring back compiling openpilot, running tests, etc."
+  },
+  {
+    "number": 36,
+    "title": "Script to generate screenshots in different states",
+    "url": "https://github.com/commaai/new-connect/issues/36",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-06-23T00:07:36Z",
+    "updated_at": "2024-07-11T21:46:33Z",
+    "author": "adeebshihadeh",
+    "body": "Easy review and testing is critical to the new connect development experience. The followup to this will be to get the screenshots posted as a comment on all PRs.\r\n\r\nhttps://pptr.dev/ or https://playwright.dev/ seem to be the two options. I briefly tried out playwright and it immediately spit out 5 files. Which one is simpler? Can we make this like 30 lines of code/config and a list of URLs to grab screenshots of?\r\n\r\nOne script or command to:\r\n* save screenshots\r\n* includes these states: login page, demo route list, route from the demo\r\n* includes desktop, laptop, and mobile screen sizes"
+  },
+  {
+    "number": 32812,
+    "title": "New docs.comma.ai",
+    "url": "https://github.com/commaai/openpilot/issues/32812",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "docs"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-23T01:09:41Z",
+    "updated_at": "2024-12-15T23:52:17Z",
+    "author": "adeebshihadeh",
+    "body": "https://docs.comma.ai is currently just a nicer way to view all the READMEs in the repo.  https://rerun.io/docs are the nicest docs I've seen recently. They look great and the content flows nicely. I'm thinking we'll want something like this:\r\n* copy the rerun \"Getting Started\" section: what is openpilot, quick start, installing, etc.\r\n* walkthroughs:\r\n  * \"how to replay a route\"\r\n  * \"how to debug a process crash\"\r\n  * \"how to live stream the cameras to your PC\"\r\n* car porting section\r\n  * brand port\r\n  * model port\r\n\r\nSource for rerun's docs: https://github.com/rerun-io/rerun/tree/main/docs"
+  },
+  {
+    "number": 32828,
+    "title": "[$200 bounty] Comment on PRs with UI report",
+    "url": "https://github.com/commaai/openpilot/issues/32828",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "CI / testing"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-25T02:41:35Z",
+    "updated_at": "2024-07-06T02:48:01Z",
+    "author": "adeebshihadeh",
+    "body": "We have a CI job that generates a bunch of UI screenshots in various states: https://github.com/commaai/openpilot/blob/master/.github/workflows/selfdrive_tests.yaml#L289. The goal of this bounty is to get those screenshots posted as a comment to PRs.\r\n* only comments if `selfdrive/ui/` was changed\r\n* comment gets updated when new commits are pushed\r\n* must be formatted nicely (e.g. doesn't take up the whole screen). maybe put them in a table?\r\n\r\nSince GitHub doesn't allow directly uploaded pictures to comments, we'll need to push them to this repo I setup: https://github.com/commaai/ci-artifacts. The `CI_ARTIFACTS_DEPLOY_KEY` secret should allow pushing there"
+  },
+  {
+    "number": 39,
+    "title": "Generate corrupt routes for testing",
+    "url": "https://github.com/commaai/new-connect/issues/39",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "CI / testing"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-06-25T03:01:58Z",
+    "updated_at": "2025-01-15T16:47:05Z",
+    "author": "adeebshihadeh",
+    "body": "Most routes are good, but connect needs to deal with routes that are corrupt, malformed, or otherwise missing information (sometimes for valid reasons). The goal of this bounty is to make testing all those cases easy by generating the bad routes.\r\n\r\nThe deliverable is a script that takes an input route and outputs carefully corrupted routes in the same format as openpilot's logger (then we can easily upload them). Requirements:\r\n* default route is one of the routes on the demo account\r\n* should verify that the input route is actually good and doesn't contain any of the corruptions the script will introduce (starts at segment 0, no missing qlogs/qcams, etc.)\r\n* cases\r\n  * no date/time\r\n  * GPS missing\r\n  * qlog missing\r\n  * qcam missing\r\n  * tnumbnail missing\r\n  * segment too long (\u003e60s)"
+  },
+  {
+    "number": 32837,
+    "title": "Replace `ui.py` radar point visualization with Rerun",
+    "url": "https://github.com/commaai/openpilot/issues/32837",
+    "state": "CLOSED",
+    "labels": [
+      "refactor",
+      "tools"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-26T04:59:49Z",
+    "updated_at": "2024-07-24T18:59:42Z",
+    "author": "adeebshihadeh",
+    "body": "Most of `tools/replay/ui.py` has been replaced by our generic plotting tools (PlotJuggler and Rerun), but it's still the only thing we have in this repo to visualize the car's radar points. The goal is to replace its radar point visualization with a custom [Rerun](https://rerun.io) blueprint/layout. The demo route in `tools/rerun/` should be enough to develop this. \r\n\r\n![](https://camo.githubusercontent.com/0dbf6d4d03f5c7337cbaa27c5b1f7b939678189ded1ceab7260fb089932449cc/68747470733a2f2f692e696d6775722e636f6d2f597070653068322e706e67)"
+  },
+  {
+    "number": 232,
+    "title": "Switch from poetry to uv",
+    "url": "https://github.com/commaai/agnos-builder/issues/232",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-06-19T23:55:27Z",
+    "updated_at": "2024-07-14T14:29:19Z",
+    "author": "adeebshihadeh",
+    "body": "https://github.com/astral-sh/uv\r\n\r\nThere's a start at it in  #226"
+  },
+  {
+    "number": 32842,
+    "title": "Testing the tests: CI quality report",
+    "url": "https://github.com/commaai/openpilot/issues/32842",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-26T18:58:54Z",
+    "updated_at": "2024-07-03T22:27:30Z",
+    "author": "adeebshihadeh",
+    "body": "One of our CI jobs got flaky recently (https://github.com/commaai/openpilot/issues/32820), and it only happens in CI. In order to get a good picture of our CI reliability, let's setup a CI job that tests the rest of our CI and answers the question \"how flaky is that job exactly?\"\r\n\r\nThe goal is to setup a new CI job that triggers the normal CI workflow X times and reports how many of those failed and how many passed. Eventually, we may want it to open an issue if too many fail. Using this job, we can get our CI to pass 100/100 times.\r\n* runs once a week and on workflow_trigger\r\n* N is configurable when workflow triggered, but defaults to 100 \r\n* for verification, post a few runs running on your fork"
+  },
+  {
+    "number": 536,
+    "title": "Remove segment_start_times usage (and friends)",
+    "url": "https://github.com/commaai/connect/issues/536",
+    "state": "CLOSED",
+    "labels": [
+      "cleanup",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/connect",
+    "created_at": "2024-06-26T21:18:38Z",
+    "updated_at": "2024-11-11T17:53:32Z",
+    "author": "adeebshihadeh",
+    "body": "Need to remove `segment_start_times`, `segment_end_times`, and `segment_numbers` since we'll no longer have this information soon.\r\n\r\nThey're primarily used for file uploads. We'll replace them with:\r\n* make the following assumptions\r\n  * route starts at segment 0\r\n  * segments are 60s\r\n  * segments aren't missing in the middle of the route\r\n* add an \"Upload all for route\" button that requests uploads for `range(0, max_seg_number+1)`. this is a fallback for cases where the assumptions don't hold true\r\n\r\nWith those assumptions, the file upload should be mostly unaffected.\r\n\r\n\r\nhttps://github.com/commaai/connect/blob/396f0d64fed7897464b6c8ee1cde84f2fab81435/src/components/DriveView/Media.jsx#L376"
+  },
+  {
+    "number": 32846,
+    "title": "Figure out why pre-commit corrupts git repo",
+    "url": "https://github.com/commaai/openpilot/issues/32846",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "bounty"
+    ],
+    "comment_count": 10,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-06-26T23:34:37Z",
+    "updated_at": "2024-07-13T23:01:03Z",
+    "author": "adeebshihadeh",
+    "body": "pre-commit somewhat consistently corrupts my git repo on pre-commit init. It can be either pre-commit or one of the hooks we use. Goal is to identify why this happens and ideally fix it if possible.\r\n\r\nHere's the latest occurrence for me, on the panda repo in this case (so it's a hook that openpilot has in common with panda).\r\n\r\n\r\n\r\n```\r\nbatman:panda$ git commit -m \"add assert function\"\r\n[INFO] Installing environment for https://github.com/pre-commit/mirrors-mypy.\r\n[INFO] Once installed this environment will be reused.\r\n[INFO] This may take a few minutes...\r\n[INFO] Installing environment for https://github.com/astral-sh/ruff-pre-commit.\r\n[INFO] Once installed this environment will be reused.\r\n[INFO] This may take a few minutes...\r\nAn unexpected error has occurred: CalledProcessError: command: ('/usr/lib/git-core/git', 'diff', '--staged', '--name-only', '--no-ext-diff', '-z', '--diff-filter=ACMRTUXB')\r\nreturn code: 128\r\nstdout: (none)\r\nstderr:\r\n    Warning: Permanently added 'github.com' (ECDSA) to the list of known hosts.\r\n    fatal: remote error: upload-pack: not our ref 8e00810bd7c4a26c8009324ed5215f99c22f1a1f\r\n    Warning: Permanently added 'github.com' (ECDSA) to the list of known hosts.\r\n    fatal: remote error: upload-pack: not our ref 8e00810bd7c4a26c8009324ed5215f99c22f1a1f\r\n    fatal: unable to read 8e00810bd7c4a26c8009324ed5215f99c22f1a1f\r\nCheck the log at /home/batman/.cache/pre-commit/pre-commit.log\r\nbatman:panda$ git status\r\nWarning: Permanently added 'github.com' (ECDSA) to the list of known hosts.\r\nfatal: remote error: upload-pack: not our ref 8e00810bd7c4a26c8009324ed5215f99c22f1a1f\r\nWarning: Permanently added 'github.com' (ECDSA) to the list of known hosts.\r\nfatal: remote error: upload-pack: not our ref 8e00810bd7c4a26c8009324ed5215f99c22f1a1f\r\nfatal: unable to read 8e00810bd7c4a26c8009324ed5215f99c22f1a1f"
+  },
+  {
+    "number": 1351,
+    "title": "Normal install for GM ASCM cars",
+    "url": "https://github.com/commaai/opendbc/issues/1351",
+    "state": "OPEN",
+    "labels": [
+      "car",
+      "gm",
+      "refactor"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-06-28T20:48:11Z",
+    "updated_at": "2024-11-23T20:37:57Z",
+    "author": "adeebshihadeh",
+    "body": "Can we make the ASCM GM cars a completely normal install? That means a single harness, and we remove the OBD-II harness and the 3rd party L\u0026P harness.\r\n\r\nI haven't looked into this at all yet, so not sure it's possible. If it's not, let's close this.\r\n\r\nIt's fine to lose functionality, such as longitudinal control. A normal install will get the ASCM cars back on https://comma.ai/vehicles.\r\n\r\nIn order to claim the bounty:\r\n* post the harness diagram\r\n* must work for the currently supported Chevy Volts\r\n* get a PR merged to move the GM ASCM cars to this new harness"
+  },
+  {
+    "number": 1092,
+    "title": "Chrysler: reliable fuzzy fingerprinting",
+    "url": "https://github.com/commaai/opendbc/issues/1092",
+    "state": "OPEN",
+    "labels": [
+      "enhancement",
+      "car",
+      "chrysler",
+      "fingerprint"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-06-28T22:24:01Z",
+    "updated_at": "2025-12-03T00:34:45Z",
+    "author": "sshane",
+    "body": "Same requirements as https://github.com/commaai/openpilot/issues/31052!"
+  },
+  {
+    "number": 32882,
+    "title": "Bring back linux aarch64 in CI",
+    "url": "https://github.com/commaai/openpilot/issues/32882",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty",
+      "PC",
+      "development"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-01T17:37:03Z",
+    "updated_at": "2024-07-22T21:58:36Z",
+    "author": "maxime-desroches",
+    "body": "We recently dropped aarch64 from CI (https://github.com/commaai/openpilot/pull/32715) during the upgrade to ubuntu24.04/python3.12. One of the main reason for this was Casadi not building. See this comment for details: https://github.com/commaai/openpilot/pull/32708#discussion_r1635604873\r\n\r\nThe goal:\r\n- install all python/ubuntu dependencies and build openpilot on a linux aarch64 machine. (You don't need an aarch64 linux machine for doing this bounty since everything will be validated by our CI runner.)\r\n\r\nHow to do it:\r\n- add back aarch64 in the build matrix such that it runs on our namespace runner (see [here](https://github.com/commaai/openpilot/pull/32715/files#diff-38aca91846a892e562f5343cde335a052609352cd50edb16d2905db04944a47eL76) for how it was done)\r\n- add back the docker_push_multiarch step (see [here](https://github.com/commaai/openpilot/pull/32715/files#diff-38aca91846a892e562f5343cde335a052609352cd50edb16d2905db04944a47eL93) )\r\n-  make the test pass"
+  },
+  {
+    "number": 32885,
+    "title": "Compiling openpilot on macOS",
+    "url": "https://github.com/commaai/openpilot/issues/32885",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty",
+      "PC",
+      "development"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-01T17:58:09Z",
+    "updated_at": "2024-07-08T23:42:27Z",
+    "author": "maxime-desroches",
+    "body": "We recently brought back some support for installing most dependencies on macOS (see https://github.com/commaai/openpilot/pull/32819). \r\nThe current test just invokes `scons -h` in order to verify that we have the correct dependencies but it does not actually build anything. We want to continue with the next step: compiling openpilot.\r\n\r\nThe goal:\r\n- compile openpilot on an arm64 macOS machine.  (You don't need an arm64 macOS machine for doing this bounty since everything will be validated by our CI runner.)\r\n\r\nHow to do it:\r\n- modify the [current build_mac test](https://github.com/commaai/openpilot/blob/a312a102aa05cd5759912de612fc0adb0ae25c19/.github/workflows/selfdrive_tests.yaml#L89) such that it fully invokes `scons` instead of just calling `scons -h`\r\n- make the test pass"
+  },
+  {
+    "number": 45,
+    "title": "Implement same device sorting and selecting as connect",
+    "url": "https://github.com/commaai/new-connect/issues/45",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-03T23:11:55Z",
+    "updated_at": "2024-07-11T21:46:34Z",
+    "author": "adeebshihadeh",
+    "body": "Current connect consistently sorts devices and remembers the last one you had selected"
+  },
+  {
+    "number": 47,
+    "title": "Show device location on map",
+    "url": "https://github.com/commaai/new-connect/issues/47",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-05T04:53:13Z",
+    "updated_at": "2025-01-13T15:23:34Z",
+    "author": "adeebshihadeh",
+    "body": "Must have these features from connect:\r\n* comma device location shown\r\n* user's phone/PC location shown\r\n* locations are clickable for more info (reverse geocoding) and \"open in maps\"\r\n\r\nLooks like this in current connect:\r\n![image](https://github.com/commaai/new-connect/assets/8762862/9e31c19f-6f8a-4aca-867a-e40ce65dfdac)"
+  },
+  {
+    "number": 48,
+    "title": "Implement device pairing",
+    "url": "https://github.com/commaai/new-connect/issues/48",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-05T04:57:27Z",
+    "updated_at": "2024-07-17T01:49:40Z",
+    "author": "adeebshihadeh",
+    "body": ""
+  },
+  {
+    "number": 49,
+    "title": "Implement comma prime management",
+    "url": "https://github.com/commaai/new-connect/issues/49",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-05T04:59:15Z",
+    "updated_at": "2024-08-07T02:16:11Z",
+    "author": "adeebshihadeh",
+    "body": "Allow users to sign up and manage their prime sub, including:\r\n* sign up for prime\r\n* cancel prime\r\n* show prime subscription status"
+  },
+  {
+    "number": 50,
+    "title": "Implement device snapshot",
+    "url": "https://github.com/commaai/new-connect/issues/50",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-05T05:00:56Z",
+    "updated_at": "2024-07-14T06:22:13Z",
+    "author": "adeebshihadeh",
+    "body": "Probably need a device to do this, or it can also be done jury-rigging athena on your PC to send snapshots."
+  },
+  {
+    "number": 51,
+    "title": "Implement file uploads",
+    "url": "https://github.com/commaai/new-connect/issues/51",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 1,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-05T05:26:19Z",
+    "updated_at": "2025-04-05T00:31:10Z",
+    "author": "adeebshihadeh",
+    "body": "This is what connect looks like currently: \n![image](https://github.com/commaai/new-connect/assets/8762862/b8fb7246-93fe-439c-a664-86b1eb36f06e)\n\nInstead, I think we want a table of segments and all the file types: qlog, qcam, rlog, fcam, etc.\n\nEither need a comma 3/3X to test this, or jury-rig connect to talk to an athena instance on your PC.\n\n\nRequirements:\n- [x] Upload files for route\n- [ ] ~~Upload files for segment~~ @incognitojam working on it\n- [x] View upload queue\n- [x] Offline queue\n- [x] Cancel upload/clear queue"
+  },
+  {
+    "number": 237,
+    "title": "Support building AGNOS on macOS",
+    "url": "https://github.com/commaai/agnos-builder/issues/237",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-07-06T15:34:42Z",
+    "updated_at": "2024-07-18T20:22:38Z",
+    "author": "adeebshihadeh",
+    "body": "Get `./build_kernel.sh` and `./build_system.sh` working on macOS\r\n\r\n(This is for M1, not Intel macs)"
+  },
+  {
+    "number": 32939,
+    "title": "Make CI jobs pass 100/100 times",
+    "url": "https://github.com/commaai/openpilot/issues/32939",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-08T23:41:39Z",
+    "updated_at": "2024-11-08T00:02:16Z",
+    "author": "adeebshihadeh",
+    "body": "We've got a new weekly job that evaluates the reliability of our CI by running it several times. Here's the latest run: https://github.com/commaai/openpilot/actions/runs/9837241808\r\n\r\nGoal is to get all tests to pass 100/100 times."
+  },
+  {
+    "number": 32941,
+    "title": "Switch to pytest",
+    "url": "https://github.com/commaai/openpilot/issues/32941",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "CI / testing",
+      "bounty",
+      "PC",
+      "development"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-09T01:15:07Z",
+    "updated_at": "2025-03-16T16:34:14Z",
+    "author": "maxime-desroches",
+    "body": "This is a central issue tracking the switch from unittest to pytest.\r\n\r\nThe goal:\r\n- Switch to pytest\r\n- Make the tests easy to run\r\n\r\nHow to do it:\r\n- Convert from unittest to pytest with a tool like https://github.com/dannysepler/pytestify\r\n- Write a good default config in each pyproject.toml such that all the tests can be run by only invoking `pytest`\r\n \r\nNeeds to be done in each of the following repos:\r\n- [x] cereal\r\n- [ ] panda\r\n- [x] opendbc\r\n- [x] rednose\r\n- [x] teleoprtc\r\n- [x] msgq"
+  },
+  {
+    "number": 57,
+    "title": "Implement bundle size limit in CI",
+    "url": "https://github.com/commaai/new-connect/issues/57",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement",
+      "CI / testing"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-11T20:48:30Z",
+    "updated_at": "2024-07-12T20:52:49Z",
+    "author": "adeebshihadeh",
+    "body": "500K limit?"
+  },
+  {
+    "number": 53,
+    "title": "Remove segment_start_times and friends",
+    "url": "https://github.com/commaai/new-connect/issues/53",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-05T20:22:43Z",
+    "updated_at": "2024-07-14T05:38:38Z",
+    "author": "adeebshihadeh",
+    "body": "Same as https://github.com/commaai/connect/issues/536, though we should try to avoid having to use assumed timings"
+  },
+  {
+    "number": 59,
+    "title": "Implement PWA features",
+    "url": "https://github.com/commaai/new-connect/issues/59",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-11T21:15:57Z",
+    "updated_at": "2025-03-27T23:13:58Z",
+    "author": "adeebshihadeh",
+    "body": "This issue is for making this a complete PWA, including but not limited to:\r\n* icons\r\n* splash screen\r\n* a defined offline mode (doesn't have to do anything, except say \"connect offline\")\r\n\r\nAs well as testing the PWA-ness in CI."
+  },
+  {
+    "number": 60,
+    "title": "Handle routes with no time",
+    "url": "https://github.com/commaai/new-connect/issues/60",
+    "state": "OPEN",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 2,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-11T21:20:01Z",
+    "updated_at": "2025-04-12T19:39:00Z",
+    "author": "adeebshihadeh",
+    "body": "Since openpilot 0.9.7 [removed RTC support](https://blog.comma.ai/097release/#new-route-format), some routes can have no time (e.g. the device just booted up and didn't get a GPS fix during the route).\r\n\r\nSince openpilot's uploader guarantees that routes are uploaded in the order they were created, we can still show all routes in the correct sequence using the `create_time` attribute of the route.\r\n\r\nRequirements\r\n* hide the date/time\r\n* show \"timeless\" routes in the correct order with the rest of routes"
+  },
+  {
+    "number": 80,
+    "title": "CI: show preview job status in PRs",
+    "url": "https://github.com/commaai/new-connect/issues/80",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "enhancement",
+      "CI / testing"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/new-connect",
+    "created_at": "2024-07-14T06:20:23Z",
+    "updated_at": "2024-07-14T20:47:55Z",
+    "author": "adeebshihadeh",
+    "body": "The `preview` job which deploys PRs and posts the screenshots runs as a `workflow_run` GitHub Actions job, so its status only shows up in the Actions tab. This means it can silently break.\r\n\r\nI gave it a quick attempt in https://github.com/commaai/new-connect/pull/79, but that action is broken and not maintained anymore."
+  },
+  {
+    "number": 240,
+    "title": "Switch from pyenv to uv",
+    "url": "https://github.com/commaai/agnos-builder/issues/240",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-07-14T14:29:51Z",
+    "updated_at": "2024-09-03T20:38:24Z",
+    "author": "adeebshihadeh",
+    "body": "Similar to #232, but for managing the Python installation"
+  },
+  {
+    "number": 30,
+    "title": "build python with optimizations",
+    "url": "https://github.com/commaai/agnos-builder/issues/30",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2022-01-02T01:47:58Z",
+    "updated_at": "2024-09-06T21:08:10Z",
+    "author": "adeebshihadeh",
+    "body": "Seeing about a 10% improvement in controlsd with a quick test. Also worth trying to build capnproto with LTO and PGO.\r\n\r\nFor bounty, make sure to post before/after benchmarks."
+  },
+  {
+    "number": 230,
+    "title": "[$250 bounty] System image and kernel building in CI",
+    "url": "https://github.com/commaai/agnos-builder/issues/230",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 1,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-06-19T22:11:10Z",
+    "updated_at": "2024-07-21T23:07:42Z",
+    "author": "adeebshihadeh",
+    "body": "Ideally this runs on an arm64 runner - not sure if GHA offers those on the open source tier though.\r\n\r\nRequirements\r\n* `build_system.sh` and `build_kernel.sh` running in CI\r\n* uploads the built images as an [artifact](https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts)\r\n* must have incremental caching between runs so the avg run is (somewhat) fast\r\n\r\nBounty is in two parts:\r\n- [x] kernel build in CI ($100) https://github.com/commaai/agnos-builder/pull/231\r\n- [x] system build in CI ($150)"
+  },
+  {
+    "number": 33007,
+    "title": "Make `replay` tool run in realtime on a comma 3/3X",
+    "url": "https://github.com/commaai/openpilot/issues/33007",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "tools",
+      "comma three"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-17T02:01:01Z",
+    "updated_at": "2025-09-06T01:47:20Z",
+    "author": "adeebshihadeh",
+    "body": "The [replay tool](https://github.com/commaai/openpilot/tree/master/tools/replay) is mostly used on PC, but it would be nice for it to work on the comma 3X as well. This should mostly be getting the frame decoding done in hardware.\r\n\r\n`./replay --demo --dcam --ecam` will be used for validation. Realtime streaming obviously excludes the time taken to download the log and camera files."
+  },
+  {
+    "number": 33083,
+    "title": "Minimize MetaDrive install size",
+    "url": "https://github.com/commaai/openpilot/issues/33083",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "cleanup",
+      "development"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-26T02:21:35Z",
+    "updated_at": "2024-09-04T06:10:27Z",
+    "author": "adeebshihadeh",
+    "body": "MetaDrive is going to be a core part of the openpilot on PC experience soon, so most openpilot installations will want to have it installed. Since openpilot itself is small, this means MetaDrive is a significant percent of an openpilot install.\r\n\r\nMetaDrive and its two of its dependencies, panda3D and cv2, are our top 3 largest dependencies combining for 691M.\r\n```\r\n(.venv) macbookair:site-packages adeebshihadeh$ du -hs * | sort -h | tail -n 5\r\n 95M    pyarrow\r\n130M    casadi\r\n154M    cv2\r\n241M    metadrive\r\n296M    panda3d\r\n```\r\n\r\nIn order to claim the bounty, make our MetaDrive install size as small as possible, including:\r\n- [ ] PR to MetaDrive to move **all** dependencies we don't use into a separate dependency group\r\n- [ ] can we make `panda3D` any smaller? if so, let's do the same thing that we're doing for MetaDrive\r\n- [ ] do we need cv2? \r\n- [ ] once all minimizing is done, a good breakdown of where the remaining size is being spent (and whether its relevant to our application)\r\n\r\nMetaDrive PRs should be made against [upstream MetaDrive](https://github.com/metadriverse/metadrive), however if they don't respond quickly, we can merge them into our fork.\r\n\r\nFor validation, we have a CI test that should mostly cover what we care about: https://github.com/commaai/openpilot/blob/d128dbe27f9a4b87f6f37d68b22e0a385cf29d70/.github/workflows/tools_tests.yaml#L28"
+  },
+  {
+    "number": 33092,
+    "title": "Remove `control` dependency",
+    "url": "https://github.com/commaai/openpilot/issues/33092",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty",
+      "cleanup"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-26T21:36:08Z",
+    "updated_at": "2024-07-29T19:00:09Z",
+    "author": "adeebshihadeh",
+    "body": "It's just used in one place in one test: https://github.com/commaai/openpilot/blob/a1dce6ef475c69e446ab1ce13f1aadb26092804c/selfdrive/controls/lib/tests/test_vehicle_model.py#L50\r\n\r\nThe goal is to replace it with pure Python (and some numpy). \r\n\r\n`uv pip tree` for control:\r\n```\r\ncontrol v0.10.0\r\n├── numpy v1.26.4\r\n├── scipy v1.14.0\r\n│   └── numpy v1.26.4\r\n└── matplotlib v3.9.1\r\n    ├── contourpy v1.2.1\r\n    │   └── numpy v1.26.4\r\n    ├── cycler v0.12.1\r\n    ├── fonttools v4.53.1\r\n    ├── kiwisolver v1.4.5\r\n    ├── numpy v1.26.4\r\n    ├── packaging v24.1\r\n    ├── pillow v10.4.0\r\n    ├── pyparsing v3.1.2\r\n    └── python-dateutil v2.9.0.post0\r\n        └── six v1.16.0\r\n```"
+  },
+  {
+    "number": 272,
+    "title": "Build + push full release in CI",
+    "url": "https://github.com/commaai/agnos-builder/issues/272",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-07-28T21:21:21Z",
+    "updated_at": "2024-08-11T23:24:30Z",
+    "author": "adeebshihadeh",
+    "body": "The goal is to have CI output a full manifest you can drop in an openpilot branch for easy testing. Here's an example AGNOS update: https://github.com/commaai/openpilot/pull/32373.\r\n\r\nThe workflow will then be:\r\n* push your changes to a PR\r\n* bump the AGNOS version\r\n* CI gives you a manifest to drop in an openpilot branch\r\n* share on Discord for easy testing, or try it yourself"
+  },
+  {
+    "number": 33117,
+    "title": "docs: setup glossary ",
+    "url": "https://github.com/commaai/openpilot/issues/33117",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue",
+      "bounty"
+    ],
+    "comment_count": 7,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-07-28T23:40:19Z",
+    "updated_at": "2024-12-14T04:28:02Z",
+    "author": "adeebshihadeh",
+    "body": "This bounty is for both setting up the glossary infrastructure and populating it with most openpilot terms.\r\n\r\nRequirements:\r\n* a master definition file\r\n* \"glossary page\" under the concepts section\r\n* nice to have: click or hover on words defined in the glossary to get the definition on any docs.comma.ai page. bounty value doubles if this is done\r\n\r\nwiki has a good starting point on definitions: https://github.com/commaai/openpilot/wiki/General-Terms"
+  },
+  {
+    "number": 5,
+    "title": "Don't ship sparsified OTA images",
+    "url": "https://github.com/commaai/agnos-builder/issues/5",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2021-09-28T21:47:51Z",
+    "updated_at": "2024-09-16T18:29:22Z",
+    "author": "adeebshihadeh",
+    "body": "This is just for setting sparse=False for the system image openpilot downloads in agnos.json"
+  },
+  {
+    "number": 315,
+    "title": "Boot time profiling script",
+    "url": "https://github.com/commaai/agnos-builder/issues/315",
+    "state": "OPEN",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2024-08-15T18:28:17Z",
+    "updated_at": "2025-01-10T18:21:17Z",
+    "author": "adeebshihadeh",
+    "body": "For boot time, the first priority is anything needed to engage openpilot, and the second is auxiliary stuff a user would notice (wifi, modem, etc.)\r\n\r\nBefore we start improving boot time, we need a good test. Previous attempts have consistently hit long tail race conditions that led to regressions. This is a more detailed version of https://github.com/commaai/agnos-builder/issues/110#issuecomment-1445487013. \r\n\r\nRequirements:\r\n* Records when a service (e.g. Weston) or peripheral (e.g. DSP) is ready\r\n* Reports if something failed to come up\r\n* Must capture everything openpilot uses and a user would notice: display, GPU, DSP, cameras, modem, Wi-Fi, etc.\r\n* Has a mode to run in a loop and record stats\r\n\r\n\r\nThis script should answer the questions:\r\n* how long until I can engage?\r\n* how long until I can SSH into the device?"
+  },
+  {
+    "number": 1191,
+    "title": "Port over openpilot's `joystickd` to opendbc",
+    "url": "https://github.com/commaai/opendbc/issues/1191",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-08-27T23:05:01Z",
+    "updated_at": "2024-08-29T22:12:45Z",
+    "author": "adeebshihadeh",
+    "body": "[`joystickd`](https://github.com/commaai/openpilot/blob/master/tools/joystick/joystickd.py) in openpilot allows you to control your car with a joystick for testing the car interfacing code. Now that the car interfacing code, the joystick controller should be even simpler and moved to this repo. \r\n\r\nThis will be the canonical example for how to use this library.\r\n\r\nRequirements:\r\n* communicates with the car using a [panda](https://github.com/commaai/panda) connected to a car harness\r\n* probably want to setup a generic \"panda runner\" that can be reused for other things besides the joystick\r\n* use either a keyboard or joystick (ideally no new library/dependency)\r\n* remove `joystickd` from openpilot once this is merged\r\n* good README/argparser\r\n\r\nThis is easier to do with a comma 3X + car but possible to do without one. "
+  },
+  {
+    "number": 30070,
+    "title": "Acceletometer, Gyroscope timing spikes",
+    "url": "https://github.com/commaai/openpilot/issues/30070",
+    "state": "CLOSED",
+    "labels": [
+      "bug"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 1,
+    "repository": "commaai/openpilot",
+    "created_at": "2023-09-27T00:29:52Z",
+    "updated_at": "2026-04-23T02:50:08Z",
+    "author": "nuwandavek",
+    "body": "### Describe the bug\n\nThere are random spikes in diff(logMonoTime) for the accelerometer and gyroscope. This can cause them to be fail the `sm.allAliveAndValid` or `sm.AllAlive` checks sometimes. \r\n\r\n![image](https://github.com/commaai/openpilot/assets/1649262/dcd1f6d1-9b8e-4d07-8394-b0df2ad815be)\r\n\n\n### Provide a route where the issue occurs\n\n4c00c8dba800b92b|2023-09-25--22-15-33/201\n\n### openpilot version\n\n0.9.5\n\n### Additional info\n\n_No response_"
+  },
+  {
+    "number": 59,
+    "title": "Finishing flash.comma.ai",
+    "url": "https://github.com/commaai/flash/issues/59",
+    "state": "CLOSED",
+    "labels": [],
+    "comment_count": 7,
+    "open_pr_count": 0,
+    "repository": "commaai/flash",
+    "created_at": "2024-09-12T16:44:15Z",
+    "updated_at": "2026-02-08T01:05:23Z",
+    "author": "adeebshihadeh",
+    "body": "flash.comma.ai is a very simple web app, and I think we can consider the flasher done when:\r\n* works well on Windows, macOS, and Linux\r\n* flashing is consistently \u003c1m (assuming decent internet and USB 3)\r\n* just works, aka reports of \"unable to flash\" are rare in Discord/support\r\n* restores a device to the full factory state (i.e. more than just the AGNOS OTA images)\r\n\r\nSome other nice to haves included in this bounty:\r\n* pull out the QDL into a separate repo/library (with good tests) and publish to npm\r\n* specify a manifest to flash\r\n\r\nBounty breakdown\r\n- [ ] $1k QDL.js library: https://github.com/commaai/qdl.js\r\n  * should be a complete project publish to npm, good tests, linted, README, etc.\r\n- [ ] $1k for the rest"
+  },
+  {
+    "number": 1309,
+    "title": "Build generated DBCs with SCons",
+    "url": "https://github.com/commaai/opendbc/issues/1309",
+    "state": "CLOSED",
+    "labels": [
+      "cleanup"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-10-01T18:16:19Z",
+    "updated_at": "2024-11-22T20:31:52Z",
+    "author": "adeebshihadeh",
+    "body": "Two steps:\r\n* remove from git tracking\r\n* build them with SCons\r\n\r\nAfter a `scons` build, the end result on the filesystem should be the same, but they're just not checked into git (like any other build product)."
+  },
+  {
+    "number": 1313,
+    "title": "Add macOS CI",
+    "url": "https://github.com/commaai/opendbc/issues/1313",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "CI / testing"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-10-01T23:21:14Z",
+    "updated_at": "2024-10-02T14:47:48Z",
+    "author": "adeebshihadeh",
+    "body": "Must be reliable and have timeout set at 1m like the rest of CI."
+  },
+  {
+    "number": 33721,
+    "title": "simulator: sensors aren't filled",
+    "url": "https://github.com/commaai/openpilot/issues/33721",
+    "state": "CLOSED",
+    "labels": [
+      "bug",
+      "good first issue",
+      "simulation"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-10-03T22:11:58Z",
+    "updated_at": "2026-04-23T02:33:30Z",
+    "author": "sshane",
+    "body": "The IMUState is never updated, so locationd is getting 0s for the sensor data, and then paramsd learns a bad offset, preventing from merging a fix to the steering angle: https://github.com/commaai/openpilot/pull/33718\r\n\r\nhttps://github.com/commaai/openpilot/blob/72e19ccfc6de0a145bf778fdc701878f969347bb/tools/sim/lib/common.py#L30-L34\r\n\r\nWe may be able to fake these sensors with the vehicle state:\r\n\r\n`metadrive_vehicle_state(velocity=vec3(x=3.250601291656494, y=10.504247665405273, z=0), position=(217.0621795654297, 82.05776977539062), bearing=72.51176834106445, steering_angle=7.866117000579834)`"
+  },
+  {
+    "number": 33800,
+    "title": "Developer panel in settings",
+    "url": "https://github.com/commaai/openpilot/issues/33800",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-10-15T22:13:52Z",
+    "updated_at": "2024-11-11T22:16:34Z",
+    "author": "adeebshihadeh",
+    "body": "This should make it super easy to run the new longitudinal maneuver report and joystick mode.\r\n\r\nIt should have:\r\n* SSH key setting (move from the Network tab)\r\n* [Joystick mode](https://github.com/commaai/openpilot/tree/master/tools/joystick)\r\n* [longitudinal maneuver report mode](https://github.com/commaai/openpilot/tree/master/tools/longitudinal_maneuvers)\r\n\r\nJoystick and longitudinal maneuvers should be hidden on release branches."
+  },
+  {
+    "number": 33807,
+    "title": "Get raylib to work on device",
+    "url": "https://github.com/commaai/openpilot/issues/33807",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "comma three"
+    ],
+    "comment_count": 5,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-10-16T22:08:41Z",
+    "updated_at": "2024-11-28T07:44:20Z",
+    "author": "maxime-desroches",
+    "body": "## Context\r\nWe want to switch from QT to raylib for the UI. \r\n\r\nOn device, we use Wayland with Weston 1.9 (from 2015) as the compositor.\r\n\r\nWayland defines a bunch of protocols to communicate with the compositor. The protocol we currently use is `wl_shell`. It has been deprecated since at least 2016 and was replaced with `xdg_shell`.  Our version of weston should support `xdg_shell` as shown when running `weston-info` on device.\r\n\r\nraylib uses [GLFW](https://github.com/glfw/glfw) for creating windows/surfaces and handling user inputs. GLFW deprecated `wl_shell` in version 3.3 in favor of `xdg_shell`.\r\n\r\n(On a side note, raylib disabled wayland support by default last week : https://github.com/raysan5/raylib/pull/4369 . See this issue for a very good overview of wayland support for raylib:  https://github.com/raysan5/raylib/issues/4371)\r\n\r\n## The problem\r\nGLFW does not work on device. Using pre 3.3 version of GLFW result in segfault when calling `glfwCreateWindow()` with the following backtrace:\r\n```\r\n#0  0x0000007fb7ce6d78 in wl_proxy_create_wrapper () from /lib/aarch64-linux-gnu/libwayland-client.so.0\r\n#1  0x0000007fb79da8c4 in ?? () from /lib/aarch64-linux-gnu/libEGL_mesa.so.0\r\n#2  0x0000007fb79cd82c in ?? () from /lib/aarch64-linux-gnu/libEGL_mesa.so.0\r\n#3  0x0000007fb79bdcec in ?? () from /lib/aarch64-linux-gnu/libEGL_mesa.so.0\r\n#4  0x0000007fb7f941e0 in _glfwCreateContextEGL () from /data/tmp/glfw/glfw-3.2/build/src/libglfw.so.3\r\n#5  0x0000007fb7f907c4 in _glfwPlatformCreateWindow () from /data/tmp/glfw/glfw-3.2/build/src/libglfw.so.3\r\n#6  0x0000007fb7f8a290 in glfwCreateWindow () from /data/tmp/glfw/glfw-3.2/build/src/libglfw.so.3\r\n#7  0x0000005555555c9c in main ()\r\n```\r\n\r\nIt is currently possible to create and open a window (and even do openGL rendering) manually using the `wl_shell` protocol with https://gist.github.com/Miouyouyou/ca15af1c7f2696f66b0e013058f110b4 and compiling it with `gcc -o test init_window.c -I. -lwayland-client -lwayland-server -lwayland-egl -lEGL -lGLESv2` or even simpler without openGL https://gist.github.com/hoyon/e9f86c481528c2eeca22921bad90b60c\r\n\r\nTrying to manually create windows using `xdg_shell` also results in segfault:\r\n```\r\n#0  0x0000007fb7f99b08 in wl_proxy_marshal_constructor () from /lib/aarch64-linux-gnu/libwayland-client.so.0\r\n#1  0x00000055555572e0 in xdg_wm_base_get_xdg_surface ()\r\n#2  0x0000005555557a84 in main ()\r\n```\r\n\r\n## Goal\r\nMake GLFW and raylib work on device"
+  },
+  {
+    "number": 1184,
+    "title": "pytest: slow collection for `car/tests/`",
+    "url": "https://github.com/commaai/opendbc/issues/1184",
+    "state": "OPEN",
+    "labels": [
+      "CI / testing"
+    ],
+    "comment_count": 16,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-08-27T00:01:04Z",
+    "updated_at": "2026-04-06T01:21:02Z",
+    "author": "adeebshihadeh",
+    "body": "`can/tests/` is 20x faster to collect than `car/tests/`. \r\n```\r\nbatman:opendbc$ pytest --co can/tests/\r\n============ 22 tests collected in 0.05s ============ \r\nbatman:opendbc$ pytest --co car/tests/\r\n============ 1627 tests collected in 1.04s ============ \r\n```\r\n\r\nMy first suspicion is the use of [parameterized](https://pypi.org/project/parameterized/). Parameterizing is super important for running all the tests on different car models, so it's worth confirming that it's this and making it faster. Is it faster to just use a for loop?\r\n\r\nFor bounty, need a good root cause and get it \u003c= 0.1s unless there's some reason we can't."
+  },
+  {
+    "number": 34041,
+    "title": "comma three: get ADB working over USB",
+    "url": "https://github.com/commaai/openpilot/issues/34041",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-11-16T23:05:09Z",
+    "updated_at": "2025-01-28T22:10:12Z",
+    "author": "adeebshihadeh",
+    "body": "I used adb a bunch while doing the ISP debayer, and it's noticably snappier than SSH! Already works over the network using https://github.com/commaai/openpilot/blob/master/selfdrive/debug/adb.sh\r\n\r\nLet's treat it the same as SSH:\r\n* add a toggle to the openpilot settings UI for enabling it (default off)\r\n* enabled if openpilot isn't installed yet https://github.com/commaai/agnos-builder/blob/master/userspace/usr/comma/comma.sh#L28\r\n\r\nFYI, you'll need to plug into the auxiliary USB C port (bottom one) to get to the 845. The OBD-C port (main one)  goes to the panda for the serial console."
+  },
+  {
+    "number": 1528,
+    "title": "Get build times under 1s",
+    "url": "https://github.com/commaai/opendbc/issues/1528",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "good first issue"
+    ],
+    "comment_count": 9,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2024-11-26T01:09:34Z",
+    "updated_at": "2025-07-23T23:06:55Z",
+    "author": "adeebshihadeh",
+    "body": "I have a modern Threadripper with tons of cores - why is building not instant? Is it the Cython? Is it all the C++ regex?\r\n\r\nopendbc is a small project, so working in it should feel very snappy and instant. We're open to any changes necessary to get to \u003c1s fresh builds.\r\n\r\nIt's possible there's one silly thing taking all that time or it's a few things we have to fix. Some notes in #1180.\r\n\r\n```\r\n(opendbc) batman@workstation-adeeb:~/src/opendbc$ echo \"int main(void) {return 0;}\" \u003e test.c; time g++ test.c\r\n\r\nreal    0m0.041s\r\nuser    0m0.016s\r\nsys     0m0.025s\r\n```\r\n\r\n---\r\n\r\nThe goal is to get `scons -c \u0026\u0026 time scons -j40` to report \u003c1s (on my workstation, though it shouldn't be too different on other machines). Here's where we are now:\r\n```\r\n(opendbc) batman@workstation-adeeb:~/src/opendbc$ scons -j40\r\nCannot read termcap database;\r\nusing dumb terminal settings.\r\nscons: Reading SConscript files ...\r\nscons: done reading SConscript files.\r\nscons: Building targets ...\r\ng++ -o opendbc/can/common.os -c -std=c++1z -DDBC_FILE_PATH='\"/home/batman/src/opendbc/opendbc/dbc\"' -g -fPIC -O2 -Wunused -Werror -Wshadow -Wno-vla-cxx-extension -Wno-unknown-warning-option -fPIC -I. -I/usr/lib/include -I/home/batman/.local/share/uv/python/cpython-3.11.4-linux-x86_64-gnu/include/python3.11 opendbc/can/common.cc\r\ng++ -o opendbc/can/dbc.os -c -std=c++1z -DDBC_FILE_PATH='\"/home/batman/src/opendbc/opendbc/dbc\"' -g -fPIC -O2 -Wunused -Werror -Wshadow -Wno-vla-cxx-extension -Wno-unknown-warning-option -fPIC -I. -I/usr/lib/include -I/home/batman/.local/share/uv/python/cpython-3.11.4-linux-x86_64-gnu/include/python3.11 opendbc/can/dbc.cc\r\ng++ -o opendbc/can/parser.os -c -std=c++1z -DDBC_FILE_PATH='\"/home/batman/src/opendbc/opendbc/dbc\"' -g -fPIC -O2 -Wunused -Werror -Wshadow -Wno-vla-cxx-extension -Wno-unknown-warning-option -fPIC -I. -I/usr/lib/include -I/home/batman/.local/share/uv/python/cpython-3.11.4-linux-x86_64-gnu/include/python3.11 opendbc/can/parser.cc\r\ng++ -o opendbc/can/packer.os -c -std=c++1z -DDBC_FILE_PATH='\"/home/batman/src/opendbc/opendbc/dbc\"' -g -fPIC -O2 -Wunused -Werror -Wshadow -Wno-vla-cxx-extension -Wno-unknown-warning-option -fPIC -I. -I/usr/lib/include -I/home/batman/.local/share/uv/python/cpython-3.11.4-linux-x86_64-gnu/include/python3.11 opendbc/can/packer.cc\r\ncythonize opendbc/can/packer_pyx.pyx\r\ncythonize opendbc/can/parser_pyx.pyx\r\npython3 opendbc/dbc/generator/generator.py\r\nCompiling /home/batman/src/opendbc/opendbc/can/packer_pyx.pyx because it changed.\r\n[1/1] Cythonizing /home/batman/src/opendbc/opendbc/can/packer_pyx.pyx\r\nCompiling /home/batman/src/opendbc/opendbc/can/parser_pyx.pyx because it changed.\r\n[1/1] Cythonizing /home/batman/src/opendbc/opendbc/can/parser_pyx.pyx\r\ng++ -o opendbc/can/packer_pyx.o -c -std=c++1z -g -fPIC -O2 -Wunused -Wshadow -Wno-vla-cxx-extension -Wno-unknown-warning-option -Wno-#warnings -Wno-shadow -Wno-deprecated-declarations -I. -I/usr/lib/include -I/home/batman/.local/share/uv/python/cpython-3.11.4-linux-x86_64-gnu/include/python3.11 -I.venv/lib/python3.11/site-packages/numpy/_core/include opendbc/can/packer_pyx.cpp\r\ng++ -o opendbc/can/parser_pyx.o -c -std=c++1z -g -fPIC -O2 -Wunused -Wshadow -Wno-vla-cxx-extension -Wno-unknown-warning-option -Wno-#warnings -Wno-shadow -Wno-deprecated-declarations -I. -I/usr/lib/include -I/home/batman/.local/share/uv/python/cpython-3.11.4-linux-x86_64-gnu/include/python3.11 -I.venv/lib/python3.11/site-packages/numpy/_core/include opendbc/can/parser_pyx.cpp\r\ng++ -o opendbc/can/libdbc.so -shared opendbc/can/dbc.os opendbc/can/parser.os opendbc/can/packer.os opendbc/can/common.os -Lopendbc/can\r\ng++ -o opendbc/can/parser_pyx.so -pthread -shared -Wl,-rpath=/home/batman/src/opendbc/opendbc/can opendbc/can/parser_pyx.o -Lopendbc/can -Lopendbc/can -ldbc\r\ng++ -o opendbc/can/packer_pyx.so -pthread -shared -Wl,-rpath=/home/batman/src/opendbc/opendbc/can opendbc/can/packer_pyx.o -Lopendbc/can -Lopendbc/can -ldbc\r\nscons: done building targets.\r\n```"
+  },
+  {
+    "number": 34331,
+    "title": "Get rid of `openpilot.common.numpy_fast`",
+    "url": "https://github.com/commaai/openpilot/issues/34331",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "cleanup"
+    ],
+    "comment_count": 8,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-01-06T00:39:17Z",
+    "updated_at": "2025-01-14T22:57:18Z",
+    "author": "adeebshihadeh",
+    "body": "This optimization likely no longer makes sense in the post comma two world. After it's done, we should do some casual profiling to make sure we really don't need it.\r\n\r\nIt should also be removed from [opendbc](https://github.com/commaai/opendbc/blob/master/opendbc/car/common/numpy_fast.py)."
+  },
+  {
+    "number": 34517,
+    "title": "Python bindings for raylib",
+    "url": "https://github.com/commaai/openpilot/issues/34517",
+    "state": "CLOSED",
+    "labels": [
+      "good first issue",
+      "bounty",
+      "development"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-02-02T04:49:29Z",
+    "updated_at": "2025-02-05T23:35:13Z",
+    "author": "maxime-desroches",
+    "body": "## Context:\nWe eventually want to move all the openpilot UI to raylib instead of Qt. We now have a working version of raylib for both on device and PC (checkout the raylib version of [spinner.cc](https://github.com/commaai/openpilot/blob/master/system/ui/raylib/spinner.cc) and [our fork of raylib](https://github.com/commaai/raylib)). In order to make this transition easy and simple, it would be nice to have python bindings for raylib instead of the current C++ version. raylib has a big [list](https://github.com/raysan5/raylib/blob/master/BINDINGS.md) of python bindings already, but [this one](https://github.com/electronstudio/raylib-python-cffi) seems like the best and most maintained.\n\n## Goal:\nMake python bindings for our version of raylib that work on PC and on device. [This one](https://github.com/electronstudio/raylib-python-cffi) seems like the best option. \n\n**In your PR, include a simple script to build the python wheel.**\n\nTo test your wheel, convert `spinner.cc` to `spinner.py` and make sure it works both on PC and on device (raylib built with `RAYLIB_PLATFORM=PLATFORM_COMMA` from [our fork](https://github.com/commaai/raylib))."
+  },
+  {
+    "number": 33230,
+    "title": "Get mypy passing on macOS",
+    "url": "https://github.com/commaai/openpilot/issues/33230",
+    "state": "CLOSED",
+    "labels": [
+      "bounty",
+      "PC",
+      "development"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2024-08-08T04:22:09Z",
+    "updated_at": "2025-02-16T08:09:22Z",
+    "author": "maxime-desroches",
+    "body": "currently fails with:\r\n\r\n```bash\r\nmypy..............................................[✗]\r\nsystem/loggerd/xattr_cache.py:10: error: Module has no attribute \"getxattr\"  [attr-defined]\r\nsystem/loggerd/xattr_cache.py:22: error: Returning Any from function declared to return \"None\"  [no-any-return]\r\nsystem/loggerd/xattr_cache.py:22: error: Module has no attribute \"setxattr\"  [attr-defined]\r\ncommon/realtime.py:32: error: Module has no attribute \"sched_setscheduler\"  [attr-defined]\r\ncommon/realtime.py:37: error: Module has no attribute \"sched_setaffinity\"  [attr-defined]\r\nsystem/athena/athenad.py:754: error: Module has no attribute \"TCP_USER_TIMEOUT\"  [attr-defined]\r\nsystem/athena/athenad.py:755: error: Module has no attribute \"TCP_KEEPIDLE\"; maybe \"TCP_KEEPALIVE\" or \"TCP_KEEPINTVL\"?  [attr-defined]\r\nFound 7 errors in 3 files (checked 517 source files)\r\n```"
+  },
+  {
+    "number": 1833,
+    "title": "[$1000 bounty +community] Rivian: read set speed",
+    "url": "https://github.com/commaai/opendbc/issues/1833",
+    "state": "OPEN",
+    "labels": [
+      "enhancement",
+      "rivian"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-02-24T18:28:58Z",
+    "updated_at": "2025-02-25T18:43:44Z",
+    "author": "adeebshihadeh",
+    "body": "Rivian longitudinal control is ready to go... we just can't read the set speed or the button presses from the car.\n\nThis bounty is for something that can ship to openpilot release, so should be the same harness, no FW flashing, etc. We can consider a \"sub bounty\" for something that's alpha-long quality, but really we want this to ship to release.\n\n---\n\nEDIT: the communtiy has organized a [GoFundMe](https://www.gofundme.com/f/help-solve-rivians-setspeed-issue-with-openpilot?attribution_id=sl:0bff65bb-d878-47e6-88c6-ad1e02cb2140\u0026lang=en_US\u0026utm_campaign=man_sharesheet_dash\u0026utm_content=amp13_c-amp14_t1\u0026utm_medium=customer\u0026utm_source=copy_link) for additional incentive on the project. "
+  },
+  {
+    "number": 1834,
+    "title": "[$250 bounty] Move CAN ignition hooks and add test",
+    "url": "https://github.com/commaai/opendbc/issues/1834",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "car safety",
+      "bounty"
+    ],
+    "comment_count": 22,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-02-24T21:25:35Z",
+    "updated_at": "2026-03-14T22:09:11Z",
+    "author": "adeebshihadeh",
+    "body": "CAN ignition lives in [board/drivers/can_common.h](https://github.com/commaai/panda/blob/master/board/drivers/can_common.h). This is the last car-specific code in panda and should be moved here.\n\nIt should also be possible to fully validate these signals in CI. Assert that the hook doesn't unintentionally trip on all the other cars, etc."
+  },
+  {
+    "number": 1838,
+    "title": "[$100 bounty] safety: tx hook should be filtered by address",
+    "url": "https://github.com/commaai/opendbc/issues/1838",
+    "state": "CLOSED",
+    "labels": [
+      "car safety",
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-02-24T22:56:58Z",
+    "updated_at": "2025-03-03T09:21:33Z",
+    "author": "sshane",
+    "body": "We already do this for the rx hook, should do it for the tx hook\n\n$100 bounty for a clean, mergable, reasonable, no huge review changes requested PR"
+  },
+  {
+    "number": 1839,
+    "title": "[$100 bounty] safety: counter and checksum tests should be true by default",
+    "url": "https://github.com/commaai/opendbc/issues/1839",
+    "state": "CLOSED",
+    "labels": [
+      "car safety",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-02-24T22:57:46Z",
+    "updated_at": "2025-03-07T08:01:49Z",
+    "author": "sshane",
+    "body": "$100 bounty for a clean, mergable, reasonable, no huge review changes requested PR\n\nTests should fail gracefully (no segfault) if skip_counter is not set without get_counter"
+  },
+  {
+    "number": 34734,
+    "title": "comma 3X: switch to kernel driver for low level SPI comms",
+    "url": "https://github.com/commaai/openpilot/issues/34734",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "comma three"
+    ],
+    "comment_count": 5,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-02-28T19:54:21Z",
+    "updated_at": "2026-03-08T18:33:26Z",
+    "author": "adeebshihadeh",
+    "body": "The comma 3X talks to its internal panda over SPI using the [spidev](https://www.kernel.org/doc/Documentation/spi/spidev) driver. We want to move the low-level SPI transactions into the kernel for better performance and efficiency.\n\nI already started this a while ago at [panda/drivers/spi/](https://github.com/commaai/panda/tree/master/drivers/spi).\n\nMinimum requirements for this bounty:\n* Switch to the kernel driver for the panda Python library (`panda/python/`)\n* Make it interrupt driven (no busy waiting!)\n* Good auto loading + updating the driver\n* Better throughput than the existing panda SPI stack\n  * for bonus points, you can patch the kernel to fix the SPI overhead. apparently tracking the \"SPI stats\" has a ton of overhead in our kernel version, and this was fixed in newer kernels.\n* Performance needs to be good enough to support https://github.com/commaai/openpilot/pull/34711\n  * since the easiest way to validate may end up being to finish that move, there's an extra $250 on this bounty ($1k total) for finishing that up and merging it together\n\nWe'll be switching `pandad` in openpilot to Python soon, so no need to implement this for the C++ panda library (just the one in `panda/python/`). "
+  },
+  {
+    "number": 1893,
+    "title": "[$250 bounty] Rivian: missing cancel command",
+    "url": "https://github.com/commaai/opendbc/issues/1893",
+    "state": "CLOSED",
+    "labels": [],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-03-03T01:58:13Z",
+    "updated_at": "2025-03-06T04:28:03Z",
+    "author": "sshane",
+    "body": "Should also test for missing API implementations in the carcontroller"
+  },
+  {
+    "number": 1917,
+    "title": "[$500 bounty] Tesla: fuzzy fingerprinting",
+    "url": "https://github.com/commaai/opendbc/issues/1917",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "tesla"
+    ],
+    "comment_count": 7,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-03-04T18:50:54Z",
+    "updated_at": "2026-04-22T06:43:28Z",
+    "author": "adeebshihadeh",
+    "body": "See the [Ford bounty](https://github.com/commaai/openpilot/issues/31052) for context. \n\nRequirements\n* unit tests\n* works for all supported cars\n\nWe also need to answer these questions:\n* has Tesla ever changed the APIs we use? \n* are there any variants of our supported cars that won't work?"
+  },
+  {
+    "number": 30,
+    "title": "[$100 Bounty] Show harness parts on the car harness shop page",
+    "url": "https://github.com/commaai/website/issues/30",
+    "state": "CLOSED",
+    "labels": [
+      "bounty"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 0,
+    "repository": "commaai/website",
+    "created_at": "2025-03-05T06:43:09Z",
+    "updated_at": "2025-03-25T14:00:30Z",
+    "author": "sshane",
+    "body": "Move this: https://comma.ai/harness-parts (auto generate of course)\n\nIt should group similar harness parts into a list to cut down on the huge file, ideally it should be as big as the current parts list or smaller.\n\n![Image](https://github.com/user-attachments/assets/a8de7e14-7b4a-45bf-8c2b-ee9ecaabc96e)"
+  },
+  {
+    "number": 34836,
+    "title": "athena: setup upload priority",
+    "url": "https://github.com/commaai/openpilot/issues/34836",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-03-10T22:13:22Z",
+    "updated_at": "2025-03-19T19:22:55Z",
+    "author": "nelsonjchen",
+    "body": "As a comma connect user, I would like my human-initiated \"interactive\" uploads prioritized over automated Firehose Mode uploads so it feels more responsive.\n\n1. Have Firehose mode on (or I suspect just being on a branch of great interest to comma)\n2. Automated Firehose mode segments are queued for upload.\n3. Go to comma Connect, choose upload files or segments.\n4. View Uploads for device, see the human chosen upload files or segments are queued behind automated firehose segments. This can be a 5-10 segment delay before the human chosen segments are finally uploaded.\n\nWorkaround: Cancel All Segments and requeue desired segments for upload."
+  },
+  {
+    "number": 42,
+    "title": "[$100 Bounty] 'How openpilot works' blog post in 2025",
+    "url": "https://github.com/commaai/website/issues/42",
+    "state": "CLOSED",
+    "labels": [
+      "bounty"
+    ],
+    "comment_count": 32,
+    "open_pr_count": 0,
+    "repository": "commaai/website",
+    "created_at": "2025-03-17T18:41:34Z",
+    "updated_at": "2025-08-04T16:57:10Z",
+    "author": "YassineYousfi",
+    "body": "It's been more than 2 years since our last \"How openpilot works\" blog post!\n\nhttps://blog.comma.ai/openpilot-in-2021/\n\nWrite an updated version of this post and get featured in the comma official blog!\n\nA good starting point would be to update the diagrams then update the individual descriptions of the services.\n\nThe diagrams were made using Google Drawings, the editable source files can be found here:\n\nhttps://drive.google.com/drive/folders/1B0rQmX5SKntCFADTHnSHNAG0HDb9oYpZ?usp=drive_link\n\nUsing another tool for the diagrams is ok as long as it's free (and commonly used) and you can share an editable source file.\n\nThe blog post is a single markdown file."
+  },
+  {
+    "number": 34885,
+    "title": "Easy clips export",
+    "url": "https://github.com/commaai/openpilot/issues/34885",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "tools"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-03-16T15:59:15Z",
+    "updated_at": "2025-05-02T03:10:54Z",
+    "author": "adeebshihadeh",
+    "body": "We've gotta make it easier to share cool clips like [this](https://www.reddit.com/r/Comma_ai/comments/1jaur26/just_some_chill_driving_across_the_golden_gate/). Eventually, this should be a nice one click button in connect, but `clip.py` will be a good start towards this.\n\nThe clip was made with this [community tool](https://github.com/nelsonjchen/op-replay-clipper). The bounty is for making and merging a productionized version of that tool.\n\nRequirements:\n* must match comma 3X screen res regardless of PC screen size\n* must work \"offscreen\", i.e. it can't require showing the actual UI on screen\n* must be reliable and not have random lags\n* works on Linux and macOS\n\nThe API should be something like:\n```\ncd tools/clips/\n./clip.py 6a5936612241fb2d/00000053--4dd49e4a46/2:3 --title \"Chill driving across the Golden Gate Bridge\"\n```\n\nOnce we have this, we can do things like automatically exporting clips in #driving-feedback on Discord, add some overlays like maps, and a bunch more stuff.\n\n![Image](https://github.com/user-attachments/assets/9ac19dda-b40f-45a7-a196-c891fd0392d5)"
+  },
+  {
+    "number": 2017,
+    "title": "[$3000 bounty] BYD port",
+    "url": "https://github.com/commaai/opendbc/issues/2017",
+    "state": "OPEN",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 12,
+    "open_pr_count": 8,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-03-20T15:48:20Z",
+    "updated_at": "2026-04-03T20:18:59Z",
+    "author": "adeebshihadeh",
+    "body": "Let's get a BYD supported! Any model is eligible.\n\nRequires a harness design/schematic, a high quality lateral port, and ideally longitudinal support."
+  },
+  {
+    "number": 34924,
+    "title": "Add support for custom eSIM profile loading",
+    "url": "https://github.com/commaai/openpilot/issues/34924",
+    "state": "OPEN",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 13,
+    "open_pr_count": 1,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-03-22T18:50:42Z",
+    "updated_at": "2025-12-03T01:56:16Z",
+    "author": "adeebshihadeh",
+    "body": "comma 3X ships with an eSIM used for the comma prime service, however it's also capable of loading up an profile like your phone. This bounty is for making it possible for users to load their own SIM profiles.\n\nThe end experience should be:\n* open connect and click \"setup eSIM\"\n* prompts you to connect device to Wi-Fi\n* scan the eSIM QR code\n\n---\n\nThis is a multi-parter:\n1. add profile loading capability to openpilot\n2. expose it over athena\n3.  make a good experience in [connect](https://github.com/commaai/connect)\n\nSee https://github.com/commaai/openpilot/issues/32717 for context. Must use https://github.com/estkme-group/lpac for the provisioning (i.e. don't use `system/hardware/tici/esim.py` since we can't rely on the EG25's built-in LPA). \n\n\n---\n\nEDIT: let's do this on-device instead of in connect. Locked to @greatgitsby."
+  },
+  {
+    "number": 34958,
+    "title": "comma 3X: auto-configure `adb shell` properly",
+    "url": "https://github.com/commaai/openpilot/issues/34958",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 3,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-03-29T21:24:53Z",
+    "updated_at": "2026-04-22T17:42:35Z",
+    "author": "adeebshihadeh",
+    "body": "`adb shell` should drop you into a shell that's indistinguishable from `ssh comma@comma-eba4643f`.\n\nEssentially go from this mess\n```\nbatman@workstation-adeeb:~$ adb shell\nsh-5.2# export TERM=xterm-256color\nsh-5.2# su comma\ncomma@comma-eba4643f:/$ cd /data/openpilot/\ncomma@comma-eba4643f:/data/openpilot$\n```\n\nto\n```\nbatman@workstation-adeeb:~$ adb shell\ncomma@comma-eba4643f:/data/openpilot$\n```\n\n---\n\nMore context in https://github.com/commaai/openpilot/pull/34468"
+  },
+  {
+    "number": 35039,
+    "title": "Self-Driving Car For Free v2",
+    "url": "https://github.com/commaai/openpilot/issues/35039",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 17,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-04-20T17:57:35Z",
+    "updated_at": "2026-04-23T02:41:54Z",
+    "author": "adeebshihadeh",
+    "body": "$999 is still a bit much for casual interest in openpilot. Let's develop a cheap kit to get driving on openpilot master, with a nice upgrade path to a full comma 3X when you're ready.\n\nThis will be a panda + car harness + webcam plugged into a laptop. A [FrEON](https://medium.com/@kirk_40929/getting-comma-openpilot-running-on-a-used-phone-c72d609cb4d3) for the comma three generation.\n\nThe major parts that aren't done yet:\n* packaging\n  * should all fit nicely with a single wire running down to the laptop\n  * fits in a comma 3X mount for easy swapping\n* `./launch_openpilot.sh` needs to just work\n* good docs\n \n---\n\nRead about our previous attempt [here](https://blog.comma.ai/self-driving-car-for-free/) for some context. The key differences with this attempt will be:\n* This will be both a product on the comma shop and fully open sourced if you want to DIY.\n* We'll pick a standard webcam, and openpilot master will continue to support it (maybe even with some CI)\n* Also open to having these register with our backend for use with connect.\n\n---\n\n### Discord discussion is [here](https://discord.com/channels/469524606043160576/1365421072991653960)."
+  },
+  {
+    "number": 2237,
+    "title": "Enable `cpplint`",
+    "url": "https://github.com/commaai/opendbc/issues/2237",
+    "state": "CLOSED",
+    "labels": [
+      "CI / testing",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-05-14T16:00:09Z",
+    "updated_at": "2025-05-14T21:36:19Z",
+    "author": "adeebshihadeh",
+    "body": "Step 1 is to enable cpplint in the pre-commit config: https://github.com/commaai/opendbc/blob/57be4f17cde3c58a5c9bc9afcb0bfb7a6172350a/.pre-commit-config.yaml#L32.\n\nThen run `./test.sh` and fix all the reported errors until `./test.sh` passes."
+  },
+  {
+    "number": 2268,
+    "title": "Move MISRA static analysis into `./test.sh`",
+    "url": "https://github.com/commaai/opendbc/issues/2268",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 6,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-05-18T18:48:24Z",
+    "updated_at": "2025-06-06T03:33:10Z",
+    "author": "adeebshihadeh",
+    "body": "`./test.sh` is supposed to be the all-in-one script for this project, but some tests are currently split out since they're too slow for our 1m CI timeout limit. `opendbc/safety/tests/misra/test_misra.sh` is one of those.\n\nThis is an exploratory bounty. Maybe it's one stupid thing that's slow and a CLI arg will fix it. Or maybe it's a bunch of small things to fix in cppcheck. To claim this bounty, root cause why this is so slow and come up with a plan to make it fast enough to put in `./test.sh` without hitting the CI timeout. Once we know how much work it is, we can assign a follow-up bounty for actually shipping the speedup."
+  },
+  {
+    "number": 2431,
+    "title": "[$4000 bounty] Rivian Gen2 port",
+    "url": "https://github.com/commaai/opendbc/issues/2431",
+    "state": "CLOSED",
+    "labels": [
+      "rivian",
+      "bounty"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-07-03T02:52:35Z",
+    "updated_at": "2026-04-17T23:11:55Z",
+    "author": "adeebshihadeh",
+    "body": "Let's get Gen2 Rivians supported! Any model is eligible.\n\nRequires a harness design/schematic, a high quality lateral port, and at least a proof-of-concept for longitudinal support."
+  },
+  {
+    "number": 36460,
+    "title": "clips: directly render frames",
+    "url": "https://github.com/commaai/openpilot/issues/36460",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-10-25T02:46:29Z",
+    "updated_at": "2026-02-01T04:15:24Z",
+    "author": "adeebshihadeh",
+    "body": "With our new Python raylib UI, we should be able to directly render each frame we want rather than relying on running the replay and UI processes. \n\nhttps://github.com/commaai/openpilot/blob/6061476d8e14e0a6f6646074ef88a7b55c536cb2/tools/clip/run.py#L218"
+  },
+  {
+    "number": 36515,
+    "title": "ui: get 60fps working on comma 3X",
+    "url": "https://github.com/commaai/openpilot/issues/36515",
+    "state": "CLOSED",
+    "labels": [
+      "enhancement",
+      "bounty"
+    ],
+    "comment_count": 4,
+    "open_pr_count": 0,
+    "repository": "commaai/openpilot",
+    "created_at": "2025-10-28T21:29:59Z",
+    "updated_at": "2026-04-22T16:55:50Z",
+    "author": "adeebshihadeh",
+    "body": "60FPS has some occasional tearing when scrolling, and probably a couple other issues we don't know about.\n\nSee: https://github.com/commaai/openpilot/pull/36502#issuecomment-3453714116\n\nMust run at 60FPS with no issues for the bounty.\n\n---\n\nFor reference: https://github.com/commaai/openpilot/pull/36502\n"
+  },
+  {
+    "number": 507,
+    "title": "Get Alpine booting on a comma 3X or four",
+    "url": "https://github.com/commaai/agnos-builder/issues/507",
+    "state": "OPEN",
+    "labels": [
+      "enhancement"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "commaai/agnos-builder",
+    "created_at": "2025-11-12T23:18:28Z",
+    "updated_at": "2025-11-13T01:12:03Z",
+    "author": "adeebshihadeh",
+    "body": "This bounty is to get alpine booting on our devices to explore switching AGNOS completely over from Ubuntu.\n\nThe dream: no more dealing with systemd, we get https://github.com/commaai/agnos-builder/issues/225 for free, and a generally better development experience. Think of the improvement we got from the [Weston removal](https://blog.comma.ai/0101release/#new-ui).\n\n[Alpine](https://www.alpinelinux.org/) seems like a good choice for this, but I'm open to other options too.\n\n Must work for bounty:\n* `apk` must work\n* openpilot should mostly work, including graphics and most of the services\n* if I SSH in, it should mostly feel like current AGNOS (vim, tmux, etc )\n* systemd-related stuff doesn't have to work (NetworkManager, ModemManager, etc)\n* a PR where I can build the image myself\n\nIf this works and feels good, we'll setup a bigger bounty for actually getting this shipped!"
+  },
+  {
+    "number": 2977,
+    "title": "Setup `NaiveSystems Analyze` for MISRA C analysis",
+    "url": "https://github.com/commaai/opendbc/issues/2977",
+    "state": "CLOSED",
+    "labels": [
+      "car safety",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 0,
+    "repository": "commaai/opendbc",
+    "created_at": "2025-12-20T22:33:23Z",
+    "updated_at": "2025-12-21T00:56:20Z",
+    "author": "adeebshihadeh",
+    "body": "We use [cppcheck](https://github.com/danmar/cppcheck) for MISRA C:2012 static analysis, see [`opendbc/safety/tests/misra`](https://github.com/commaai/opendbc/tree/master/opendbc/safety/tests/misra). [NaiveSystems Analyze](https://github.com/naivesystems/analyze) seems to be a new open source static analysis tool that supports [MISRA C](https://en.wikipedia.org/wiki/MISRA_C). Let's get it setup, and hopefully \n\nThis bounty is for getting a version of [`test_misra.sh`](https://github.com/commaai/opendbc/blob/master/opendbc/safety/tests/misra/test_misra.sh) merged that uses NaiveSystems Analyze. Fixing any new issues it flags is not part of this bounty. Let's just get it running and see what it finds."
+  },
+  {
+    "number": 37752,
+    "title": "Remove NetworkManager + DBus rom WiFi stack",
+    "url": "https://github.com/commaai/openpilot/issues/37752",
+    "state": "OPEN",
+    "labels": [
+      "enhancement",
+      "comma three"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "commaai/openpilot",
+    "created_at": "2026-03-31T22:40:30Z",
+    "updated_at": "2026-03-31T22:40:59Z",
+    "author": "adeebshihadeh",
+    "body": "Following in the spirit of https://github.com/commaai/openpilot/issues/37277. Faster connect times, simpler stack, and tinier AGNOS.\n\n---\n\nBounty targets\n* All of openpilot works\n* Works on both comma 3X and comma four\n* Zero dbus/jeepney/NetworkManager in the WiFi code path\n* At least 10 Discord users run it for a week and sign off on it, with and without tethering\n\nMisc notes:\n* Routing priority still needs to work properly (e.g. WiFi \u003e LTE when both are up)\n* Doesn't require a new AGNOS; code change can land first, then just drop NM from the next AGNOS build\n* On-disk storage can stay as `.nmconnection` for easy rollback and interop with existing saved networks\n* I did a quick attempt in https://github.com/commaai/openpilot/pull/37662 that can be used as a reference\n  * this implementation isn't complete though. for example, if the `ui` process dies, you lose networking.\n\n**Bonus target ($500):** Connect time (to IP) must be strictly faster than NetworkManager on a known WPA2 network, measured over 5 iterations on device."
   }
 ]
