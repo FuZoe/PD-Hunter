@@ -78,6 +78,16 @@ func (c *Client) ScanAll(config *Config) ([]Issue, error) {
 		}
 	}
 
+	// Build org→labels lookup for filtering project items
+	orgLabels := make(map[string]map[string]bool)
+	for _, org := range config.Organizations {
+		lower := strings.ToLower(org.Name)
+		orgLabels[lower] = make(map[string]bool)
+		for _, l := range org.Labels {
+			orgLabels[lower][strings.ToLower(l)] = true
+		}
+	}
+
 	// Scan GitHub Projects V2 boards
 	for _, proj := range config.Projects {
 		fmt.Printf("\n=== Scanning project: %s/%d ===\n", proj.OrgLogin, proj.ProjectNumber)
@@ -89,11 +99,22 @@ func (c *Client) ScanAll(config *Config) ([]Issue, error) {
 			continue
 		}
 
+		// Get bounty labels for this org; if org not in config, accept any "bounty" label
+		acceptLabels := orgLabels[strings.ToLower(proj.OrgLogin)]
+
 		newCount := 0
+		skippedNoLabel := 0
 		for _, ghIssue := range ghIssues {
 			if ghIssue.PullRequest != nil || seen[ghIssue.HTMLURL] {
 				continue
 			}
+
+			// Filter: issue must have at least one bounty-related label
+			if !hasBountyLabel(ghIssue.Labels, acceptLabels) {
+				skippedNoLabel++
+				continue
+			}
+
 			seen[ghIssue.HTMLURL] = true
 			newCount++
 
@@ -107,13 +128,32 @@ func (c *Client) ScanAll(config *Config) ([]Issue, error) {
 
 			allIssues = append(allIssues, issue)
 		}
-		fmt.Printf("  Project %s/%d: %d total items, %d new (not seen in label scan)\n",
-			proj.OrgLogin, proj.ProjectNumber, len(ghIssues), newCount)
+		fmt.Printf("  Project %s/%d: %d total items, %d new, %d skipped (no bounty label)\n",
+			proj.OrgLogin, proj.ProjectNumber, len(ghIssues), newCount, skippedNoLabel)
 	}
 
 	fmt.Printf("\n=== Summary ===\n")
 	fmt.Printf("Total bounty issues found: %d\n", len(allIssues))
 	return allIssues, nil
+}
+
+// hasBountyLabel returns true if the issue has at least one label matching the
+// accepted bounty labels (case-insensitive). If acceptLabels is nil or empty,
+// it falls back to checking if any label contains the substring "bounty".
+func hasBountyLabel(issueLabels []GitHubLabel, acceptLabels map[string]bool) bool {
+	for _, l := range issueLabels {
+		lower := strings.ToLower(l.Name)
+		if len(acceptLabels) > 0 {
+			if acceptLabels[lower] {
+				return true
+			}
+		} else {
+			if strings.Contains(lower, "bounty") {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (c *Client) convertIssue(gh GitHubIssue) Issue {

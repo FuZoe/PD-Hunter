@@ -154,6 +154,16 @@ func main() {
 		}
 	}
 
+	// Build org→labels lookup for filtering project items
+	orgLabelsMap := make(map[string]map[string]bool)
+	for _, org := range config.Organizations {
+		lower := strings.ToLower(org.Name)
+		orgLabelsMap[lower] = make(map[string]bool)
+		for _, l := range org.Labels {
+			orgLabelsMap[lower][strings.ToLower(l)] = true
+		}
+	}
+
 	// Scan GitHub Projects V2 boards
 	for _, proj := range config.Projects {
 		fmt.Printf("\n=== Scanning project: %s/%d ===\n", proj.OrgLogin, proj.ProjectNumber)
@@ -165,11 +175,20 @@ func main() {
 			continue
 		}
 
+		acceptLabels := orgLabelsMap[strings.ToLower(proj.OrgLogin)]
+
 		newCount := 0
+		skippedNoLabel := 0
 		for _, ghIssue := range projIssues {
 			if ghIssue.PullRequest != nil || seenIssues[ghIssue.HTMLURL] {
 				continue
 			}
+
+			if !hasBountyLabelLegacy(ghIssue.Labels, acceptLabels) {
+				skippedNoLabel++
+				continue
+			}
+
 			seenIssues[ghIssue.HTMLURL] = true
 			newCount++
 
@@ -201,8 +220,8 @@ func main() {
 			}
 			allIssues = append(allIssues, issue)
 		}
-		fmt.Printf("  Project %s/%d: %d total items, %d new (not seen in label scan)\n",
-			proj.OrgLogin, proj.ProjectNumber, len(projIssues), newCount)
+		fmt.Printf("  Project %s/%d: %d total items, %d new, %d skipped (no bounty label)\n",
+			proj.OrgLogin, proj.ProjectNumber, len(projIssues), newCount, skippedNoLabel)
 	}
 
 	fmt.Printf("\n=== Summary ===\n")
@@ -371,6 +390,22 @@ func getOpenPRCount(repoFullName string, issueNumber int, token string) int {
 	}
 
 	return result.TotalCount
+}
+
+func hasBountyLabelLegacy(issueLabels []GitHubLabel, acceptLabels map[string]bool) bool {
+	for _, l := range issueLabels {
+		lower := strings.ToLower(l.Name)
+		if len(acceptLabels) > 0 {
+			if acceptLabels[lower] {
+				return true
+			}
+		} else {
+			if strings.Contains(lower, "bounty") {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // GraphQL types for GitHub Projects V2

@@ -582,6 +582,137 @@ func TestScanAll_WithProjects(t *testing.T) {
 	}
 }
 
+func TestHasBountyLabel(t *testing.T) {
+	tests := []struct {
+		name         string
+		labels       []GitHubLabel
+		acceptLabels map[string]bool
+		expected     bool
+	}{
+		{"matching label", []GitHubLabel{{Name: "bounty"}}, map[string]bool{"bounty": true}, true},
+		{"matching case-insensitive", []GitHubLabel{{Name: "💎 Bounty"}}, map[string]bool{"💎 bounty": true}, true},
+		{"no matching label", []GitHubLabel{{Name: "bug"}, {Name: "enhancement"}}, map[string]bool{"bounty": true}, false},
+		{"empty labels", []GitHubLabel{}, map[string]bool{"bounty": true}, false},
+		{"fallback contains bounty", []GitHubLabel{{Name: "has-bounty"}}, nil, true},
+		{"fallback no bounty", []GitHubLabel{{Name: "bug"}}, nil, false},
+		{"fallback empty map", []GitHubLabel{{Name: "$100 Bounty"}}, map[string]bool{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := hasBountyLabel(tt.labels, tt.acceptLabels)
+			if got != tt.expected {
+				t.Errorf("hasBountyLabel() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestScanAll_ProjectFiltersNonBountyLabels(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+
+		if r.Method == "POST" {
+			// Project returns 3 items: 1 with bounty label, 1 with bug label, 1 with no labels
+			w.Write([]byte(`{
+				"data": {
+					"organization": {
+						"projectV2": {
+							"items": {
+								"pageInfo": {"hasNextPage": false, "endCursor": ""},
+								"nodes": [
+									{
+										"content": {
+											"number": 10,
+											"title": "Bounty issue in project",
+											"url": "https://github.com/myorg/myrepo/issues/10",
+											"state": "OPEN",
+											"createdAt": "2024-01-01T00:00:00Z",
+											"updatedAt": "2024-01-01T00:00:00Z",
+											"author": {"login": "dev1"},
+											"body": "bounty",
+											"labels": {"nodes": [{"name": "bounty"}]},
+											"repository": {"nameWithOwner": "myorg/myrepo"},
+											"comments": {"totalCount": 1}
+										}
+									},
+									{
+										"content": {
+											"number": 20,
+											"title": "Bug issue no bounty label",
+											"url": "https://github.com/myorg/myrepo/issues/20",
+											"state": "OPEN",
+											"createdAt": "2024-01-01T00:00:00Z",
+											"updatedAt": "2024-01-01T00:00:00Z",
+											"author": {"login": "dev2"},
+											"body": "just a bug",
+											"labels": {"nodes": [{"name": "bug"}]},
+											"repository": {"nameWithOwner": "myorg/myrepo"},
+											"comments": {"totalCount": 0}
+										}
+									},
+									{
+										"content": {
+											"number": 30,
+											"title": "No labels at all",
+											"url": "https://github.com/myorg/myrepo/issues/30",
+											"state": "OPEN",
+											"createdAt": "2024-01-01T00:00:00Z",
+											"updatedAt": "2024-01-01T00:00:00Z",
+											"author": {"login": "dev3"},
+											"body": "no labels",
+											"labels": {"nodes": []},
+											"repository": {"nameWithOwner": "myorg/myrepo"},
+											"comments": {"totalCount": 0}
+										}
+									}
+								]
+							}
+						}
+					}
+				}
+			}`))
+			return
+		}
+
+		query := r.URL.Query().Get("q")
+		if strings.Contains(query, "is:pr") {
+			w.Write([]byte(`{"total_count": 0, "items": []}`))
+			return
+		}
+		// Label scan returns nothing (all items are in project only)
+		w.Write([]byte(`{"total_count": 0, "items": []}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		HTTPClient: &http.Client{Timeout: 5 * time.Second},
+		Token:      "test-token",
+		BaseURL:    server.URL,
+	}
+
+	config := &Config{
+		Organizations: []Organization{
+			{Name: "myorg", Labels: []string{"bounty"}, Note: "Test"},
+		},
+		Projects: []ProjectBoard{
+			{OrgLogin: "myorg", ProjectNumber: 1, Note: "Test project"},
+		},
+	}
+
+	issues, err := client.ScanAll(config)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Only issue #10 (with bounty label) should be included; #20 (bug) and #30 (no labels) filtered out
+	if len(issues) != 1 {
+		t.Fatalf("expected 1 issue (only bounty-labeled), got %d", len(issues))
+	}
+	if issues[0].Number != 10 {
+		t.Errorf("expected issue #10, got #%d", issues[0].Number)
+	}
+}
+
 func TestScanAll_ProjectError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
