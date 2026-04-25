@@ -12,7 +12,7 @@
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-04-23T15:53:19Z",
+    "updated_at": "2026-04-25T06:19:48Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -26,7 +26,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -460,12 +460,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 53,
+      "bounty_score": 52,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
         "competition": 79,
-        "freshness": 72
+        "freshness": 71
       }
     }
   },
@@ -1091,7 +1091,7 @@
       "bounty"
     ],
     "comment_count": 16,
-    "open_pr_count": 3,
+    "open_pr_count": 4,
     "repository": "commaai/flash",
     "created_at": "2023-08-10T18:03:28Z",
     "updated_at": "2026-04-15T14:01:28Z",
@@ -1103,11 +1103,11 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 500,
       "is_hidden_gem": false,
-      "bounty_score": 38,
+      "bounty_score": 34,
       "score_breakdown": {
         "amount": 10,
         "feasibility": 60,
-        "competition": 23,
+        "competition": 8,
         "freshness": 95
       }
     }
@@ -1447,7 +1447,7 @@
       "bounty"
     ],
     "comment_count": 0,
-    "open_pr_count": 13,
+    "open_pr_count": 15,
     "repository": "commaai/flash",
     "created_at": "2023-07-28T10:38:15Z",
     "updated_at": "2024-01-28T01:29:19Z",
@@ -1604,7 +1604,7 @@
       "bounty"
     ],
     "comment_count": 2,
-    "open_pr_count": 2,
+    "open_pr_count": 3,
     "repository": "commaai/flash",
     "created_at": "2024-01-30T01:23:43Z",
     "updated_at": "2024-01-31T16:00:31Z",
@@ -1616,11 +1616,11 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 200,
       "is_hidden_gem": true,
-      "bounty_score": 32,
+      "bounty_score": 29,
       "score_breakdown": {
         "amount": 4,
         "feasibility": 60,
-        "competition": 66,
+        "competition": 51,
         "freshness": 0
       }
     }
@@ -1914,7 +1914,7 @@
       "bounty"
     ],
     "comment_count": 0,
-    "open_pr_count": 11,
+    "open_pr_count": 13,
     "repository": "commaai/flash",
     "created_at": "2024-04-17T21:33:17Z",
     "updated_at": "2024-04-18T05:20:36Z",
