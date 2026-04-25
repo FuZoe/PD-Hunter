@@ -8,11 +8,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 83,
+    "comment_count": 84,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-04-25T06:19:48Z",
+    "updated_at": "2026-04-25T09:57:41Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -43,11 +43,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 7,
+    "comment_count": 8,
     "open_pr_count": 1,
     "repository": "commaai/panda",
     "created_at": "2025-07-25T20:42:52Z",
-    "updated_at": "2026-02-24T09:45:51Z",
+    "updated_at": "2026-04-25T12:42:43Z",
     "author": "adeebshihadeh",
     "body": "`pandacan` is already a pip package, but it doesn't include the FW and some other things to fully use the panda project.\n\nThe package should be sufficient to remove panda as a submodule from [openpilot](https://github.com/commaai/openpilot) and add it as a normal Python dependency to the pyproject.toml. For validation, make an openpilot PR that does this and ensure CI passes."
   },
