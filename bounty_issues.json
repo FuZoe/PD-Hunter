@@ -111,11 +111,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 8,
+    "comment_count": 10,
     "open_pr_count": 1,
     "repository": "commaai/panda",
     "created_at": "2024-12-13T00:02:02Z",
-    "updated_at": "2026-03-31T18:16:40Z",
+    "updated_at": "2026-04-25T18:35:01Z",
     "author": "adeebshihadeh",
     "body": "Context in #1876\r\n\r\nThis is three steps:\r\n1. add support for this to cppcheck\r\n2. upstream that support to cppcheck\r\n3. PR to enable it and fix all the violations\r\n\r\nWhile we're waiting for them to merge the support upstream, you can open a draft PR using the patch."
   },
