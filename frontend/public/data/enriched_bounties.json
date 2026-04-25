@@ -339,7 +339,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 55,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -529,7 +529,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2364,7 +2364,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 32,
+      "bounty_score": 31,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -3426,7 +3426,7 @@
       "bounty"
     ],
     "comment_count": 3,
-    "open_pr_count": 1,
+    "open_pr_count": 0,
     "repository": "commaai/agnos-builder",
     "created_at": "2024-06-19T22:11:10Z",
     "updated_at": "2024-07-21T23:07:42Z",
@@ -3438,11 +3438,11 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 250,
       "is_hidden_gem": true,
-      "bounty_score": 36,
+      "bounty_score": 40,
       "score_breakdown": {
         "amount": 5,
         "feasibility": 60,
-        "competition": 79,
+        "competition": 94,
         "freshness": 0
       }
     }
@@ -3667,7 +3667,7 @@
         "amount": 5,
         "feasibility": 60,
         "competition": 56,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -3914,7 +3914,7 @@
         "amount": 80,
         "feasibility": 60,
         "competition": 92,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -3976,7 +3976,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 96,
-        "freshness": 38
+        "freshness": 37
       }
     }
   }
