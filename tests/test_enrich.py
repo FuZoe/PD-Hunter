@@ -1,4 +1,5 @@
 """Tests for enrich_bounties.py core functions."""
+import json
 import sys
 import os
 import pytest
@@ -12,6 +13,7 @@ from enrich_bounties import (
     get_bounty_tier,
     is_hidden_gem,
     calculate_bounty_score,
+    load_existing_intelligence,
 )
 
 
@@ -179,3 +181,59 @@ class TestCalculateBountyScore:
         _, bd5 = calculate_bounty_score({"open_pr_count": 5, "comment_count": 0, "updated_at": "2026-04-01T00:00:00Z"}, intel)
         
         assert bd0["competition"] > bd5["competition"]
+
+
+class TestLoadExistingIntelligence:
+    """Test that load_existing_intelligence uses composite keys to prevent
+    cross-repository issue-number collisions."""
+
+    def test_same_number_different_repos_independent(self, tmp_path):
+        """Two issues with the same number but different repos must keep
+        independent expert hints."""
+        data = [
+            {
+                "number": 42,
+                "repository": "org/repo-a",
+                "hunter_intelligence": {
+                    "friction_level": "Low",
+                    "technical_hint": "Hint for repo-a #42",
+                },
+            },
+            {
+                "number": 42,
+                "repository": "org/repo-b",
+                "hunter_intelligence": {
+                    "friction_level": "High",
+                    "technical_hint": "Hint for repo-b #42",
+                },
+            },
+        ]
+
+        fake_file = tmp_path / "enriched_bounties.json"
+        fake_file.write_text(json.dumps(data))
+
+        import enrich_bounties
+        original = enrich_bounties.EXISTING_FILE
+        enrich_bounties.EXISTING_FILE = str(fake_file)
+        try:
+            intel = load_existing_intelligence()
+        finally:
+            enrich_bounties.EXISTING_FILE = original
+
+        assert len(intel) == 2
+        assert intel["org/repo-a#42"]["technical_hint"] == "Hint for repo-a #42"
+        assert intel["org/repo-b#42"]["technical_hint"] == "Hint for repo-b #42"
+        assert intel["org/repo-a#42"]["friction_level"] == "Low"
+        assert intel["org/repo-b#42"]["friction_level"] == "High"
+
+    def test_no_existing_file(self, tmp_path):
+        """Returns empty dict when the enriched file does not exist."""
+        import enrich_bounties
+        original = enrich_bounties.EXISTING_FILE
+        enrich_bounties.EXISTING_FILE = str(tmp_path / "nonexistent.json")
+        try:
+            intel = load_existing_intelligence()
+        finally:
+            enrich_bounties.EXISTING_FILE = original
+
+        assert intel == {}

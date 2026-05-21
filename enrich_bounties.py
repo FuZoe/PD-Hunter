@@ -211,7 +211,8 @@ def load_existing_intelligence() -> dict:
             with open(EXISTING_FILE, "r", encoding="utf-8") as f:
                 existing = json.load(f)
                 for item in existing:
-                    existing_intel[item["number"]] = item.get("hunter_intelligence", {})
+                    key = f"{item['repository']}#{item['number']}"
+                    existing_intel[key] = item.get("hunter_intelligence", {})
             print(f"Loaded {len(existing_intel)} existing expert hints")
         except Exception as e:
             print(f"Warning: Could not load existing data: {e}")
@@ -249,9 +250,10 @@ def main():
         bounty_tier = get_bounty_tier(bounty_amount)
         
         # Check if we already have expert intelligence for this issue
-        if issue_num in existing_intel:
+        key = f"{issue['repository']}#{issue_num}"
+        if key in existing_intel:
             # PRESERVE existing expert hints
-            existing = existing_intel[issue_num]
+            existing = existing_intel[key]
             print(f"[{i}/{len(issues)}] PRESERVED: #{issue_num} - {issue['title'][:50]}...")
             
             hidden_gem = is_hidden_gem(issue)
