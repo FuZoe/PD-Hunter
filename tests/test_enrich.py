@@ -251,3 +251,14 @@ class TestLoadExistingIntelligence:
         assert len(intel) == 2
         assert intel["org/repo-a#1"]["technical_hint"] == "H1"
         assert intel["org/repo-b#2"]["technical_hint"] == "H2"
+
+    def test_no_existing_file(self, tmp_path, monkeypatch):
+        """Returns empty dict when enriched file does not exist."""
+        import enrich_bounties
+        monkeypatch.setattr(
+            enrich_bounties, "EXISTING_FILE", str(tmp_path / "nonexistent.json")
+        )
+
+        intel = load_existing_intelligence()
+
+        assert intel == {}
