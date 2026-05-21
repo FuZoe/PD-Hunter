@@ -142,6 +142,9 @@ func TestWriteJSON(t *testing.T) {
 		if err := json.Unmarshal(data, &result); err != nil {
 			t.Fatalf("Output is not valid JSON: %v", err)
 		}
+		if len(result) != 1 {
+			t.Fatalf("Expected 1 issue, got %d", len(result))
+		}
 
 		issue := result[0]
 		if issue.URL != "https://github.com/test/repo/issues/1" {
