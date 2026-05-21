@@ -133,9 +133,15 @@ func TestWriteJSON(t *testing.T) {
 			t.Fatalf("WriteJSON returned error: %v", err)
 		}
 
-		data, _ := os.ReadFile(outFile)
+		data, err := os.ReadFile(outFile)
+		if err != nil {
+			t.Fatalf("Failed to read output file: %v", err)
+		}
+
 		var result []scraper.Issue
-		json.Unmarshal(data, &result)
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("Output is not valid JSON: %v", err)
+		}
 
 		issue := result[0]
 		if issue.URL != "https://github.com/test/repo/issues/1" {
