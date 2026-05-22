@@ -184,6 +184,9 @@ func TestFetchProjectItems_WithIssues(t *testing.T) {
 	if len(issues[0].Labels) != 2 {
 		t.Errorf("expected 2 labels, got %d", len(issues[0].Labels))
 	}
+	if issues[0].State != "open" {
+		t.Errorf("expected normalized state 'open', got '%s'", issues[0].State)
+	}
 
 	// Check second issue
 	if issues[1].Number != 2017 {
@@ -191,6 +194,77 @@ func TestFetchProjectItems_WithIssues(t *testing.T) {
 	}
 	if issues[1].User.Login != "adeebshihadeh" {
 		t.Errorf("expected author 'adeebshihadeh', got '%s'", issues[1].User.Login)
+	}
+}
+
+func TestFetchProjectItems_ClosedIssuesExcluded(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{
+			"data": {
+				"organization": {
+					"projectV2": {
+						"items": {
+							"pageInfo": {"hasNextPage": false, "endCursor": "abc"},
+							"nodes": [
+								{
+									"content": {
+										"number": 100,
+										"title": "Open issue",
+										"url": "https://github.com/org/repo/issues/100",
+										"state": "OPEN",
+										"createdAt": "2024-01-01T00:00:00Z",
+										"updatedAt": "2024-01-15T00:00:00Z",
+										"author": {"login": "dev1"},
+										"body": "open bounty",
+										"labels": {"nodes": [{"name": "bounty"}]},
+										"repository": {"nameWithOwner": "org/repo"},
+										"comments": {"totalCount": 3}
+									}
+								},
+								{
+									"content": {
+										"number": 200,
+										"title": "Closed issue",
+										"url": "https://github.com/org/repo/issues/200",
+										"state": "CLOSED",
+										"createdAt": "2024-01-01T00:00:00Z",
+										"updatedAt": "2024-02-01T00:00:00Z",
+										"author": {"login": "dev2"},
+										"body": "closed bounty",
+										"labels": {"nodes": [{"name": "bounty"}]},
+										"repository": {"nameWithOwner": "org/repo"},
+										"comments": {"totalCount": 1}
+									}
+								}
+							]
+						}
+					}
+				}
+			}
+		}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		HTTPClient: &http.Client{Timeout: 5 * time.Second},
+		Token:      "test-token",
+		BaseURL:    server.URL,
+	}
+
+	issues, err := client.FetchProjectItems("org", 1)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(issues) != 1 {
+		t.Fatalf("expected 1 issue (closed excluded), got %d", len(issues))
+	}
+	if issues[0].Number != 100 {
+		t.Errorf("expected issue #100, got #%d", issues[0].Number)
+	}
+	if issues[0].State != "open" {
+		t.Errorf("expected normalized state 'open', got '%s'", issues[0].State)
 	}
 }
 

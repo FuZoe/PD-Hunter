@@ -18,5 +18,5 @@ export function fetchBountiesServer(): BountyIssue[] {
     const raw = fs.readFileSync(filePath, "utf-8");
     bounties = JSON.parse(raw);
   }
-  return bounties.filter((b) => b.state === "open");
+  return bounties.filter((b) => b.state.toLowerCase() === "open");
 }

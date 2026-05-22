@@ -252,7 +252,7 @@ func (c *Client) FetchProjectItems(orgLogin string, projectNumber int) ([]GitHub
 				Number:    node.Content.Number,
 				Title:     node.Content.Title,
 				HTMLURL:   node.Content.URL,
-				State:     node.Content.State,
+				State:     strings.ToLower(node.Content.State),
 				Labels:    labels,
 				Comments:  node.Content.Comments.TotalCount,
 				CreatedAt: node.Content.CreatedAt,
