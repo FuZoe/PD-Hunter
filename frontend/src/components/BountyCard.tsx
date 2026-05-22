@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BountyIssue } from "@/lib/types";
-import { formatBounty, formatDate, tierColors, frictionConfig, cn } from "@/lib/utils";
+import { formatBounty, formatDate, tierColors, frictionConfig, cn, bountySlug } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface BountyCardProps {
@@ -80,7 +80,7 @@ export default function BountyCard({ bounty, index = 0 }: BountyCardProps) {
           </div>
         </div>
         <Link
-          href={`/bounty/${bounty.number}`}
+          href={`/bounty/${bountySlug(bounty.repository, bounty.number)}`}
           className="block"
         >
           <h3 className="font-semibold text-hacker-text leading-tight line-clamp-2 mb-2 hover:text-hacker-cyan transition-colors cursor-pointer">

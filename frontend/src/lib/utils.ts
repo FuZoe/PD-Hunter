@@ -12,6 +12,10 @@ export function formatBounty(amount: number): string {
   return `$${amount}`;
 }
 
+export function bountySlug(repository: string, number: number): string {
+  return `${repository.replace(/\//g, "-")}--${number}`;
+}
+
 export function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
     month: "short",
