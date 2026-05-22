@@ -87,6 +87,7 @@ export default function FilterBar({
           <select
             value={repoFilter}
             onChange={(e) => setRepoFilter(e.target.value)}
+            aria-label="Filter by repository"
             className="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-green outline-none max-w-[220px] truncate"
           >
             <option value="all">All Repos</option>
