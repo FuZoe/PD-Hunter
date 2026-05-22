@@ -63,6 +63,9 @@ func (c *Client) ScanAll(config *Config) ([]Issue, error) {
 				if ghIssue.PullRequest != nil || seen[ghIssue.HTMLURL] {
 					continue
 				}
+				if strings.ToLower(ghIssue.State) != "open" {
+					continue
+				}
 				seen[ghIssue.HTMLURL] = true
 
 				issue := c.convertIssue(ghIssue)

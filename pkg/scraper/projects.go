@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -229,6 +230,11 @@ func (c *Client) FetchProjectItems(orgLogin string, projectNumber int) ([]GitHub
 
 			// Skip items with no issue number (shouldn't happen for Issue content, but be safe)
 			if node.Content.Number == 0 {
+				continue
+			}
+
+			// Skip closed issues
+			if strings.ToLower(node.Content.State) != "open" {
 				continue
 			}
 

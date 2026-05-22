@@ -10,7 +10,7 @@ export function useBounties() {
 
   useEffect(() => {
     fetchBounties().then((data) => {
-      setBounties(data);
+      setBounties(data.filter((b) => b.state === "open"));
       setLoading(false);
     });
   }, []);
