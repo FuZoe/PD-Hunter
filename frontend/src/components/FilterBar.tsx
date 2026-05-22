@@ -15,6 +15,9 @@ interface FilterBarProps {
   setGemThresholds: (t: { maxPR: number; maxComments: number }) => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
+  repoFilter: string;
+  setRepoFilter: (repo: string) => void;
+  repositories: string[];
   visibleCount: number;
 }
 
@@ -36,6 +39,9 @@ export default function FilterBar({
   setGemThresholds,
   searchQuery,
   setSearchQuery,
+  repoFilter,
+  setRepoFilter,
+  repositories,
   visibleCount,
 }: FilterBarProps) {
   return (
@@ -75,6 +81,21 @@ export default function FilterBar({
               {btn.label}
             </button>
           ))}
+
+          <div className="h-6 w-px bg-hacker-border" />
+
+          <select
+            value={repoFilter}
+            onChange={(e) => setRepoFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-hacker-card border border-hacker-border text-sm font-mono text-hacker-text focus:border-hacker-green outline-none max-w-[220px] truncate"
+          >
+            <option value="all">All Repos</option>
+            {repositories.map((repo) => (
+              <option key={repo} value={repo}>
+                {repo}
+              </option>
+            ))}
+          </select>
 
           <div className="h-6 w-px bg-hacker-border" />
 

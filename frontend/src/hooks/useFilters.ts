@@ -18,6 +18,13 @@ export function useFilters(bounties: BountyIssue[]) {
     maxComments: 10,
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [repoFilter, setRepoFilter] = useState<string>("all");
+
+  const repositories = useMemo(() => {
+    const repos = Array.from(new Set(bounties.map((b) => b.repository)));
+    return repos.sort();
+  }, [bounties]);
+
 
   const toggleHiddenGems = useCallback(() => {
     setHiddenGemsMode((prev) => !prev);
@@ -53,6 +60,11 @@ export function useFilters(bounties: BountyIssue[]) {
           (b.open_pr_count || 0) <= gemThresholds.maxPR &&
           b.comment_count <= gemThresholds.maxComments
       );
+    }
+
+    // Repo filter
+    if (repoFilter !== "all") {
+      result = result.filter((b) => b.repository === repoFilter);
     }
 
     // Tier filter
@@ -102,7 +114,7 @@ export function useFilters(bounties: BountyIssue[]) {
     }
 
     return result;
-  }, [bounties, tierFilter, sortOption, hiddenGemsMode, gemThresholds, searchQuery, fuse]);
+  }, [bounties, tierFilter, sortOption, hiddenGemsMode, gemThresholds, searchQuery, repoFilter, fuse]);
 
   return {
     filtered,
@@ -116,5 +128,8 @@ export function useFilters(bounties: BountyIssue[]) {
     setGemThresholds,
     searchQuery,
     setSearchQuery,
+    repoFilter,
+    setRepoFilter,
+    repositories,
   };
 }

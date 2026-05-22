@@ -22,6 +22,9 @@ export default function Home() {
     setGemThresholds,
     searchQuery,
     setSearchQuery,
+    repoFilter,
+    setRepoFilter,
+    repositories,
   } = useFilters(bounties);
 
   const sTierBounties = filtered.filter(
@@ -92,6 +95,9 @@ export default function Home() {
         setGemThresholds={setGemThresholds}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        repoFilter={repoFilter}
+        setRepoFilter={setRepoFilter}
+        repositories={repositories}
         visibleCount={filtered.length}
       />
 
