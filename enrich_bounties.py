@@ -21,6 +21,65 @@ INPUT_FILE = "bounty_issues.json"
 OUTPUT_FILE = "enriched_bounties.json"
 EXISTING_FILE = "enriched_bounties.json"  # For preserving expert hints
 
+MANUAL_RISK_OVERRIDES = {
+    "commaai/openpilot#32386": {
+        "bounty_amount": 2000,
+        "friction_level": "High",
+        "technical_hint": (
+            "Critical risk: verify maintainer interest before work; vamOS appears "
+            "to supersede the old mainline-kernel path, and comma 3X hardware "
+            "access is required."
+        ),
+        "risk_level": "Critical",
+        "risk_warning": (
+            "This bounty appears superseded by comma.ai's internal vamOS work. "
+            "Treat it as low-EV unless maintainers reconfirm that outside PRs "
+            "can still win the remaining mainline-kernel reward."
+        ),
+        "risk_reasons": [
+            "Internal vamOS project is actively replacing the old AGNOS path",
+            "Stalled draft PR exists for the original bounty work",
+            "Requires comma 3X hardware or remote device access",
+        ],
+        "score_cap": 25,
+    }
+}
+
+
+def get_issue_key(issue: dict) -> str:
+    """Return the stable repository+issue key used for preserved intelligence."""
+    return f"{issue['repository']}#{issue['number']}"
+
+
+def apply_manual_risk_override(issue: dict, intel: dict) -> dict:
+    """Apply curated high-risk overrides for known stale or superseded bounties."""
+    override = MANUAL_RISK_OVERRIDES.get(get_issue_key(issue))
+    if not override:
+        return intel
+
+    adjusted = {**intel}
+    adjusted["friction_level"] = override["friction_level"]
+    adjusted["technical_hint"] = override["technical_hint"]
+    adjusted["bounty_amount"] = override["bounty_amount"]
+    adjusted["bounty_tier"] = get_bounty_tier(override["bounty_amount"])
+    adjusted["is_hidden_gem"] = False
+    adjusted["risk_level"] = override["risk_level"]
+    adjusted["risk_warning"] = override["risk_warning"]
+    adjusted["risk_reasons"] = override["risk_reasons"]
+
+    if "bounty_score" in adjusted:
+        adjusted["bounty_score"] = min(adjusted["bounty_score"], override["score_cap"])
+
+    if "score_breakdown" in adjusted:
+        adjusted["score_breakdown"] = {
+            **adjusted["score_breakdown"],
+            "amount": int(min(override["bounty_amount"] / 50, 100)),
+            "feasibility": 30,
+        }
+
+    return adjusted
+
+
 def extract_amount_from_text(text: str) -> int:
     """Extract dollar amount from text (e.g., '$100', '$1.2k', '$1,000')"""
     if not text:
@@ -250,7 +309,7 @@ def main():
         bounty_tier = get_bounty_tier(bounty_amount)
         
         # Check if we already have expert intelligence for this issue
-        issue_key = f"{issue['repository']}#{issue_num}"
+        issue_key = get_issue_key(issue)
         if issue_key in existing_intel:
             # PRESERVE existing expert hints
             existing = existing_intel[issue_key]
@@ -262,18 +321,17 @@ def main():
                 "bounty_amount": bounty_amount,
             }
             score, score_breakdown = calculate_bounty_score(issue, partial_intel)
-            enriched_issue = {
-                **issue,
-                "hunter_intelligence": {
-                    "friction_level": existing.get("friction_level", "Medium"),
-                    "technical_hint": existing.get("technical_hint", "Review the issue details."),
-                    "bounty_tier": bounty_tier,
-                    "bounty_amount": bounty_amount,
-                    "is_hidden_gem": hidden_gem,
-                    "bounty_score": score,
-                    "score_breakdown": score_breakdown
-                }
+            hunter_intelligence = {
+                "friction_level": existing.get("friction_level", "Medium"),
+                "technical_hint": existing.get("technical_hint", "Review the issue details."),
+                "bounty_tier": bounty_tier,
+                "bounty_amount": bounty_amount,
+                "is_hidden_gem": hidden_gem,
+                "bounty_score": score,
+                "score_breakdown": score_breakdown
             }
+            hunter_intelligence = apply_manual_risk_override(issue, hunter_intelligence)
+            enriched_issue = {**issue, "hunter_intelligence": hunter_intelligence}
             preserved_count += 1
         else:
             # NEW issue - generate AI analysis
@@ -287,18 +345,17 @@ def main():
                 "bounty_amount": bounty_amount,
             }
             score, score_breakdown = calculate_bounty_score(issue, new_intel)
-            enriched_issue = {
-                **issue,
-                "hunter_intelligence": {
-                    "friction_level": ai_analysis.get("friction_level", "Medium"),
-                    "technical_hint": ai_analysis.get("technical_hint", "Review the issue details."),
-                    "bounty_tier": bounty_tier,
-                    "bounty_amount": bounty_amount,
-                    "is_hidden_gem": hidden_gem,
-                    "bounty_score": score,
-                    "score_breakdown": score_breakdown
-                }
+            hunter_intelligence = {
+                "friction_level": ai_analysis.get("friction_level", "Medium"),
+                "technical_hint": ai_analysis.get("technical_hint", "Review the issue details."),
+                "bounty_tier": bounty_tier,
+                "bounty_amount": bounty_amount,
+                "is_hidden_gem": hidden_gem,
+                "bounty_score": score,
+                "score_breakdown": score_breakdown
             }
+            hunter_intelligence = apply_manual_risk_override(issue, hunter_intelligence)
+            enriched_issue = {**issue, "hunter_intelligence": hunter_intelligence}
             
             print(f"  AI Hint: {ai_analysis.get('technical_hint', 'N/A')[:80]}")
             new_count += 1

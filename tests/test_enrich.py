@@ -8,6 +8,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from enrich_bounties import (
+    apply_manual_risk_override,
     extract_amount_from_text,
     get_bounty_amount,
     get_bounty_tier,
@@ -181,6 +182,45 @@ class TestCalculateBountyScore:
         _, bd5 = calculate_bounty_score({"open_pr_count": 5, "comment_count": 0, "updated_at": "2026-04-01T00:00:00Z"}, intel)
         
         assert bd0["competition"] > bd5["competition"]
+
+
+class TestManualRiskOverrides:
+    def test_openpilot_mainline_kernel_bounty_is_downgraded(self):
+        issue = {
+            "number": 32386,
+            "repository": "commaai/openpilot",
+            "title": "Ship Ubuntu 24.04 + mainline kernel to master",
+        }
+        intel = {
+            "friction_level": "Low",
+            "technical_hint": "Old hint",
+            "bounty_tier": "S-Tier",
+            "bounty_amount": 1000,
+            "is_hidden_gem": True,
+            "bounty_score": 80,
+            "score_breakdown": {
+                "amount": 20,
+                "feasibility": 90,
+                "competition": 80,
+                "freshness": 60,
+            },
+        }
+
+        adjusted = apply_manual_risk_override(issue, intel)
+
+        assert adjusted["risk_level"] == "Critical"
+        assert "vamOS" in adjusted["risk_warning"]
+        assert adjusted["friction_level"] == "High"
+        assert adjusted["bounty_amount"] == 2000
+        assert adjusted["is_hidden_gem"] is False
+        assert adjusted["bounty_score"] == 25
+        assert adjusted["score_breakdown"]["feasibility"] == 30
+
+    def test_other_bounties_are_unchanged(self):
+        issue = {"number": 1, "repository": "org/repo"}
+        intel = {"technical_hint": "Keep this"}
+
+        assert apply_manual_risk_override(issue, intel) == intel
 
 
 class TestLoadExistingIntelligence:

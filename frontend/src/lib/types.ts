@@ -13,6 +13,9 @@ export interface HunterIntelligence {
   is_hidden_gem: boolean;
   bounty_score?: number;
   score_breakdown?: ScoreBreakdown;
+  risk_level?: "Critical" | "High" | "Medium";
+  risk_warning?: string;
+  risk_reasons?: string[];
 }
 
 export interface BountyIssue {

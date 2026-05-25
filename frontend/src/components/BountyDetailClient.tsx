@@ -126,6 +126,11 @@ export default function BountyDetailClient({ bounty }: BountyDetailClientProps) 
           <span className={`text-sm font-mono ${friction.color}`}>
             {friction.icon} {intel.friction_level} Friction
           </span>
+          {intel.risk_warning && (
+            <span className="rounded border border-hacker-red/60 bg-hacker-red/10 px-3 py-1.5 text-sm font-mono font-bold text-hacker-red">
+              {intel.risk_level || "High"} Risk
+            </span>
+          )}
           {intel.is_hidden_gem && (
             <span className="text-sm text-hacker-orange font-mono">
               {"\uD83D\uDC8E"} Hidden Gem
@@ -190,6 +195,28 @@ export default function BountyDetailClient({ bounty }: BountyDetailClientProps) 
               {intel.technical_hint}
             </p>
           </div>
+
+          {/* Risk Warning */}
+          {intel.risk_warning && (
+            <div className="p-6 rounded-xl border border-hacker-red/60 bg-hacker-red/10">
+              <h3 className="text-sm font-mono text-hacker-red uppercase mb-3">
+                {intel.risk_level || "High"} Risk Warning
+              </h3>
+              <p className="text-sm leading-relaxed text-hacker-text">
+                {intel.risk_warning}
+              </p>
+              {intel.risk_reasons && intel.risk_reasons.length > 0 && (
+                <ul className="mt-4 space-y-2 text-sm text-hacker-muted">
+                  {intel.risk_reasons.map((reason) => (
+                    <li key={reason} className="flex gap-2">
+                      <span className="text-hacker-red">-</span>
+                      <span>{reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* Issue Body */}
           <div className="p-6 rounded-xl border border-hacker-border bg-hacker-card">

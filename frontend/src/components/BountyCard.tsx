@@ -105,6 +105,16 @@ export default function BountyCard({ bounty, index = 0 }: BountyCardProps) {
         <p className="text-sm text-hacker-text leading-relaxed">
           {intel.technical_hint}
         </p>
+        {intel.risk_warning && (
+          <div className="mt-4 rounded-lg border border-hacker-red/60 bg-hacker-red/10 p-3">
+            <div className="mb-1 text-xs font-mono font-bold uppercase text-hacker-red">
+              {intel.risk_level || "High"} Risk
+            </div>
+            <p className="text-xs leading-relaxed text-hacker-text">
+              {intel.risk_warning}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Card Footer */}

@@ -265,17 +265,24 @@
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)",
     "hunter_intelligence": {
       "friction_level": "High",
-      "technical_hint": "Requires expertise in AT Commands and Linux Networking (Route Metrics). The key is to strip ModemManager to ~200 lines of Python. Bounty requires 10+ Discord users to sign off.",
+      "technical_hint": "Critical risk: verify maintainer interest before work; vamOS appears to supersede the old mainline-kernel path, and comma 3X hardware access is required.",
       "bounty_tier": "S-Tier",
-      "bounty_amount": 1000,
-      "is_hidden_gem": true,
-      "bounty_score": 41,
+      "bounty_amount": 2000,
+      "is_hidden_gem": false,
+      "bounty_score": 25,
       "score_breakdown": {
-        "amount": 20,
+        "amount": 40,
         "feasibility": 30,
         "competition": 67,
         "freshness": 65
-      }
+      },
+      "risk_level": "Critical",
+      "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
+      "risk_reasons": [
+        "Internal vamOS project is actively replacing the old AGNOS path",
+        "Stalled draft PR exists for the original bounty work",
+        "Requires comma 3X hardware or remote device access"
+      ]
     }
   },
   {
