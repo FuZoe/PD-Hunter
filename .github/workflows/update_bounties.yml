@@ -121,22 +121,26 @@ jobs:
             const title = `Bounty update pipeline failed - ${new Date().toISOString().split('T')[0]}`;
             const body = `The automated bounty update pipeline failed.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\nPlease investigate.`;
 
-            const { data: existing } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'pipeline',
-              per_page: 10
-            });
-
-            const duplicate = existing.find(i => i.title.includes('Bounty update pipeline failed'));
+            let duplicate = null;
+            try {
+              const { data: existing } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'pipeline',
+                per_page: 10
+              });
+              duplicate = existing.find(i => i.title.includes('Bounty update pipeline failed'));
+            } catch (e) {
+              core.warning(`Failed to search for existing issues: ${e.message}`);
+            }
 
             if (duplicate) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: duplicate.number,
-                body: `Pipeline failed again.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                body: `Pipeline failed again on ${new Date().toISOString().split('T')[0]}.\n\nRun: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
               });
             } else {
               await github.rest.issues.create({
