@@ -9,7 +9,7 @@ AI 驱动，帮你找到匹配技能的高价值开源赏金。
 [![CI](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml/badge.svg)](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml)
 [![Go Coverage](https://img.shields.io/badge/Go_Coverage-88%25-brightgreen)](https://github.com/FuZoe/PD-Hunter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Organizations](https://img.shields.io/badge/Tracking-15%2B_orgs-orange)](mapping.json)
+[![Organizations](https://img.shields.io/badge/Tracking-35%2B_orgs-orange)](mapping.json)
 
 [English](./README.md) | [简体中文]
 
@@ -19,7 +19,7 @@ AI 驱动，帮你找到匹配技能的高价值开源赏金。
 
 ## 功能特点
 
-- **15+ 组织追踪** — 覆盖 projectdiscovery、supabase、cal-com、appwrite 等
+- **35+ 组织追踪** — 覆盖 projectdiscovery、supabase、cal-com、appwrite、tenstorrent、tari-project 等
 - **AI 智能分析** — GPT-4o 生成摩擦等级、技术提示和赏金分级
 - **猎人卡片** — 暗黑主题仪表盘，支持筛选、排序和搜索
 - **S-Tier 高亮** — $1000+ 高价值赏金醒目展示
@@ -65,7 +65,7 @@ cd frontend && npm install && npm run dev
 
 ```mermaid
 flowchart LR
-    A[mapping.json<br/>15+ 组织] -->|配置| B[cmd/hunter scan<br/>Go CLI + GitHub API]
+    A[mapping.json<br/>35+ 组织] -->|配置| B[cmd/hunter scan<br/>Go CLI + GitHub API]
     B -->|bounty_issues.json| C[enrich_bounties.py<br/>GPT-4o 分析]
     C -->|enriched_bounties.json| D[frontend/<br/>Next.js 仪表盘]
     E[GitHub Actions<br/>每 6 小时] -.->|触发| B

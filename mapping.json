@@ -87,8 +87,8 @@
     },
     {
       "name": "golemcloud",
-      "labels": ["bounty"],
-      "note": "Invincible distributed computing platform."
+      "labels": ["bounty", "💎 Bounty"],
+      "note": "Invincible distributed computing platform, $143K+ total bounties via Algora."
     },
     {
       "name": "millionco",
@@ -97,13 +97,73 @@
     },
     {
       "name": "zio",
-      "labels": ["bounty"],
-      "note": "Type-safe composable asynchronous programming for Scala."
+      "labels": ["bounty", "💎 Bounty"],
+      "note": "Type-safe composable asynchronous programming for Scala, bounties via Algora."
     },
     {
       "name": "keephq",
       "labels": ["bounty"],
       "note": "Open-source alert management platform."
+    },
+    {
+      "name": "tenstorrent",
+      "labels": ["bounty", "bounty_difficulty/hard"],
+      "note": "AI hardware company. Bounties $3,500–$10,000, C++/Metal. ~16 active."
+    },
+    {
+      "name": "tari-project",
+      "labels": ["bounty", "bounty-S", "bounty-M", "bounty-L"],
+      "note": "Privacy blockchain project. Bounties tagged S/M/L for size, Rust. ~9 active."
+    },
+    {
+      "name": "mergeos-bounties",
+      "labels": ["bounty", "bounty: feature", "bounty: bug"],
+      "note": "Bounty operating system. MRG token rewards for frontend/backend work. Go + Vue."
+    },
+    {
+      "name": "SecureBananaLabs",
+      "labels": ["bounty", "bug bounty"],
+      "note": "Bug bounty program with diverse tasks from creative to technical. $400–$1k+."
+    },
+    {
+      "name": "archestra-ai",
+      "labels": ["💎 Bounty"],
+      "note": "Enterprise AI platform. Bounties $25–$4,000 via Algora. TypeScript/React."
+    },
+    {
+      "name": "tscircuit",
+      "labels": ["💎 Bounty"],
+      "note": "Circuit design framework. Bounties $1–$170 via Algora. TypeScript."
+    },
+    {
+      "name": "getkyo",
+      "labels": ["💎 Bounty"],
+      "note": "Scala ecosystem (Kyo/ZIO). Bounties $150–$4,000 via Algora."
+    },
+    {
+      "name": "activepieces",
+      "labels": ["💎 Bounty"],
+      "note": "Open-source automation platform. Bounties $50–$100 via Algora. TypeScript."
+    },
+    {
+      "name": "Dokploy",
+      "labels": ["💎 Bounty"],
+      "note": "Open-source Vercel/Netlify alternative. Bounties $50–$1,000 via Algora."
+    },
+    {
+      "name": "coollabsio",
+      "labels": ["💰 Bounty", "bounty"],
+      "note": "Coolify — open-source Heroku alternative. Bounties $7–$100. PHP/Laravel."
+    },
+    {
+      "name": "mediar-ai",
+      "labels": ["bounty"],
+      "note": "Screenpipe — screen recording AI tool. Bounties up to $1,000. Rust."
+    },
+    {
+      "name": "PX4",
+      "labels": ["💎 Bounty"],
+      "note": "Open-source drone autopilot. Rare but high-value bounties via Algora. C/C++."
     }
   ],
   "projects": [
