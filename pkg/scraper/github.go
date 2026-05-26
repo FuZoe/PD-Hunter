@@ -224,7 +224,7 @@ func (c *Client) SearchBountyIssues(org, label string) ([]GitHubIssue, error) {
 
 // GetOpenPRCount returns the number of open PRs referencing an issue number.
 func (c *Client) GetOpenPRCount(repoFullName string, issueNumber int) int {
-	query := fmt.Sprintf("is:pr is:open repo:%s %d", repoFullName, issueNumber)
+	query := fmt.Sprintf("is:pr is:open repo:%s \"#%d\"", repoFullName, issueNumber)
 	apiURL := fmt.Sprintf("%s/search/issues?q=%s", c.baseURL(), url.QueryEscape(query))
 
 	data, err := c.DoRequest(apiURL)

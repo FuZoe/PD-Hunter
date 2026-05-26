@@ -429,6 +429,28 @@ func TestScanAll_SearchError(t *testing.T) {
 	}
 }
 
+func TestGetOpenPRCount_QueryUsesHashPrefix(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("q")
+		// The query must contain "#42" (quoted) instead of bare 42
+		if !strings.Contains(query, `"#42"`) {
+			t.Errorf("expected query to contain '\"#42\"', got: %s", query)
+		}
+		if strings.Contains(query, " 42") && !strings.Contains(query, "#42") {
+			t.Errorf("query should not contain bare number without # prefix: %s", query)
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"total_count": 0, "items": []}`))
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	count := client.GetOpenPRCount("commaai/flash", 42)
+	if count != 0 {
+		t.Errorf("expected 0 PRs, got %d", count)
+	}
+}
+
 func TestExtractRepoName_VariousFormats(t *testing.T) {
 	// Test with exactly 5 parts (minimum for valid extraction)
 	got := ExtractRepoName("a/b/c/owner/repo")
