@@ -8,11 +8,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 111,
+    "comment_count": 112,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-05-27T17:29:49Z",
+    "updated_at": "2026-05-29T01:05:53Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -26,7 +26,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -87,7 +87,7 @@
         "amount": 2,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -243,7 +243,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -378,7 +378,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
