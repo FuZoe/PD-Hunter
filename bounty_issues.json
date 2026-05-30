@@ -163,11 +163,11 @@
       "car",
       "hyundai"
     ],
-    "comment_count": 4,
+    "comment_count": 5,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-10T01:55:23Z",
-    "updated_at": "2026-05-11T19:59:32Z",
+    "updated_at": "2026-05-30T13:36:30Z",
     "author": "sshane",
     "body": "Currently we diverge from the original behavior when openpilot (alpha) longitudinal is used, which has confused some users in the past having them ask on Discord how to engage.\r\n\r\nWe should match the stock longitudinal button logic in panda and openpilot, here's what we don't match:\r\n- [ ] CAN cars with set, resume, and main on button\r\n  - [ ] Match main on button, which is a grate on whether cruise is \"available\". For example, pressing it has no effect on availability, nor resetting cruise speed, etc. \r\n  - [ ] Resume should not be allowed if no cruise speed set (immediately after toggling main/availability)\r\n- [ ] CAN and CAN FD cars with set, [pause/resume](https://github.com/commaai/openpilot/assets/25857203/5402ad78-2599-4232-b673-aed62a8fb270), and main on button that toggles cruise:\r\n  - [ ] Above criteria for main button, in addition to enabling cruise on rising edge the first time.\r\n  - [ ] Pause/resume button should toggle cruise on and off if cruise is available.\r\n- [ ] Not all HKG cars have this main and pause/resume button functionality and this button shows up as the normal resume button to openpilot, so we ideally need a way to differentiate these buttons/cars.\r\n\r\nThis needs to be done for both Hyundai's CAN and CAN FD platforms."
   },
@@ -181,11 +181,11 @@
       "bounty",
       "comma three"
     ],
-    "comment_count": 4,
+    "comment_count": 5,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-03T00:23:19Z",
-    "updated_at": "2026-03-15T16:44:58Z",
+    "updated_at": "2026-05-30T13:36:31Z",
     "author": "adeebshihadeh",
     "body": "`systemd-analyze` reports this for the latest AGNOS:\r\n```\r\nStartup finished in 3.650s (kernel) + 7.343s (userspace) = 10.994s\r\ngraphical.target reached after 7.059s in userspace\r\n```\r\n\r\nGet the kernel part of that down to \u003c1s in a self-contained way that doesn't delay the rest of the openpilot.\r\n* can't just defer stuff to later and cost boot time at later stages\r\n* can turn off stuff openpilot doesn't use (NFC, bluetooth, etc.)\r\n\r\nAGNOS is built with https://github.com/commaai/agnos-builder"
   },
