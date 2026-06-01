@@ -17,6 +17,24 @@
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
   {
+    "number": 3426,
+    "title": "[$10k bounty] Ford F-150 2026 (TRON) support",
+    "url": "https://github.com/commaai/opendbc/issues/3426",
+    "state": "open",
+    "labels": [
+      "ford",
+      "car port",
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2026-05-31T22:10:24Z",
+    "updated_at": "2026-06-01T01:54:40Z",
+    "author": "adeebshihadeh",
+    "body": "Let's get the new F-150s supported! Any [TRON platform](https://bluepilot.dev/2025/08/13/confirmed-tron-status-list/) car model is also eligible for this bounty.\n\nRequires a harness design (schematic), a high quality lateral port, and at least a proof-of-concept for longitudinal support.\n\nThe full $10k is for a normal openpilot experience: user is ready to go after installing compatible hardware and openpilot. $2k for support similar to the 2021 Toyota Rav4 Prime, where it works if the user manually configures extra parameters.\n\n\u003cimg width=\"1200\" height=\"800\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/51df485b-8762-4325-8bb8-8be3d4d56ff1\" /\u003e"
+  },
+  {
     "number": 2557,
     "title": "Enable 100% branch coverage check",
     "url": "https://github.com/commaai/opendbc/issues/2557",
@@ -76,11 +94,11 @@
       "PC",
       "simulation"
     ],
-    "comment_count": 10,
+    "comment_count": 11,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-05-16T15:12:33Z",
+    "updated_at": "2026-06-01T01:20:02Z",
     "author": "adeebshihadeh",
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py."
   },
@@ -127,11 +145,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 7,
+    "comment_count": 8,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
-    "updated_at": "2026-05-20T01:48:38Z",
+    "updated_at": "2026-06-01T01:20:03Z",
     "author": "sshane",
     "body": "Currently we compare the car states from panda and openpilot to ensure that both parse CAN messages with the same 1) validity checks and 2) correctness/no bugs. That let us fix quite a few mismatches in behavior between the two: https://github.com/commaai/openpilot/pull/30443\r\n\r\nNow we want to fuzz the tx messages as well, to discover bugs related to controlsAllowed in panda, and general tx safety. Here is one such mismatch that we should aim to catch: https://github.com/commaai/panda/pull/1948\r\n\r\nSee the first PR linked above for rx to know where to start. Bounty is for a merged PR that adds fuzz testing for sent openpilot messages that\r\n1) detects mismatches in tx (sent messages) logic between openpilot and panda,\r\n1) extensible (generic, and easy to expand with more state),\r\n2) as performant as our current fuzzy testing, and\r\n3) covers as many cases as possible (catches a few bugs along the way, if there are any)."
   },
@@ -144,11 +162,11 @@
       "bounty",
       "comma three"
     ],
-    "comment_count": 9,
+    "comment_count": 10,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
-    "updated_at": "2026-03-15T16:44:58Z",
+    "updated_at": "2026-06-01T01:20:05Z",
     "author": "adeebshihadeh",
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)"
   },
@@ -199,11 +217,11 @@
       "CI / testing",
       "bounty"
     ],
-    "comment_count": 16,
+    "comment_count": 17,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2023-12-12T05:05:30Z",
-    "updated_at": "2026-04-24T01:45:28Z",
+    "updated_at": "2026-06-01T01:20:06Z",
     "author": "adeebshihadeh",
     "body": "Requirements:\r\n* runs on the free for open source Actions instances (can't use a higher tier one)\r\n* reliable, passes 20+ times in a row\r\n* runs in real time: 1m of driving in openpilot is equivalent to 1m in CI time\r\n* logs (qlog, rlog, and camera files) uploaded as an artifact\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_sim_bridge.py"
   },
