@@ -26,11 +26,11 @@
       "car port",
       "bounty"
     ],
-    "comment_count": 2,
+    "comment_count": 1,
     "open_pr_count": 1,
     "repository": "commaai/opendbc",
     "created_at": "2026-05-31T22:10:24Z",
-    "updated_at": "2026-06-02T11:12:48Z",
+    "updated_at": "2026-06-02T18:27:44Z",
     "author": "adeebshihadeh",
     "body": "Let's get the new F-150s supported! Any [TRON platform](https://bluepilot.dev/2025/08/13/confirmed-tron-status-list/) car model is also eligible for this bounty.\n\nRequires a harness design (schematic), a high quality lateral port, and at least a proof-of-concept for longitudinal support.\n\nThe full $10k is for a normal openpilot experience: user is ready to go after installing compatible hardware and openpilot. $2k for support similar to the 2021 Toyota Rav4 Prime, where it works if the user manually configures extra parameters.\n\n\u003cimg width=\"1200\" height=\"800\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/51df485b-8762-4325-8bb8-8be3d4d56ff1\" /\u003e"
   },
