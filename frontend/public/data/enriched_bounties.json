@@ -26,7 +26,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -195,11 +195,11 @@
       "good first issue",
       "bounty"
     ],
-    "comment_count": 14,
+    "comment_count": 16,
     "open_pr_count": 1,
     "repository": "commaai/agnos-builder",
     "created_at": "2024-07-25T18:11:36Z",
-    "updated_at": "2026-02-25T21:09:49Z",
+    "updated_at": "2026-06-03T02:59:51Z",
     "author": "adeebshihadeh",
     "body": "Goal is to get a <10m build time without a cache on the CI runner. According to https://github.com/commaai/agnos-builder/pull/251, we're currently at 33m. \r\n\r\nFor validation, trigger CI 5 times and post the timings of the \"[Build system](https://github.com/commaai/agnos-builder/blob/0480a887226779d3f5f1f8394bfaa1afb78f6be0/.github/workflows/build.yaml#L74)\" step. The max shouldn't exceed 10m.\r\n\r\n\r\n1. remove anything that's unnecessary\r\n2. refactoring and reordering steps\r\n3. parallelize steps\r\n\r\n\r\nIf done carefully, it should be possible to do this without a comma 3/3X and have someone on the Discord test it for you at the end.\r\n\r\n\r\nBounty is worth 3x ($600) if it ends up being <5m.",
     "hunter_intelligence": {
@@ -208,12 +208,12 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 600,
       "is_hidden_gem": false,
-      "bounty_score": 41,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 12,
         "feasibility": 60,
-        "competition": 57,
-        "freshness": 52
+        "competition": 53,
+        "freshness": 100
       }
     }
   },
