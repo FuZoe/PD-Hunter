@@ -94,11 +94,11 @@
       "PC",
       "simulation"
     ],
-    "comment_count": 11,
+    "comment_count": 10,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-06-01T01:20:02Z",
+    "updated_at": "2026-06-03T23:26:41Z",
     "author": "adeebshihadeh",
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py."
   },
@@ -145,11 +145,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 8,
+    "comment_count": 5,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
-    "updated_at": "2026-06-01T01:20:03Z",
+    "updated_at": "2026-06-03T23:26:35Z",
     "author": "sshane",
     "body": "Currently we compare the car states from panda and openpilot to ensure that both parse CAN messages with the same 1) validity checks and 2) correctness/no bugs. That let us fix quite a few mismatches in behavior between the two: https://github.com/commaai/openpilot/pull/30443\r\n\r\nNow we want to fuzz the tx messages as well, to discover bugs related to controlsAllowed in panda, and general tx safety. Here is one such mismatch that we should aim to catch: https://github.com/commaai/panda/pull/1948\r\n\r\nSee the first PR linked above for rx to know where to start. Bounty is for a merged PR that adds fuzz testing for sent openpilot messages that\r\n1) detects mismatches in tx (sent messages) logic between openpilot and panda,\r\n1) extensible (generic, and easy to expand with more state),\r\n2) as performant as our current fuzzy testing, and\r\n3) covers as many cases as possible (catches a few bugs along the way, if there are any)."
   },
@@ -162,11 +162,11 @@
       "bounty",
       "comma three"
     ],
-    "comment_count": 10,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
-    "updated_at": "2026-06-01T01:20:05Z",
+    "updated_at": "2026-06-03T23:26:48Z",
     "author": "adeebshihadeh",
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)"
   },

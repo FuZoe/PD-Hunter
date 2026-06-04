@@ -119,7 +119,7 @@
         "amount": 2,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -164,11 +164,11 @@
       "PC",
       "simulation"
     ],
-    "comment_count": 11,
+    "comment_count": 10,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-06-01T01:20:02Z",
+    "updated_at": "2026-06-03T23:26:41Z",
     "author": "adeebshihadeh",
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py.",
     "hunter_intelligence": {
@@ -176,13 +176,13 @@
       "technical_hint": "Ensure macOS compatibility by debugging dependencies and environment setup in test_metadrive_bridge.py, focusing on any Linux-specific assumptions or hardcoded paths.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": false,
+      "is_hidden_gem": true,
       "bounty_score": 53,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
-        "competition": 63,
-        "freshness": 99
+        "competition": 65,
+        "freshness": 100
       }
     }
   },
@@ -257,11 +257,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 8,
+    "comment_count": 5,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
-    "updated_at": "2026-06-01T01:20:03Z",
+    "updated_at": "2026-06-03T23:26:35Z",
     "author": "sshane",
     "body": "Currently we compare the car states from panda and openpilot to ensure that both parse CAN messages with the same 1) validity checks and 2) correctness/no bugs. That let us fix quite a few mismatches in behavior between the two: https://github.com/commaai/openpilot/pull/30443\r\n\r\nNow we want to fuzz the tx messages as well, to discover bugs related to controlsAllowed in panda, and general tx safety. Here is one such mismatch that we should aim to catch: https://github.com/commaai/panda/pull/1948\r\n\r\nSee the first PR linked above for rx to know where to start. Bounty is for a merged PR that adds fuzz testing for sent openpilot messages that\r\n1) detects mismatches in tx (sent messages) logic between openpilot and panda,\r\n1) extensible (generic, and easy to expand with more state),\r\n2) as performant as our current fuzzy testing, and\r\n3) covers as many cases as possible (catches a few bugs along the way, if there are any).",
     "hunter_intelligence": {
@@ -270,12 +270,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 47,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 69,
-        "freshness": 99
+        "competition": 75,
+        "freshness": 100
       }
     }
   },
@@ -288,11 +288,11 @@
       "bounty",
       "comma three"
     ],
-    "comment_count": 10,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
-    "updated_at": "2026-06-01T01:20:05Z",
+    "updated_at": "2026-06-03T23:26:48Z",
     "author": "adeebshihadeh",
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)",
     "hunter_intelligence": {
@@ -305,8 +305,8 @@
       "score_breakdown": {
         "amount": 40,
         "feasibility": 30,
-        "competition": 65,
-        "freshness": 99
+        "competition": 67,
+        "freshness": 100
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -410,7 +410,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 51,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
