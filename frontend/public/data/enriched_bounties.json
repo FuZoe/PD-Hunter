@@ -182,7 +182,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -275,7 +275,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -306,7 +306,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 67,
-        "freshness": 100
+        "freshness": 99
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
