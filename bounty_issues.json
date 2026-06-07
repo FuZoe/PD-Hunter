@@ -162,11 +162,11 @@
       "bounty",
       "comma three"
     ],
-    "comment_count": 9,
+    "comment_count": 10,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-09T20:24:11Z",
-    "updated_at": "2026-06-03T23:26:48Z",
+    "updated_at": "2026-06-07T00:31:28Z",
     "author": "adeebshihadeh",
     "body": "Now that the initial 24.04 work is done, two hard parts remain: mainlining the kernel and doing the validation to get both shipped to master.\r\n\r\n`test_onroad` is a good litmus test for functionality while developing. Once it's in a state where the test passes reliably on a single device, I can deploy it to to several devices in our internal testing closet. \r\n\r\nLocked to @andiradulescu, who did the initial 24.04 work.\r\n\r\nBounty is split into two parts:\r\n- [x] Get 24.04 shipped to master ($1k)\r\n- [ ] Get mainline kernel shipped to master ($2k)"
   },
