@@ -9,7 +9,7 @@ Find high-value open source bounties matched to your skills, powered by AI.
 [![CI](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml/badge.svg)](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml)
 [![Go Coverage](https://img.shields.io/badge/Go_Coverage-88%25-brightgreen)](https://github.com/FuZoe/PD-Hunter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Organizations](https://img.shields.io/badge/Tracking-15%2B_orgs-orange)](mapping.json)
+[![Organizations](https://img.shields.io/badge/Tracking-35%2B_orgs-orange)](mapping.json)
 
 [English] | [简体中文](./README_CN.md)
 
@@ -19,7 +19,7 @@ Find high-value open source bounties matched to your skills, powered by AI.
 
 ## Features
 
-- **15+ Organizations** — Tracks bounties across projectdiscovery, supabase, cal-com, appwrite, and more
+- **35+ Organizations** — Tracks bounties across projectdiscovery, supabase, cal-com, appwrite, tenstorrent, tari-project, and more
 - **AI-Powered Analysis** — GPT-4o generates friction level, technical hints, and bounty tier for each issue
 - **Hunter Cards** — Beautiful hacker-themed dashboard with filtering, sorting, and search
 - **S-Tier Highlighting** — High-value ($1000+) bounties prominently featured with glow effects
@@ -65,7 +65,7 @@ cd frontend && npm install && npm run dev
 
 ```mermaid
 flowchart LR
-    A[mapping.json<br/>15+ Orgs] -->|config| B[cmd/hunter scan<br/>Go CLI + GitHub API]
+    A[mapping.json<br/>35+ Orgs] -->|config| B[cmd/hunter scan<br/>Go CLI + GitHub API]
     B -->|bounty_issues.json| C[enrich_bounties.py<br/>GPT-4o Analysis]
     C -->|enriched_bounties.json| D[frontend/<br/>Next.js Dashboard]
     E[GitHub Actions<br/>Every 6 hours] -.->|triggers| B
