@@ -103,23 +103,6 @@
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py."
   },
   {
-    "number": 259,
-    "title": "Speedup system build time",
-    "url": "https://github.com/commaai/agnos-builder/issues/259",
-    "state": "open",
-    "labels": [
-      "good first issue",
-      "bounty"
-    ],
-    "comment_count": 19,
-    "open_pr_count": 1,
-    "repository": "commaai/agnos-builder",
-    "created_at": "2024-07-25T18:11:36Z",
-    "updated_at": "2026-06-10T06:06:40Z",
-    "author": "adeebshihadeh",
-    "body": "Goal is to get a \u003c10m build time without a cache on the CI runner. According to https://github.com/commaai/agnos-builder/pull/251, we're currently at 33m. \r\n\r\nFor validation, trigger CI 5 times and post the timings of the \"[Build system](https://github.com/commaai/agnos-builder/blob/0480a887226779d3f5f1f8394bfaa1afb78f6be0/.github/workflows/build.yaml#L74)\" step. The max shouldn't exceed 10m.\r\n\r\n\r\n1. remove anything that's unnecessary\r\n2. refactoring and reordering steps\r\n3. parallelize steps\r\n\r\n\r\nIf done carefully, it should be possible to do this without a comma 3/3X and have someone on the Discord test it for you at the end.\r\n\r\n\r\nBounty is worth 3x ($600) if it ends up being \u003c5m."
-  },
-  {
     "number": 1981,
     "title": "jungle: support replaying CAN messages from an SD card",
     "url": "https://github.com/commaai/panda/issues/1981",
