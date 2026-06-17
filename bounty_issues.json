@@ -68,23 +68,6 @@
     "body": "Make a video walkthrough of flash.comma.ai, then make a PR to embed it onto the site.\n\nGood example videos:\n* https://www.youtube.com/watch?v=NAz5NGnaDKs\u0026list=PLawfivpGQ-voT2siiz61hgVhdhtfy2y0P\n* https://www.youtube.com/watch?v=gNnRmEyVSVQ\u0026t=89s\n\nMust be high quality!"
   },
   {
-    "number": 2105,
-    "title": "cppcheck: catch ints as bools",
-    "url": "https://github.com/commaai/panda/issues/2105",
-    "state": "open",
-    "labels": [
-      "enhancement",
-      "bounty"
-    ],
-    "comment_count": 13,
-    "open_pr_count": 1,
-    "repository": "commaai/panda",
-    "created_at": "2024-12-13T00:02:02Z",
-    "updated_at": "2026-06-17T09:53:59Z",
-    "author": "adeebshihadeh",
-    "body": "Context in #1876\r\n\r\nThis is three steps:\r\n1. add support for this to cppcheck\r\n2. upstream that support to cppcheck\r\n3. PR to enable it and fix all the violations\r\n\r\nWhile we're waiting for them to merge the support upstream, you can open a draft PR using the patch."
-  },
-  {
     "number": 33207,
     "title": "Get MetaDrive simulator working on macOS",
     "url": "https://github.com/commaai/openpilot/issues/33207",
