@@ -84,12 +84,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 44,
+      "bounty_score": 43,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
         "competition": 67,
-        "freshness": 32
+        "freshness": 31
       }
     }
   },
