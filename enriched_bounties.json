@@ -152,7 +152,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -183,7 +183,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -236,11 +236,11 @@
       "car",
       "hyundai"
     ],
-    "comment_count": 5,
+    "comment_count": 6,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-10T01:55:23Z",
-    "updated_at": "2026-05-30T13:36:30Z",
+    "updated_at": "2026-07-16T21:47:29Z",
     "author": "sshane",
     "body": "Currently we diverge from the original behavior when openpilot (alpha) longitudinal is used, which has confused some users in the past having them ask on Discord how to engage.\r\n\r\nWe should match the stock longitudinal button logic in panda and openpilot, here's what we don't match:\r\n- [ ] CAN cars with set, resume, and main on button\r\n  - [ ] Match main on button, which is a grate on whether cruise is \"available\". For example, pressing it has no effect on availability, nor resetting cruise speed, etc. \r\n  - [ ] Resume should not be allowed if no cruise speed set (immediately after toggling main/availability)\r\n- [ ] CAN and CAN FD cars with set, [pause/resume](https://github.com/commaai/openpilot/assets/25857203/5402ad78-2599-4232-b673-aed62a8fb270), and main on button that toggles cruise:\r\n  - [ ] Above criteria for main button, in addition to enabling cruise on rising edge the first time.\r\n  - [ ] Pause/resume button should toggle cruise on and off if cruise is available.\r\n- [ ] Not all HKG cars have this main and pause/resume button functionality and this button shows up as the normal resume button to openpilot, so we ideally need a way to differentiate these buttons/cars.\r\n\r\nThis needs to be done for both Hyundai's CAN and CAN FD platforms.",
     "hunter_intelligence": {
@@ -249,12 +249,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 52,
+      "bounty_score": 55,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
-        "competition": 75,
-        "freshness": 76
+        "competition": 73,
+        "freshness": 100
       }
     }
   },
@@ -318,7 +318,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
