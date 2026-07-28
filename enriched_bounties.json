@@ -54,12 +54,12 @@
       "bounty_tier": "S-Tier",
       "bounty_amount": 10000,
       "is_hidden_gem": true,
-      "bounty_score": 82,
+      "bounty_score": 81,
       "score_breakdown": {
         "amount": 100,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -120,7 +120,7 @@
         "amount": 2,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 62
+        "freshness": 61
       }
     }
   },
