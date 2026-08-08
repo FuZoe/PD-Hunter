@@ -59,7 +59,7 @@
         "amount": 100,
         "feasibility": 60,
         "competition": 81,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -90,7 +90,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -152,7 +152,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 63,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -214,7 +214,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 100
+        "freshness": 99
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -318,40 +318,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 41,
-        "freshness": 91
-      }
-    }
-  },
-  {
-    "number": 30302,
-    "title": "[$200 bounty] [Ford Q4] Ford Lightnings Harness Causes Errors When Openpilot Not Running",
-    "url": "https://github.com/commaai/openpilot/issues/30302",
-    "state": "open",
-    "labels": [
-      "bug",
-      "bounty",
-      "car",
-      "ford"
-    ],
-    "comment_count": 66,
-    "open_pr_count": 1,
-    "repository": "commaai/openpilot",
-    "created_at": "2023-10-21T16:57:07Z",
-    "updated_at": "2025-07-17T01:11:58Z",
-    "author": "coffee-cake-isaac",
-    "body": "### Describe the bug\n\nThere's currently an issue with F150 Lightnings on the Ford Q4 Harness/CAN-FD platform. This is specific to the Lightning as the ICE variants do not have this issue nor do the Mustang Mach Es.\r\n\r\n1. Install Ford Q4 Harness into F150 Lightning.\r\n2. Turn on Vehicle and notice no errors\r\n3. Install Comma Power and plug into harness\r\n4. Turn on vehicle and notice no errors\r\n5. Plug in Comma provided USB-C cable to harness (leaving unplugged from Comma 3/3X)\r\n6. Notice the number of errors received (Traction Control, Park Assist, One Pedal Drive)\r\n7. Plug in Comma 3X (with a working release of OpenPilot) and notice issue persist.\r\n8. Allow Openpilot to fully boot and open the relay on the harness and observe the car faults disappearing\n\n### Which car does this affect?\n\n2022+ Ford F150 Lightning\n\n### Provide a route where the issue occurs\n\nN/A - Happens prior to openpilot\n\n### openpilot version\n\n0.9.5\n\n### Additional info\n\nI've spoken with Discord and they're pretty confused on why this is happening as well. Additionally, there's now 2 Lightnings that are observing this behavior -- mine and one other persons.\r\n\r\nI've also emailed support and they were a bit confused as well. ",
-    "hunter_intelligence": {
-      "friction_level": "High",
-      "technical_hint": "Investigate the Ford Q4 Harness initialization sequence and CAN-FD message handling for potential misconfigurations or conflicts when the USB-C cable is connected but OpenPilot is not actively running.",
-      "bounty_tier": "A-Tier",
-      "bounty_amount": 200,
-      "is_hidden_gem": false,
-      "bounty_score": 8,
-      "score_breakdown": {
-        "amount": 4,
-        "feasibility": 30,
-        "competition": 0,
-        "freshness": 0
+        "freshness": 90
       }
     }
   }

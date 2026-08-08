@@ -174,24 +174,5 @@
     "updated_at": "2026-07-19T23:18:13Z",
     "author": "adeebshihadeh",
     "body": "Requirements:\r\n* runs on the free for open source Actions instances (can't use a higher tier one)\r\n* reliable, passes 20+ times in a row\r\n* runs in real time: 1m of driving in openpilot is equivalent to 1m in CI time\r\n* logs (qlog, rlog, and camera files) uploaded as an artifact\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_sim_bridge.py"
-  },
-  {
-    "number": 30302,
-    "title": "[$200 bounty] [Ford Q4] Ford Lightnings Harness Causes Errors When Openpilot Not Running",
-    "url": "https://github.com/commaai/openpilot/issues/30302",
-    "state": "open",
-    "labels": [
-      "bug",
-      "bounty",
-      "car",
-      "ford"
-    ],
-    "comment_count": 66,
-    "open_pr_count": 1,
-    "repository": "commaai/openpilot",
-    "created_at": "2023-10-21T16:57:07Z",
-    "updated_at": "2025-07-17T01:11:58Z",
-    "author": "coffee-cake-isaac",
-    "body": "### Describe the bug\n\nThere's currently an issue with F150 Lightnings on the Ford Q4 Harness/CAN-FD platform. This is specific to the Lightning as the ICE variants do not have this issue nor do the Mustang Mach Es.\r\n\r\n1. Install Ford Q4 Harness into F150 Lightning.\r\n2. Turn on Vehicle and notice no errors\r\n3. Install Comma Power and plug into harness\r\n4. Turn on vehicle and notice no errors\r\n5. Plug in Comma provided USB-C cable to harness (leaving unplugged from Comma 3/3X)\r\n6. Notice the number of errors received (Traction Control, Park Assist, One Pedal Drive)\r\n7. Plug in Comma 3X (with a working release of OpenPilot) and notice issue persist.\r\n8. Allow Openpilot to fully boot and open the relay on the harness and observe the car faults disappearing\n\n### Which car does this affect?\n\n2022+ Ford F150 Lightning\n\n### Provide a route where the issue occurs\n\nN/A - Happens prior to openpilot\n\n### openpilot version\n\n0.9.5\n\n### Additional info\n\nI've spoken with Discord and they're pretty confused on why this is happening as well. Additionally, there's now 2 Lightnings that are observing this behavior -- mine and one other persons.\r\n\r\nI've also emailed support and they were a bit confused as well. "
   }
 ]
