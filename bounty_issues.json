@@ -18,6 +18,22 @@
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
   {
+    "number": 3695,
+    "title": "Toyota TSS3 car port",
+    "url": "https://github.com/commaai/opendbc/issues/3695",
+    "state": "open",
+    "labels": [
+      "bounty"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "commaai/opendbc",
+    "created_at": "2026-08-18T02:37:48Z",
+    "updated_at": "2026-08-18T04:33:59Z",
+    "author": "adeebshihadeh",
+    "body": "Let's get a TSS3 car supported! Does not require any SecOC handling - just needs to work on the porter's car and fully work if the user happens to have the key.\n\nAny TSS3 is eligible. Must have full lateral control and at least a proof of concept for longitudinal control."
+  },
+  {
     "number": 3426,
     "title": "[$10k bounty] Ford F-150 2026 (TRON) support",
     "url": "https://github.com/commaai/opendbc/issues/3426",
