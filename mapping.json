@@ -12,14 +12,16 @@
     },
     {
       "name": "commaai",
-      "labels": ["bounty"],
+        "Bounty",
+        "bounty"
       "note": "Autonomous driving bounties, often $1,000+."
     },
     {
       "name": "appwrite",
       "labels": ["bounty"],
       "note": "Open-source backend-as-a-service platform."
-    },
+        "bounty",
+        "💎 Bounty"
     {
       "name": "supabase",
       "labels": ["bounty"],
@@ -41,16 +43,18 @@
       "note": "Open-source survey and experience management."
     },
     {
-      "name": "documenso",
+        "💰 Bounty",
+        "💎 Bounty"
       "labels": ["bounty"],
       "note": "Open-source DocuSign alternative."
     },
     {
       "name": "highlight",
       "labels": ["bounty"],
-      "note": "Open-source full-stack monitoring platform."
+        "bounty",
+        "💎 Bounty"
     },
-    {
+      "note": "Open-source CRM platform. (Currently no active bounties)"
       "name": "trigger-dev",
       "labels": ["bounty"],
       "note": "Open-source background job framework."
@@ -114,3 +118,143 @@
     }
   ]
 }
+    {
+      "name": "golemcloud",
+      "labels": [
+        "bounty",
+        "💎 Bounty"
+      ],
+      "note": "Distributed computing platform. $143k+ historical bounties."
+    },
+    {
+      "name": "millionco",
+    {
+      "name": "zio",
+      "labels": [
+        "bounty",
+        "💎 Bounty",
+        "$250"
+      ],
+      "note": "Type-safe composable asynchronous programming for Scala. Algora bounties $150-$4k."
+    },
+    {
+      "name": "keephq",
+        "bounty"
+      ],
+      "note": "Open-source alert management platform."
+    },
+    {
+      "name": "tenstorrent",
+      "labels": [
+        "bounty"
+      ],
+      "note": "AI hardware company, $3.5k-$10k bounties. C++/Metal."
+    },
+    {
+      "name": "archestra-ai",
+      "labels": [
+        "💎 Bounty"
+      ],
+      "note": "AI platform, $25-$4k bounties. TypeScript."
+    },
+    {
+      "name": "getkyo",
+      "labels": [
+        "💎 Bounty",
+        "$250"
+      ],
+      "note": "Scala ecosystem. Algora bounties $150-$4k."
+    },
+    {
+      "name": "tscircuit",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Circuit design framework, $1-$170 bounties. TypeScript."
+    },
+    {
+      "name": "activepieces",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Open-source automation platform, $50-$100 bounties. TypeScript."
+    },
+    {
+      "name": "Dokploy",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Open-source Vercel/Netlify alternative, $50-$1k bounties."
+    },
+    {
+      "name": "coollabsio",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Open-source Heroku alternative (Coolify), $7-$100 bounties. PHP/Laravel."
+    },
+    {
+      "name": "mediar-ai",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Screenpipe - Screen recording AI tool, max $1k bounties. Rust."
+    },
+    {
+      "name": "tari-project",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Privacy blockchain project. Rust."
+    },
+    {
+      "name": "PX4",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Open-source drone flight controller. C/C++."
+    },
+    {
+      "name": "FreezingMoon",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Ancient Beast - Open-source turn-based game, 8-10 XTR bounties. JS/CSS."
+    },
+    {
+      "name": "tailcallhq",
+      "labels": [
+        "bounty",
+        "💎 Bounty"
+      ],
+      "note": "GraphQL gateway. Algora bounties $50-$500. (Candidate)"
+    },
+    {
+      "name": "maybe-finance",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Personal finance tool. Completed 61 bounties, currently paused. (Candidate)"
+    },
+    {
+      "name": "capgo",
+      "labels": [
+        "bounty",
+        "💎 Bounty"
+      ],
+      "note": "Capacitor updater tool. Algora historical 232 bounties. (Candidate)"
+    },
+    {
+      "name": "zed-industries",
+      "labels": [
+        "bounty"
+      ],
+      "note": "High-performance code editor. (Candidate)"
+    }
+  ],
+  "projects": [
