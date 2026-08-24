@@ -177,12 +177,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 52,
+      "bounty_score": 51,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
         "competition": 63,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -244,7 +244,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 92
+        "freshness": 91
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
