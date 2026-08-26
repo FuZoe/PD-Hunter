@@ -2,146 +2,184 @@
   "organizations": [
     {
       "name": "projectdiscovery",
-      "labels": ["💎 Bounty", "bounty"],
+      "labels": [
+        "\ud83d\udc8e Bounty",
+        "bounty"
+      ],
       "note": "Standard PD bounties with diamond icon."
     },
     {
       "name": "onyx-dot-app",
-      "labels": ["💎 Bounty", "Bounty"],
+      "labels": [
+        "\ud83d\udc8e Bounty",
+        "Bounty"
+      ],
       "note": "Formerly Danswer. High-value AI search bounties."
     },
     {
       "name": "commaai",
-        "Bounty",
+      "labels": [
         "bounty"
+      ],
       "note": "Autonomous driving bounties, often $1,000+."
     },
     {
       "name": "appwrite",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source backend-as-a-service platform."
-        "bounty",
-        "💎 Bounty"
+    },
     {
       "name": "supabase",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source Firebase alternative."
     },
     {
       "name": "calcom",
-      "labels": ["bounty", "💰 Bounty"],
+      "labels": [
+        "bounty",
+        "\ud83d\udcb0 Bounty"
+      ],
       "note": "Open-source scheduling infrastructure (formerly cal-com)."
     },
     {
       "name": "twentyhq",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source CRM platform."
     },
     {
       "name": "formbricks",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source survey and experience management."
     },
     {
-        "💰 Bounty",
-        "💎 Bounty"
-      "labels": ["bounty"],
+      "name": "documenso",
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source DocuSign alternative."
     },
     {
       "name": "highlight",
-      "labels": ["bounty"],
-        "bounty",
-        "💎 Bounty"
+      "labels": [
+        "bounty"
+      ],
+      "note": "Open-source full-stack monitoring platform."
     },
-      "note": "Open-source CRM platform. (Currently no active bounties)"
+    {
       "name": "trigger-dev",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source background job framework."
     },
     {
       "name": "algora-io",
-      "labels": ["bounty", "💎 Bounty"],
+      "labels": [
+        "bounty",
+        "\ud83d\udc8e Bounty"
+      ],
       "note": "Bounty marketplace for open-source."
     },
     {
       "name": "hoppscotch",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source API development ecosystem."
     },
     {
       "name": "nhost",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source Firebase alternative with GraphQL."
     },
     {
       "name": "zeropsio",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Cloud platform with open-source bounties."
     },
     {
       "name": "qdrant",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "High-performance vector search engine."
     },
     {
       "name": "remotion-dev",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Programmatic video creation framework."
     },
     {
       "name": "golemcloud",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Invincible distributed computing platform."
     },
     {
       "name": "millionco",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Extremely fast virtual DOM for React (formerly million-js)."
     },
     {
       "name": "zio",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Type-safe composable asynchronous programming for Scala."
     },
     {
       "name": "keephq",
-      "labels": ["bounty"],
-      "note": "Open-source alert management platform."
-    }
-  ],
-  "projects": [
-    {
-      "org_login": "commaai",
-      "project_number": 26,
-      "note": "openpilot bounties board — captures issue-linked items that may lack the bounty label."
-    }
-  ]
-}
-    {
-      "name": "golemcloud",
       "labels": [
-        "bounty",
-        "💎 Bounty"
-      ],
-      "note": "Distributed computing platform. $143k+ historical bounties."
-    },
-    {
-      "name": "millionco",
-    {
-      "name": "zio",
-      "labels": [
-        "bounty",
-        "💎 Bounty",
-        "$250"
-      ],
-      "note": "Type-safe composable asynchronous programming for Scala. Algora bounties $150-$4k."
-    },
-    {
-      "name": "keephq",
         "bounty"
       ],
       "note": "Open-source alert management platform."
+    },
+    {
+      "name": "tailcallhq",
+      "labels": [
+        "bounty",
+        "\ud83d\udc8e Bounty"
+      ],
+      "note": "GraphQL gateway. Algora bounties $50-$500."
+    },
+    {
+      "name": "maybe-finance",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Personal finance tool. Completed 61 bounties, currently paused."
+    },
+    {
+      "name": "Cap-go",
+      "labels": [
+        "bounty",
+        "\ud83d\udc8e Bounty"
+      ],
+      "note": "Capacitor updater tool. Algora historical 232 bounties."
+    },
+    {
+      "name": "zed-industries",
+      "labels": [
+        "bounty"
+      ],
+      "note": "High-performance code editor."
     },
     {
       "name": "tenstorrent",
@@ -153,14 +191,14 @@
     {
       "name": "archestra-ai",
       "labels": [
-        "💎 Bounty"
+        "\ud83d\udc8e Bounty"
       ],
       "note": "AI platform, $25-$4k bounties. TypeScript."
     },
     {
       "name": "getkyo",
       "labels": [
-        "💎 Bounty",
+        "\ud83d\udc8e Bounty",
         "$250"
       ],
       "note": "Scala ecosystem. Algora bounties $150-$4k."
@@ -168,7 +206,7 @@
     {
       "name": "tscircuit",
       "labels": [
-        "💎 Bounty",
+        "\ud83d\udc8e Bounty",
         "bounty"
       ],
       "note": "Circuit design framework, $1-$170 bounties. TypeScript."
@@ -176,7 +214,7 @@
     {
       "name": "activepieces",
       "labels": [
-        "💎 Bounty",
+        "\ud83d\udc8e Bounty",
         "bounty"
       ],
       "note": "Open-source automation platform, $50-$100 bounties. TypeScript."
@@ -184,7 +222,7 @@
     {
       "name": "Dokploy",
       "labels": [
-        "💎 Bounty",
+        "\ud83d\udc8e Bounty",
         "bounty"
       ],
       "note": "Open-source Vercel/Netlify alternative, $50-$1k bounties."
@@ -192,7 +230,7 @@
     {
       "name": "coollabsio",
       "labels": [
-        "💎 Bounty",
+        "\ud83d\udc8e Bounty",
         "bounty"
       ],
       "note": "Open-source Heroku alternative (Coolify), $7-$100 bounties. PHP/Laravel."
@@ -214,7 +252,7 @@
     {
       "name": "PX4",
       "labels": [
-        "💎 Bounty",
+        "\ud83d\udc8e Bounty",
         "bounty"
       ],
       "note": "Open-source drone flight controller. C/C++."
@@ -225,36 +263,13 @@
         "bounty"
       ],
       "note": "Ancient Beast - Open-source turn-based game, 8-10 XTR bounties. JS/CSS."
-    },
-    {
-      "name": "tailcallhq",
-      "labels": [
-        "bounty",
-        "💎 Bounty"
-      ],
-      "note": "GraphQL gateway. Algora bounties $50-$500. (Candidate)"
-    },
-    {
-      "name": "maybe-finance",
-      "labels": [
-        "bounty"
-      ],
-      "note": "Personal finance tool. Completed 61 bounties, currently paused. (Candidate)"
-    },
-    {
-      "name": "capgo",
-      "labels": [
-        "bounty",
-        "💎 Bounty"
-      ],
-      "note": "Capacitor updater tool. Algora historical 232 bounties. (Candidate)"
-    },
-    {
-      "name": "zed-industries",
-      "labels": [
-        "bounty"
-      ],
-      "note": "High-performance code editor. (Candidate)"
     }
   ],
   "projects": [
+    {
+      "org_login": "commaai",
+      "project_number": 26,
+      "note": "openpilot bounties board \u2014 captures issue-linked items that may lack the bounty label."
+    }
+  ]
+}
