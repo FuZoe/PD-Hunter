@@ -104,6 +104,76 @@
       "name": "keephq",
       "labels": ["bounty"],
       "note": "Open-source alert management platform."
+    },
+    {
+      "name": "tenstorrent",
+      "labels": ["bounty", "bounty_difficulty/hard"],
+      "note": "AI hardware company with high-value C++ and Metal bounties."
+    },
+    {
+      "name": "tari-project",
+      "labels": ["bounty", "bounty-S", "bounty-M", "bounty-L"],
+      "note": "Privacy-focused Rust blockchain project with recurring open bounties."
+    },
+    {
+      "name": "mergeos-bounties",
+      "labels": ["bounty", "bounty: feature", "bounty: bug"],
+      "note": "MergeOS bounty tracker for Go and Vue issues."
+    },
+    {
+      "name": "SecureBananaLabs",
+      "labels": ["bounty", "bug bounty"],
+      "note": "Mixed bug bounty and feature bounty program."
+    },
+    {
+      "name": "archestra-ai",
+      "labels": ["💎 Bounty"],
+      "note": "AI platform with active Algora-managed TypeScript bounties."
+    },
+    {
+      "name": "tscircuit",
+      "labels": ["💎 Bounty"],
+      "note": "Circuit design framework with frequent low-friction TypeScript bounties."
+    },
+    {
+      "name": "getkyo",
+      "labels": ["💎 Bounty", "$250", "$500", "$1000"],
+      "note": "Scala ecosystem project with tiered Algora bounty labels."
+    },
+    {
+      "name": "activepieces",
+      "labels": ["💎 Bounty"],
+      "note": "Open-source automation platform with recurring workflow bounties."
+    },
+    {
+      "name": "Dokploy",
+      "labels": ["💎 Bounty"],
+      "note": "Open-source Vercel and Netlify alternative with active Algora bounties."
+    },
+    {
+      "name": "coollabsio",
+      "labels": ["💎 Bounty", "💰 Bounty", "bounty"],
+      "note": "Coolify open-source PaaS with Algora and native bounty labels."
+    },
+    {
+      "name": "mediar-ai",
+      "labels": ["bounty"],
+      "note": "Screenpipe and related tooling with active Rust-focused bounties."
+    },
+    {
+      "name": "PX4",
+      "labels": ["💎 Bounty"],
+      "note": "PX4 autopilot project with occasional high-signal bounty issues."
+    },
+    {
+      "name": "FreezingMoon",
+      "labels": ["bounty"],
+      "note": "Ancient Beast turn-based game with entry-level open source bounties."
+    },
+    {
+      "name": "zio",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Scala functional programming ecosystem with active bounty issues."
     }
   ],
   "projects": [
