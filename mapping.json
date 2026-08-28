@@ -230,8 +230,7 @@
     {
       "name": "coollabsio",
       "labels": [
-        "\ud83d\udc8e Bounty",
-        "bounty"
+        "\ud83d\udc8e ."
       ],
       "note": "Open-source Heroku alternative (Coolify), $7-$100 bounties. PHP/Laravel."
     },
