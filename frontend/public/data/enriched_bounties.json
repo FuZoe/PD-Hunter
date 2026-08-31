@@ -89,7 +89,7 @@
         "amount": 100,
         "feasibility": 60,
         "competition": 79,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -150,7 +150,7 @@
         "amount": 2,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 45
+        "freshness": 44
       }
     }
   },
@@ -284,7 +284,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
