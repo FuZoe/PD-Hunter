@@ -18,6 +18,24 @@
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
   {
+    "number": 38752,
+    "title": "Merge PlotJuggler functionality into cabana",
+    "url": "https://github.com/commaai/openpilot/issues/38752",
+    "state": "open",
+    "labels": [
+      "enhancement",
+      "bounty",
+      "tools"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "commaai/openpilot",
+    "created_at": "2026-09-02T15:18:12Z",
+    "updated_at": "2026-09-02T15:18:40Z",
+    "author": "adeebshihadeh",
+    "body": "Needs to be good enough that no one complains they miss PlotJuggler!\n\nBounty paid out once it’s deleted and no issues for a week. "
+  },
+  {
     "number": 3695,
     "title": "Toyota TSS3 car port",
     "url": "https://github.com/commaai/opendbc/issues/3695",
