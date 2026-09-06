@@ -45,7 +45,7 @@
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2026-09-02T15:18:12Z",
-    "updated_at": "2026-09-03T04:20:52Z",
+    "updated_at": "2026-09-06T17:39:49Z",
     "author": "adeebshihadeh",
     "body": "Needs to be good enough that no one complains they miss PlotJuggler!\n\nBounty paid out once it’s deleted and no issues for a week. ",
     "hunter_intelligence": {
@@ -59,7 +59,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 98
+        "freshness": 100
       }
     }
   },
@@ -89,7 +89,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -276,7 +276,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 85
+        "freshness": 84
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
