@@ -196,11 +196,11 @@
       "PC",
       "simulation"
     ],
-    "comment_count": 13,
-    "open_pr_count": 1,
+    "comment_count": 14,
+    "open_pr_count": 2,
     "repository": "commaai/openpilot",
     "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-09-05T14:30:58Z",
+    "updated_at": "2026-09-08T14:04:56Z",
     "author": "adeebshihadeh",
     "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py.",
     "hunter_intelligence": {
@@ -209,12 +209,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 52,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
-        "competition": 59,
-        "freshness": 99
+        "competition": 42,
+        "freshness": 100
       }
     }
   },
@@ -245,7 +245,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 67,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -362,11 +362,11 @@
       "CI / testing",
       "bounty"
     ],
-    "comment_count": 24,
-    "open_pr_count": 1,
+    "comment_count": 25,
+    "open_pr_count": 2,
     "repository": "commaai/openpilot",
     "created_at": "2023-12-12T05:05:30Z",
-    "updated_at": "2026-09-01T01:42:24Z",
+    "updated_at": "2026-09-08T14:04:57Z",
     "author": "adeebshihadeh",
     "body": "Requirements:\r\n* runs on the free for open source Actions instances (can't use a higher tier one)\r\n* reliable, passes 20+ times in a row\r\n* runs in real time: 1m of driving in openpilot is equivalent to 1m in CI time\r\n* logs (qlog, rlog, and camera files) uploaded as an artifact\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_sim_bridge.py",
     "hunter_intelligence": {
@@ -375,12 +375,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 38,
+      "bounty_score": 35,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 37,
-        "freshness": 96
+        "competition": 20,
+        "freshness": 100
       }
     }
   }
