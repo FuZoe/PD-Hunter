@@ -9,7 +9,7 @@ AI 驱动，帮你找到匹配技能的高价值开源赏金。
 [![CI](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml/badge.svg)](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml)
 [![Go Coverage](https://img.shields.io/badge/Go_Coverage-88%25-brightgreen)](https://github.com/FuZoe/PD-Hunter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Organizations](https://img.shields.io/badge/Tracking-15%2B_orgs-orange)](mapping.json)
+[![Organizations](https://img.shields.io/badge/Tracking-35%2B_orgs-orange)](mapping.json)
 
 [English](./README.md) | [简体中文]
 
