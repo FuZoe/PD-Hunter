@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 131,
+    "comment_count": 132,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-09-08T18:22:32Z",
+    "updated_at": "2026-09-09T20:55:23Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -27,7 +27,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -121,7 +121,7 @@
         "amount": 100,
         "feasibility": 60,
         "competition": 79,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -182,39 +182,7 @@
         "amount": 2,
         "feasibility": 90,
         "competition": 65,
-        "freshness": 40
-      }
-    }
-  },
-  {
-    "number": 33207,
-    "title": "Get MetaDrive simulator working on macOS",
-    "url": "https://github.com/commaai/openpilot/issues/33207",
-    "state": "open",
-    "labels": [
-      "bounty",
-      "PC",
-      "simulation"
-    ],
-    "comment_count": 15,
-    "open_pr_count": 2,
-    "repository": "commaai/openpilot",
-    "created_at": "2024-08-06T19:55:55Z",
-    "updated_at": "2026-09-09T03:59:01Z",
-    "author": "adeebshihadeh",
-    "body": "Must work as well as on Linux.\r\n\r\nAt a minimum, this means it must pass the CI test: https://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_metadrive_bridge.py.",
-    "hunter_intelligence": {
-      "friction_level": "Low",
-      "technical_hint": "Ensure macOS compatibility by debugging dependencies and environment setup in test_metadrive_bridge.py, focusing on any Linux-specific assumptions or hardcoded paths.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 47,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 90,
-        "competition": 40,
-        "freshness": 100
+        "freshness": 39
       }
     }
   },
@@ -316,7 +284,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 73
+        "freshness": 72
       }
     }
   },
@@ -349,38 +317,6 @@
         "feasibility": 90,
         "competition": 75,
         "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 30693,
-    "title": "Run MetaDrive simulation test in GitHub Actions",
-    "url": "https://github.com/commaai/openpilot/issues/30693",
-    "state": "open",
-    "labels": [
-      "good first issue",
-      "CI / testing",
-      "bounty"
-    ],
-    "comment_count": 27,
-    "open_pr_count": 2,
-    "repository": "commaai/openpilot",
-    "created_at": "2023-12-12T05:05:30Z",
-    "updated_at": "2026-09-09T09:03:04Z",
-    "author": "adeebshihadeh",
-    "body": "Requirements:\r\n* runs on the free for open source Actions instances (can't use a higher tier one)\r\n* reliable, passes 20+ times in a row\r\n* runs in real time: 1m of driving in openpilot is equivalent to 1m in CI time\r\n* logs (qlog, rlog, and camera files) uploaded as an artifact\r\n\r\nhttps://github.com/commaai/openpilot/blob/master/tools/sim/tests/test_sim_bridge.py",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Ensure the MetaDrive simulation runs deterministically by mocking any external dependencies and verify compatibility with GitHub Actions' resource constraints.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 34,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 16,
-        "freshness": 100
       }
     }
   }
