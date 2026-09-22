@@ -87,7 +87,7 @@
     },
     {
       "name": "golemcloud",
-      "labels": ["bounty"],
+      "labels": ["bounty", "💎 Bounty"],
       "note": "Invincible distributed computing platform."
     },
     {
@@ -97,7 +97,7 @@
     },
     {
       "name": "zio",
-      "labels": ["bounty"],
+      "labels": ["bounty", "💎 Bounty"],
       "note": "Type-safe composable asynchronous programming for Scala."
     },
     {
@@ -169,11 +169,6 @@
       "name": "FreezingMoon",
       "labels": ["bounty"],
       "note": "Ancient Beast turn-based game with entry-level open source bounties."
-    },
-    {
-      "name": "zio",
-      "labels": ["💎 Bounty", "bounty"],
-      "note": "Scala functional programming ecosystem with active bounty issues."
     }
   ],
   "projects": [
