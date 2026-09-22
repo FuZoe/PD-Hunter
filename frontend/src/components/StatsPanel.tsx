@@ -10,6 +10,7 @@ interface StatsPanelProps {
     sTier: number;
     aTier: number;
     bTier: number;
+    unpriced: number;
     lowFriction: number;
     hiddenGems: number;
   };
@@ -34,6 +35,7 @@ const statItems = [
   { key: "sTier", label: "S-TIER", color: "text-hacker-yellow" },
   { key: "aTier", label: "A-TIER", color: "text-hacker-purple" },
   { key: "bTier", label: "B-TIER", color: "text-hacker-cyan" },
+  { key: "unpriced", label: "TOKEN", color: "text-hacker-green" },
   { key: "lowFriction", label: "LOW FRICTION", color: "text-hacker-green" },
   { key: "hiddenGems", label: "HIDDEN GEMS", color: "text-hacker-orange" },
 ] as const;
@@ -42,7 +44,7 @@ export default function StatsPanel({ stats }: StatsPanelProps) {
   return (
     <section className="border-b border-hacker-border bg-hacker-card/30">
       <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {statItems.map((item, i) => (
             <motion.div
               key={item.key}

@@ -60,6 +60,7 @@ type graphQLResponse struct {
 
 type graphQLError struct {
 	Message string `json:"message"`
+	Type    string `json:"type,omitempty"`
 }
 
 type graphQLData struct {
@@ -176,6 +177,16 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 		resp.Body.Close()
 
 		if resp.StatusCode == http.StatusOK {
+			if isGraphQLRateLimitResponse(resp.Header, body) {
+				if attempt < maxRetries-1 {
+					retryDelay = c.rateLimitRetryDelay(c.graphQLURL(), resp.Header, attempt)
+					if retryDelay < 0 {
+						return nil, newRateLimitError(resp.StatusCode, resp.Header, body)
+					}
+					continue
+				}
+				return nil, newRateLimitError(resp.StatusCode, resp.Header, body)
+			}
 			return body, nil
 		}
 
@@ -194,6 +205,27 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 	}
 
 	return nil, fmt.Errorf("GraphQL max retries exceeded")
+}
+
+// isGraphQLRateLimitResponse handles GitHub's 200 response with a RATE_LIMITED
+// GraphQL error. REST-style status checks alone miss this form of throttling.
+func isGraphQLRateLimitResponse(headers http.Header, body []byte) bool {
+	var envelope struct {
+		Errors []graphQLError `json:"errors"`
+	}
+	if err := json.Unmarshal(body, &envelope); err != nil || len(envelope.Errors) == 0 {
+		return false
+	}
+	for _, graphQLError := range envelope.Errors {
+		typeName := strings.ToLower(graphQLError.Type)
+		message := strings.ToLower(graphQLError.Message)
+		if typeName == "rate_limited" || strings.Contains(typeName, "rate") ||
+			strings.Contains(message, "rate limit") || strings.Contains(message, "secondary rate limit") ||
+			(headers.Get("X-RateLimit-Remaining") == "0" && strings.TrimSpace(message) != "") {
+			return true
+		}
+	}
+	return false
 }
 
 // FetchProjectItems queries a GitHub Projects V2 board and returns the issue-linked items as GitHubIssue slices.

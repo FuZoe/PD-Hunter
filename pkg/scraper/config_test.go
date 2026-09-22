@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,9 +81,9 @@ func TestRepositoryMappingIsConsistent(t *testing.T) {
 		t.Fatalf("failed to load repository mapping: %v", err)
 	}
 
-	const expectedOrganizationCount = 34
-	if len(config.Organizations) != expectedOrganizationCount {
-		t.Fatalf("expected %d organizations, got %d", expectedOrganizationCount, len(config.Organizations))
+	const minimumOrganizationCount = 34
+	if len(config.Organizations) < minimumOrganizationCount {
+		t.Fatalf("expected at least %d organizations, got %d", minimumOrganizationCount, len(config.Organizations))
 	}
 
 	seenOrganizations := make(map[string]struct{}, len(config.Organizations))
@@ -92,11 +93,18 @@ func TestRepositoryMappingIsConsistent(t *testing.T) {
 			t.Error("mapping contains an organization with an empty name")
 			continue
 		}
-		if _, exists := seenOrganizations[name]; exists {
+		if name != organization.Name {
+			t.Errorf("organization %q has leading or trailing whitespace", organization.Name)
+		}
+		organizationKey := strings.ToLower(name)
+		if _, exists := seenOrganizations[organizationKey]; exists {
 			t.Errorf("mapping contains duplicate organization %q", name)
 		}
-		seenOrganizations[name] = struct{}{}
+		seenOrganizations[organizationKey] = struct{}{}
 
+		if len(organization.Labels) == 0 {
+			t.Errorf("organization %q has no labels", name)
+		}
 		seenLabels := make(map[string]struct{}, len(organization.Labels))
 		for _, rawLabel := range organization.Labels {
 			label := strings.TrimSpace(rawLabel)
@@ -104,10 +112,14 @@ func TestRepositoryMappingIsConsistent(t *testing.T) {
 				t.Errorf("organization %q has an empty label", name)
 				continue
 			}
-			if _, exists := seenLabels[label]; exists {
+			if label != rawLabel {
+				t.Errorf("organization %q label %q has leading or trailing whitespace", name, rawLabel)
+			}
+			labelKey := strings.ToLower(label)
+			if _, exists := seenLabels[labelKey]; exists {
 				t.Errorf("organization %q has duplicate label %q", name, label)
 			}
-			seenLabels[label] = struct{}{}
+			seenLabels[labelKey] = struct{}{}
 		}
 	}
 
@@ -121,17 +133,43 @@ func TestRepositoryMappingIsConsistent(t *testing.T) {
 		}
 	}
 
+	// These organizations and labels were verified against GitHub on 2026-09-22.
+	// Pin the corrected sets so stale aliases are not reintroduced silently.
+	verifiedLabelSets := map[string][]string{
+		"calcom":        {"\U0001F48E Bounty"},
+		"coollabsio":    {"\U0001F48E ."},
+		"mediar-ai":     {"\U0001F48E Bounty"},
+		"screenpipe":    {"\U0001F48E Bounty"},
+		"triggerdotdev": {"\U0001F48E Bounty"},
+	}
+	for organizationName, expectedLabels := range verifiedLabelSets {
+		organization := findOrganization(config.Organizations, organizationName)
+		if organization == nil {
+			t.Errorf("mapping is missing verified organization %q", organizationName)
+			continue
+		}
+		if !sameLabelSet(organization.Labels, expectedLabels) {
+			t.Errorf("organization %q has labels %q, want %q", organizationName, organization.Labels, expectedLabels)
+		}
+	}
+
+	for _, staleOrganization := range []string{"getkyo", "trigger-dev"} {
+		if findOrganization(config.Organizations, staleOrganization) != nil {
+			t.Errorf("mapping still contains stale organization %q", staleOrganization)
+		}
+	}
+
 	for _, readme := range []string{"README.md", "README_CN.md"} {
 		content, err := os.ReadFile(filepath.Join("..", "..", readme))
 		if err != nil {
 			t.Fatalf("failed to read %s: %v", readme, err)
 		}
 		text := string(content)
-		if strings.Contains(text, "15+") || strings.Contains(text, "35+") {
-			t.Errorf("%s contains a stale organization count", readme)
-		}
-		if !strings.Contains(text, "34+") || !strings.Contains(text, "34%2B") {
-			t.Errorf("%s does not consistently advertise 34+ organizations", readme)
+		organizationCount := len(config.Organizations)
+		countText := fmt.Sprintf("%d+", organizationCount)
+		countBadge := fmt.Sprintf("%d%%2B", organizationCount)
+		if !strings.Contains(text, countText) || !strings.Contains(text, countBadge) {
+			t.Errorf("%s does not consistently advertise %s organizations", readme, countText)
 		}
 	}
 }
@@ -152,4 +190,16 @@ func hasLabel(labels []string, wanted string) bool {
 		}
 	}
 	return false
+}
+
+func sameLabelSet(actual, expected []string) bool {
+	if len(actual) != len(expected) {
+		return false
+	}
+	for _, label := range expected {
+		if !hasLabel(actual, label) {
+			return false
+		}
+	}
+	return true
 }

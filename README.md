@@ -19,7 +19,7 @@ Find high-value open source bounties matched to your skills, powered by AI.
 
 ## Features
 
-- **34+ Organizations** — Tracks bounties across projectdiscovery, supabase, cal-com, appwrite, and more
+- **34+ Organizations** — Tracks bounties across projectdiscovery, supabase, Cal.com, appwrite, and more
 - **AI-Powered Analysis** — GPT-4o generates friction level, technical hints, and bounty tier for each issue
 - **Hunter Cards** — Beautiful hacker-themed dashboard with filtering, sorting, and search
 - **S-Tier Highlighting** — High-value ($1000+) bounties prominently featured with glow effects
@@ -40,6 +40,8 @@ go install github.com/FuZoe/PD-Hunter/cmd/hunter@latest
 export GITHUB_TOKEN=your_token
 hunter scan --config mapping.json --output bounty_issues.json
 ```
+
+The historical root entry point (`fetch_bounty_issues.go`) is kept as a compatibility wrapper around the same scanner. If you still invoke that name on Windows, build it with `go build -o fetch_bounty_issues.exe .`; the generated executable is intentionally not tracked.
 
 ### Option 2: Full Pipeline
 
@@ -75,9 +77,9 @@ flowchart LR
 
 ### Pipeline Stages
 
-1. **Scan** — The Go CLI (`cmd/hunter scan`) reads `mapping.json` for target organizations and bounty labels, uses the GitHub Search API with rate-aware pacing, counts GitHub-linked open PRs through the Core API, and deduplicates results into `bounty_issues.json`. A failed or rate-limited request aborts the scan so partial data is not published.
+1. **Scan** — The Go CLI (`cmd/hunter scan`) reads `mapping.json` for target organizations and bounty labels, uses the GitHub Search API with rate-aware pacing, counts open PRs represented by GitHub `cross-referenced` timeline events through the Core API, and deduplicates results into `bounty_issues.json`. GitHub can create that event from a recognized reference in an issue/PR conversation; arbitrary text that GitHub does not link is intentionally excluded. A failed or rate-limited request aborts the scan so partial data is not published.
 
-2. **Enrich** — The Python script (`enrich_bounties.py`) feeds each issue to GPT-4o via GitHub Models to produce *Hunter Intelligence*: friction level, technical hint, bounty tier (S/A/B), and Hidden Gem flag. Expert hints are preserved across runs.
+2. **Enrich** — The Python script (`enrich_bounties.py`) feeds each issue to GPT-4o via GitHub Models to produce *Hunter Intelligence*: friction level, technical hint, bounty tier (S/A/B/Unpriced), native token metadata when no USD conversion is reliable, and Hidden Gem flag. Expert hints are preserved across runs.
 
 3. **Publish** — GitHub Actions runs the pipeline every 6 hours with data validation and failure alerting. The Next.js dashboard loads the enriched JSON and renders it as a filterable, searchable, hacker-themed card view.
 

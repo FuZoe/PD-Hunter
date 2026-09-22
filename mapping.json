@@ -27,8 +27,8 @@
     },
     {
       "name": "calcom",
-      "labels": ["bounty", "💰 Bounty"],
-      "note": "Open-source scheduling infrastructure (formerly cal-com)."
+      "labels": ["💎 Bounty"],
+      "note": "Open-source scheduling infrastructure; the main repository now uses the Algora bounty label."
     },
     {
       "name": "twentyhq",
@@ -51,9 +51,9 @@
       "note": "Open-source full-stack monitoring platform."
     },
     {
-      "name": "trigger-dev",
-      "labels": ["bounty"],
-      "note": "Open-source background job framework."
+      "name": "triggerdotdev",
+      "labels": ["💎 Bounty"],
+      "note": "Open-source background job framework (Trigger.dev)."
     },
     {
       "name": "algora-io",
@@ -136,11 +136,6 @@
       "note": "Circuit design framework with frequent low-friction TypeScript bounties."
     },
     {
-      "name": "getkyo",
-      "labels": ["💎 Bounty", "$250", "$500", "$1000"],
-      "note": "Scala ecosystem project with tiered Algora bounty labels."
-    },
-    {
       "name": "activepieces",
       "labels": ["💎 Bounty"],
       "note": "Open-source automation platform with recurring workflow bounties."
@@ -152,13 +147,18 @@
     },
     {
       "name": "coollabsio",
-      "labels": ["💎 Bounty", "💰 Bounty", "bounty"],
-      "note": "Coolify open-source PaaS with Algora and native bounty labels."
+      "labels": ["💎 ."],
+      "note": "Coolify open-source PaaS; its monetary-reward issues use the exact label `💎 .`."
     },
     {
       "name": "mediar-ai",
-      "labels": ["bounty"],
-      "note": "Screenpipe and related tooling with active Rust-focused bounties."
+      "labels": ["💎 Bounty"],
+      "note": "Terminator desktop automation tooling; Screenpipe moved to the screenpipe organization."
+    },
+    {
+      "name": "screenpipe",
+      "labels": ["💎 Bounty"],
+      "note": "Screenpipe's repository moved from mediar-ai and retains its Algora bounty label."
     },
     {
       "name": "PX4",

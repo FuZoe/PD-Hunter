@@ -164,7 +164,11 @@ export default function BountyDetailClient({ bounty }: BountyDetailClientProps) 
                   "text-4xl font-mono font-bold",
                   isSTier ? "text-hacker-yellow" : "text-hacker-green glow-green"
                 )}>
-                  {formatBounty(intel.bounty_amount)}
+                  {formatBounty(
+                    intel.bounty_amount,
+                    intel.bounty_currency,
+                    intel.bounty_native_amount
+                  )}
                 </div>
               </div>
               {intel.bounty_score !== undefined && (

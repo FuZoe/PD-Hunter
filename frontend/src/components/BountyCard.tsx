@@ -74,7 +74,11 @@ export default function BountyCard({ bounty, index = 0 }: BountyCardProps) {
                   isSTier ? "text-hacker-yellow glow-green" : "text-hacker-green"
                 )}
               >
-                {formatBounty(intel.bounty_amount)}
+                {formatBounty(
+                  intel.bounty_amount,
+                  intel.bounty_currency,
+                  intel.bounty_native_amount
+                )}
               </div>
             </div>
           </div>

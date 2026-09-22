@@ -145,6 +145,46 @@ func TestDoGraphQLRequest_NoToken(t *testing.T) {
 	}
 }
 
+func TestDoGraphQLRequest_RateLimitedGraphQLPayloadRetries(t *testing.T) {
+	callCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		w.Header().Set("X-RateLimit-Remaining", "0")
+		w.Header().Set("X-RateLimit-Reset", "1")
+		w.WriteHeader(http.StatusOK)
+		if callCount < 2 {
+			_, _ = w.Write([]byte(`{"data":null,"errors":[{"type":"RATE_LIMITED","message":"API rate limit exceeded"}]}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"data": {}}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		HTTPClient: &http.Client{Timeout: 5 * time.Second},
+		Token:      "test-token",
+		BaseURL:    server.URL,
+	}
+
+	data, err := client.DoGraphQLRequest("query { viewer { login } }", nil)
+	if err != nil {
+		t.Fatalf("unexpected error after retry: %v", err)
+	}
+	if callCount != 2 {
+		t.Fatalf("expected one retry, got %d requests", callCount)
+	}
+	if !strings.Contains(string(data), `"data"`) {
+		t.Fatalf("expected successful GraphQL response, got %s", data)
+	}
+}
+
+func TestIsGraphQLRateLimitResponseDoesNotFlagSuccessfulPayload(t *testing.T) {
+	headers := http.Header{"X-RateLimit-Remaining": []string{"0"}}
+	if isGraphQLRateLimitResponse(headers, []byte(`{"data": {}}`)) {
+		t.Fatal("did not expect a successful GraphQL payload to be rate limited")
+	}
+}
+
 func TestFetchProjectItems_WithIssues(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
