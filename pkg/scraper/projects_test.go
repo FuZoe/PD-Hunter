@@ -592,10 +592,8 @@ func TestScanAll_WithProjects(t *testing.T) {
 		}
 
 		// REST API requests (GET)
-		query := r.URL.Query().Get("q")
-
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 1, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 
@@ -748,9 +746,8 @@ func TestScanAll_ProjectFiltersNonBountyLabels(t *testing.T) {
 			return
 		}
 
-		query := r.URL.Query().Get("q")
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 0, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 		// Label scan returns nothing (all items are in project only)
@@ -797,10 +794,9 @@ func TestScanAll_ProjectError(t *testing.T) {
 		}
 
 		// REST works fine
-		query := r.URL.Query().Get("q")
 		w.WriteHeader(http.StatusOK)
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 0, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 		w.Write([]byte(`{
@@ -836,12 +832,11 @@ func TestScanAll_ProjectError(t *testing.T) {
 		},
 	}
 
-	// ScanAll should continue even if project fetch fails
 	issues, err := client.ScanAll(config)
-	if err != nil {
-		t.Fatalf("ScanAll should not return error on project failure: %v", err)
+	if err == nil {
+		t.Fatal("expected ScanAll to return project error")
 	}
-	if len(issues) != 1 {
-		t.Errorf("expected 1 issue from label scan (project failed), got %d", len(issues))
+	if issues != nil {
+		t.Errorf("expected no issues when project fetch fails, got %d", len(issues))
 	}
 }

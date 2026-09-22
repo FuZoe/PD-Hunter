@@ -75,7 +75,7 @@ flowchart LR
 
 ### Pipeline Stages
 
-1. **Scan** — The Go CLI (`cmd/hunter scan`) reads `mapping.json` for target organizations and bounty labels, queries the GitHub Search API, counts open PRs per issue, and deduplicates results into `bounty_issues.json`.
+1. **Scan** — The Go CLI (`cmd/hunter scan`) reads `mapping.json` for target organizations and bounty labels, uses the GitHub Search API with rate-aware pacing, counts GitHub-linked open PRs through the Core API, and deduplicates results into `bounty_issues.json`. A failed or rate-limited request aborts the scan so partial data is not published.
 
 2. **Enrich** — The Python script (`enrich_bounties.py`) feeds each issue to GPT-4o via GitHub Models to produce *Hunter Intelligence*: friction level, technical hint, bounty tier (S/A/B), and Hidden Gem flag. Expert hints are preserved across runs.
 

@@ -75,8 +75,8 @@ type graphQLProject struct {
 }
 
 type graphQLItems struct {
-	PageInfo graphQLPageInfo     `json:"pageInfo"`
-	Nodes    []graphQLItemNode   `json:"nodes"`
+	PageInfo graphQLPageInfo   `json:"pageInfo"`
+	Nodes    []graphQLItemNode `json:"nodes"`
 }
 
 type graphQLPageInfo struct {
@@ -89,16 +89,16 @@ type graphQLItemNode struct {
 }
 
 type graphQLIssueContent struct {
-	Number     int                `json:"number"`
-	Title      string             `json:"title"`
-	URL        string             `json:"url"`
-	State      string             `json:"state"`
-	CreatedAt  string             `json:"createdAt"`
-	UpdatedAt  string             `json:"updatedAt"`
-	Author     *graphQLAuthor     `json:"author"`
-	Body       string             `json:"body"`
-	Labels     graphQLLabels      `json:"labels"`
-	Repository graphQLRepo        `json:"repository"`
+	Number     int                 `json:"number"`
+	Title      string              `json:"title"`
+	URL        string              `json:"url"`
+	State      string              `json:"state"`
+	CreatedAt  string              `json:"createdAt"`
+	UpdatedAt  string              `json:"updatedAt"`
+	Author     *graphQLAuthor      `json:"author"`
+	Body       string              `json:"body"`
+	Labels     graphQLLabels       `json:"labels"`
+	Repository graphQLRepo         `json:"repository"`
 	Comments   graphQLCommentCount `json:"comments"`
 }
 
@@ -143,12 +143,13 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 		return nil, fmt.Errorf("marshaling GraphQL request: %w", err)
 	}
 
+	var retryDelay time.Duration
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		if attempt > 0 {
-			waitTime := time.Duration(attempt*5) * time.Second
-			fmt.Printf("  Retrying GraphQL in %v (attempt %d/%d)...\n", waitTime, attempt+1, maxRetries)
-			time.Sleep(waitTime)
+		if retryDelay > 0 {
+			fmt.Printf("  Retrying GraphQL in %v (attempt %d/%d)...\n", retryDelay, attempt+1, maxRetries)
+			time.Sleep(retryDelay)
 		}
+		retryDelay = 0
 
 		req, err := http.NewRequest("POST", c.graphQLURL(), bytes.NewReader(bodyBytes))
 		if err != nil {
@@ -157,11 +158,16 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/json")
+		req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 		if c.Token != "" {
 			req.Header.Set("Authorization", "Bearer "+c.Token)
 		}
 
-		resp, err := c.HTTPClient.Do(req)
+		httpClient := c.HTTPClient
+		if httpClient == nil {
+			httpClient = http.DefaultClient
+		}
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
@@ -173,10 +179,15 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 			return body, nil
 		}
 
-		if resp.StatusCode == 429 || resp.StatusCode == 403 {
+		if isRateLimitResponse(resp.StatusCode, resp.Header, body) {
 			if attempt < maxRetries-1 {
+				retryDelay = c.rateLimitRetryDelay(c.graphQLURL(), resp.Header, attempt)
+				if retryDelay < 0 {
+					return nil, newRateLimitError(resp.StatusCode, resp.Header, body)
+				}
 				continue
 			}
+			return nil, newRateLimitError(resp.StatusCode, resp.Header, body)
 		}
 
 		return nil, fmt.Errorf("GraphQL HTTP %d: %s", resp.StatusCode, string(body))

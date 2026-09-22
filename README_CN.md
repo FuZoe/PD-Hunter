@@ -75,7 +75,7 @@ flowchart LR
 
 ### 流水线阶段
 
-1. **扫描** — Go CLI (`cmd/hunter scan`) 读取 `mapping.json` 配置，通过 GitHub Search API 收集匹配的 open issues，统计 PR 竞争程度，去重后保存至 `bounty_issues.json`。
+1. **扫描** — Go CLI (`cmd/hunter scan`) 读取 `mapping.json` 配置，以具备限流感知的方式调用 GitHub Search API，通过 Core API 统计 GitHub 关联的开放 PR，去重后保存至 `bounty_issues.json`。请求失败或触发限流时会中止扫描，避免发布不完整数据。
 
 2. **分析** — Python 脚本 (`enrich_bounties.py`) 调用 GPT-4o 生成猎人情报：摩擦等级、技术提示、赏金等级（S/A/B）和 Hidden Gem 标记。已有专家提示会被保留。
 
