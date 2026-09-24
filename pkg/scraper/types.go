@@ -38,8 +38,9 @@ type Issue struct {
 
 // GitHubSearchResult is the response from GitHub Search API.
 type GitHubSearchResult struct {
-	TotalCount int           `json:"total_count"`
-	Items      []GitHubIssue `json:"items"`
+	TotalCount        int           `json:"total_count"`
+	IncompleteResults bool          `json:"incomplete_results"`
+	Items             []GitHubIssue `json:"items"`
 }
 
 // GitHubIssue represents a single issue from the GitHub API.

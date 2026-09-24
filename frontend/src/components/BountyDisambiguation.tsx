@@ -61,7 +61,11 @@ export default function BountyDisambiguation({
                     {b.hunter_intelligence.bounty_tier}
                   </span>
                   <span className="text-hacker-green font-mono font-bold">
-                    {formatBounty(b.hunter_intelligence.bounty_amount)}
+                    {formatBounty(
+                      b.hunter_intelligence.bounty_amount,
+                      b.hunter_intelligence.bounty_currency,
+                      b.hunter_intelligence.bounty_native_amount
+                    )}
                   </span>
                 </div>
               </div>

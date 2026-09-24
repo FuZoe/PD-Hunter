@@ -10,6 +10,7 @@ interface OrgGroup {
   name: string;
   bounties: ReturnType<typeof useBounties>["bounties"];
   totalValue: number;
+  tokenCount: number;
 }
 
 export default function ExplorePage() {
@@ -21,16 +22,19 @@ export default function ExplorePage() {
     bounties.forEach((b) => {
       const org = b.repository.split("/")[0];
       if (!groups[org]) {
-        groups[org] = { name: org, bounties: [], totalValue: 0 };
+        groups[org] = { name: org, bounties: [], totalValue: 0, tokenCount: 0 };
       }
       groups[org].bounties.push(b);
       groups[org].totalValue += b.hunter_intelligence.bounty_amount;
+      if (b.hunter_intelligence.bounty_tier === "Unpriced") {
+        groups[org].tokenCount += 1;
+      }
     });
     return Object.values(groups).sort((a, b) => b.totalValue - a.totalValue);
   }, [bounties]);
 
   const tierDistribution = useMemo(() => {
-    const dist = { "S-Tier": 0, "A-Tier": 0, "B-Tier": 0 };
+    const dist = { "S-Tier": 0, "A-Tier": 0, "B-Tier": 0, Unpriced: 0 };
     bounties.forEach((b) => {
       dist[b.hunter_intelligence.bounty_tier]++;
     });
@@ -47,7 +51,8 @@ export default function ExplorePage() {
 
   const amountRanges = useMemo(() => {
     const ranges = [
-      { label: "$0", count: 0 },
+      { label: "TBD", count: 0 },
+      { label: "Token", count: 0 },
       { label: "$1-100", count: 0 },
       { label: "$100-500", count: 0 },
       { label: "$500-1K", count: 0 },
@@ -55,11 +60,12 @@ export default function ExplorePage() {
     ];
     bounties.forEach((b) => {
       const amt = b.hunter_intelligence.bounty_amount;
-      if (amt === 0) ranges[0].count++;
-      else if (amt <= 100) ranges[1].count++;
-      else if (amt <= 500) ranges[2].count++;
-      else if (amt <= 1000) ranges[3].count++;
-      else ranges[4].count++;
+      if (b.hunter_intelligence.bounty_tier === "Unpriced") ranges[1].count++;
+      else if (amt === 0) ranges[0].count++;
+      else if (amt <= 100) ranges[2].count++;
+      else if (amt <= 500) ranges[3].count++;
+      else if (amt <= 1000) ranges[4].count++;
+      else ranges[5].count++;
     });
     return ranges;
   }, [bounties]);
@@ -122,11 +128,13 @@ export default function ExplorePage() {
                   "S-Tier": "bg-hacker-yellow",
                   "A-Tier": "bg-hacker-purple",
                   "B-Tier": "bg-hacker-cyan",
+                  Unpriced: "bg-hacker-green",
                 };
                 const textColors: Record<string, string> = {
                   "S-Tier": "text-hacker-yellow",
                   "A-Tier": "text-hacker-purple",
                   "B-Tier": "text-hacker-cyan",
+                  Unpriced: "text-hacker-green",
                 };
                 return (
                   <div key={tier}>
@@ -240,7 +248,12 @@ export default function ExplorePage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-hacker-green font-mono font-bold">
-                    ${org.totalValue.toLocaleString()}
+                    USD ${org.totalValue.toLocaleString()}
+                    {org.tokenCount > 0 && (
+                      <span className="ml-3 text-xs font-normal text-hacker-green">
+                        + {org.tokenCount} token
+                      </span>
+                    )}
                   </span>
                   <span className="text-hacker-muted text-lg">
                     {expandedOrg === org.name ? "▼" : "▶"}

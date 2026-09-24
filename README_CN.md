@@ -9,7 +9,7 @@ AI 驱动，帮你找到匹配技能的高价值开源赏金。
 [![CI](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml/badge.svg)](https://github.com/FuZoe/PD-Hunter/actions/workflows/ci.yml)
 [![Go Coverage](https://img.shields.io/badge/Go_Coverage-88%25-brightgreen)](https://github.com/FuZoe/PD-Hunter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Organizations](https://img.shields.io/badge/Tracking-15%2B_orgs-orange)](mapping.json)
+[![Organizations](https://img.shields.io/badge/Tracking-34%2B_orgs-orange)](mapping.json)
 
 [English](./README.md) | [简体中文]
 
@@ -19,7 +19,7 @@ AI 驱动，帮你找到匹配技能的高价值开源赏金。
 
 ## 功能特点
 
-- **15+ 组织追踪** — 覆盖 projectdiscovery、supabase、cal-com、appwrite 等
+- **34+ 组织追踪** — 覆盖 projectdiscovery、supabase、Cal.com、appwrite 等
 - **AI 智能分析** — GPT-4o 生成摩擦等级、技术提示和赏金分级
 - **猎人卡片** — 暗黑主题仪表盘，支持筛选、排序和搜索
 - **S-Tier 高亮** — $1000+ 高价值赏金醒目展示
@@ -40,6 +40,8 @@ go install github.com/FuZoe/PD-Hunter/cmd/hunter@latest
 export GITHUB_TOKEN=your_token
 hunter scan --config mapping.json --output bounty_issues.json
 ```
+
+根目录的旧入口 `fetch_bounty_issues.go` 现在只是复用同一套扫描器的兼容 wrapper。如仍需 Windows 下的旧文件名，请运行 `go build -o fetch_bounty_issues.exe .` 自行构建；生成的 exe 不再纳入版本控制。
 
 ### 方式二：完整流水线
 
@@ -65,7 +67,7 @@ cd frontend && npm install && npm run dev
 
 ```mermaid
 flowchart LR
-    A[mapping.json<br/>15+ 组织] -->|配置| B[cmd/hunter scan<br/>Go CLI + GitHub API]
+    A[mapping.json<br/>34+ 组织] -->|配置| B[cmd/hunter scan<br/>Go CLI + GitHub API]
     B -->|bounty_issues.json| C[enrich_bounties.py<br/>GPT-4o 分析]
     C -->|enriched_bounties.json| D[frontend/<br/>Next.js 仪表盘]
     E[GitHub Actions<br/>每 6 小时] -.->|触发| B
@@ -75,9 +77,9 @@ flowchart LR
 
 ### 流水线阶段
 
-1. **扫描** — Go CLI (`cmd/hunter scan`) 读取 `mapping.json` 配置，通过 GitHub Search API 收集匹配的 open issues，统计 PR 竞争程度，去重后保存至 `bounty_issues.json`。
+1. **扫描** — Go CLI (`cmd/hunter scan`) 读取 `mapping.json` 配置，以具备限流感知的方式调用 GitHub Search API，通过 Core API 统计由 GitHub `cross-referenced` timeline 事件表示的开放 PR，去重后保存至 `bounty_issues.json`。issue/PR 对话中被 GitHub 识别并建立链接的引用会产生该事件；GitHub 未建立链接的普通文本会被有意排除。请求失败或触发限流时会中止扫描，避免发布不完整数据。
 
-2. **分析** — Python 脚本 (`enrich_bounties.py`) 调用 GPT-4o 生成猎人情报：摩擦等级、技术提示、赏金等级（S/A/B）和 Hidden Gem 标记。已有专家提示会被保留。
+2. **分析** — Python 脚本 (`enrich_bounties.py`) 调用 GPT-4o 生成猎人情报：摩擦等级、技术提示、赏金等级（S/A/B/未定价）、无法可靠换算美元时的原生代币信息和 Hidden Gem 标记。已有专家提示会被保留。
 
 3. **发布** — GitHub Actions 每 6 小时执行流水线，包含数据校验和失败告警。Next.js 仪表盘加载富化 JSON，渲染为可筛选的暗黑主题卡片视图。
 
