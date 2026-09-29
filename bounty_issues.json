@@ -165,11 +165,11 @@
       "bounty",
       "comma three"
     ],
-    "comment_count": 5,
+    "comment_count": 6,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-01-03T00:23:19Z",
-    "updated_at": "2026-09-04T00:52:30Z",
+    "updated_at": "2026-09-29T17:25:45Z",
     "author": "adeebshihadeh",
     "body": "`systemd-analyze` reports this for the latest AGNOS:\r\n```\r\nStartup finished in 3.650s (kernel) + 7.343s (userspace) = 10.994s\r\ngraphical.target reached after 7.059s in userspace\r\n```\r\n\r\nGet the kernel part of that down to \u003c1s in a self-contained way that doesn't delay the rest of the openpilot.\r\n* can't just defer stuff to later and cost boot time at later stages\r\n* can turn off stuff openpilot doesn't use (NFC, bluetooth, etc.)\r\n\r\nAGNOS is built with https://github.com/commaai/agnos-builder"
   }
