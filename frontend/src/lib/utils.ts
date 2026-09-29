@@ -5,7 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatBounty(amount: number): string {
+export function formatBounty(
+  amount: number,
+  currency?: string | null,
+  nativeAmount?: number
+): string {
+  if (currency && currency !== "USD") {
+    const value = nativeAmount ?? 0;
+    return `${value.toLocaleString("en-US")} ${currency}`;
+  }
+  if (amount <= 0 && !currency) {
+    return "TBD";
+  }
   if (amount >= 1000) {
     return `$${(amount / 1000).toFixed(1)}k`;
   }
@@ -41,6 +52,12 @@ export const tierColors = {
     border: "border-hacker-cyan",
     text: "text-hacker-cyan",
     badge: "bg-hacker-cyan text-black",
+  },
+  Unpriced: {
+    bg: "bg-hacker-green/10",
+    border: "border-hacker-green",
+    text: "text-hacker-green",
+    badge: "bg-hacker-green text-black",
   },
 } as const;
 

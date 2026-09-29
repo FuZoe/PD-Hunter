@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -116,11 +117,81 @@ func TestDoRequest_ServerError(t *testing.T) {
 	}
 }
 
+func TestDoRequest_RateLimitError(t *testing.T) {
+	requestCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"message":"API rate limit exceeded"}`))
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	_, err := client.DoRequest(server.URL)
+	if err == nil {
+		t.Fatal("expected rate limit error")
+	}
+	var rateLimitErr *RateLimitError
+	if !errors.As(err, &rateLimitErr) {
+		t.Fatalf("expected RateLimitError, got %T: %v", err, err)
+	}
+	if requestCount != maxRetries {
+		t.Errorf("expected %d attempts, got %d", maxRetries, requestCount)
+	}
+}
+
+func TestDoRequest_NonRateLimitForbiddenDoesNotRetry(t *testing.T) {
+	requestCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"message":"Resource not accessible by integration"}`))
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	_, err := client.DoRequest(server.URL)
+	if err == nil {
+		t.Fatal("expected forbidden error")
+	}
+	var rateLimitErr *RateLimitError
+	if errors.As(err, &rateLimitErr) {
+		t.Fatalf("permission error should not be classified as rate limiting: %v", err)
+	}
+	if requestCount != 1 {
+		t.Errorf("expected one attempt, got %d", requestCount)
+	}
+}
+
 func newMockClient(serverURL, token string) *Client {
 	return &Client{
 		HTTPClient: &http.Client{Timeout: 5 * time.Second},
 		Token:      token,
 		BaseURL:    serverURL,
+	}
+}
+
+func timelinePullRequestEvent(number int, htmlURL, state string) map[string]any {
+	repository := ExtractRepoName(htmlURL)
+	return map[string]any{
+		"event": "cross-referenced",
+		"source": map[string]any{
+			"issue": map[string]any{
+				"number":       number,
+				"html_url":     htmlURL,
+				"state":        state,
+				"pull_request": map[string]any{},
+				"repository":   map[string]any{"full_name": repository},
+			},
+		},
+	}
+}
+
+func writeTimeline(t *testing.T, w http.ResponseWriter, events []map[string]any) {
+	t.Helper()
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(events); err != nil {
+		t.Fatalf("failed to encode timeline response: %v", err)
 	}
 }
 
@@ -197,10 +268,28 @@ func TestSearchBountyIssues_APIError(t *testing.T) {
 	}
 }
 
+func TestSearchBountyIssues_IncompleteResults(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"total_count":1,"incomplete_results":true,"items":[]}`))
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	_, err := client.SearchBountyIssues("org", "bounty")
+	if err == nil {
+		t.Fatal("expected incomplete search results to fail")
+	}
+}
+
 func TestGetOpenPRCount_WithResults(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"total_count": 3, "items": []}`))
+		writeTimeline(t, w, []map[string]any{
+			timelinePullRequestEvent(1, "https://github.com/org/repo/pull/1", "open"),
+			timelinePullRequestEvent(2, "https://github.com/org/repo/pull/2", "open"),
+			timelinePullRequestEvent(3, "https://github.com/org/repo/pull/3", "open"),
+		})
 	}))
 	defer server.Close()
 
@@ -214,7 +303,7 @@ func TestGetOpenPRCount_WithResults(t *testing.T) {
 func TestGetOpenPRCount_Zero(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"total_count": 0, "items": []}`))
+		writeTimeline(t, w, nil)
 	}))
 	defer server.Close()
 
@@ -257,12 +346,13 @@ func TestScanAll_FullFlow(t *testing.T) {
 	requestCount := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestCount++
-		query := r.URL.Query().Get("q")
 		w.WriteHeader(http.StatusOK)
 
-		// PR count queries
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 2, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, []map[string]any{
+				timelinePullRequestEvent(1, "https://github.com/testorg/testrepo/pull/1", "open"),
+				timelinePullRequestEvent(2, "https://github.com/testorg/testrepo/pull/2", "open"),
+			})
 			return
 		}
 
@@ -321,11 +411,10 @@ func TestScanAll_FullFlow(t *testing.T) {
 
 func TestScanAll_DeduplicatesIssues(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query().Get("q")
 		w.WriteHeader(http.StatusOK)
 
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 0, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 
@@ -367,11 +456,10 @@ func TestScanAll_DeduplicatesIssues(t *testing.T) {
 
 func TestScanAll_SkipsPRs(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query().Get("q")
 		w.WriteHeader(http.StatusOK)
 
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 0, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 
@@ -419,28 +507,62 @@ func TestScanAll_SearchError(t *testing.T) {
 		},
 	}
 
-	// ScanAll continues on error (prints warning), returns empty
 	issues, err := client.ScanAll(config)
-	if err != nil {
-		t.Fatalf("ScanAll should not return error on search failure: %v", err)
+	if err == nil {
+		t.Fatal("expected ScanAll to return search error")
 	}
-	if len(issues) != 0 {
-		t.Errorf("expected 0 issues on search error, got %d", len(issues))
+	if issues != nil {
+		t.Errorf("expected no issues when search fails, got %d", len(issues))
 	}
 }
 
-func TestGetOpenPRCount_QueryUsesHashPrefix(t *testing.T) {
+func TestScanAll_TimelineErrorDoesNotReturnPartialResults(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query().Get("q")
-		// The query must contain "#42" (quoted) instead of bare 42
-		if !strings.Contains(query, `"#42"`) {
-			t.Errorf("expected query to contain '\"#42\"', got: %s", query)
-		}
-		if strings.Contains(query, " 42") && !strings.Contains(query, "#42") {
-			t.Errorf("query should not contain bare number without # prefix: %s", query)
+		if strings.Contains(r.URL.Path, "/timeline") {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`timeline unavailable`))
+			return
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"total_count": 0, "items": []}`))
+		w.Write([]byte(`{
+			"total_count": 1,
+			"items": [{
+				"number": 1,
+				"title": "Bounty",
+				"html_url": "https://github.com/org/repo/issues/1",
+				"state": "open",
+				"labels": [{"name": "bounty"}],
+				"comments": 0,
+				"user": {"login": "dev"}
+			}]
+		}`))
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	config := &Config{Organizations: []Organization{{Name: "org", Labels: []string{"bounty"}}}}
+	issues, err := client.ScanAll(config)
+	if err == nil {
+		t.Fatal("expected timeline error")
+	}
+	if issues != nil {
+		t.Fatalf("expected no partial issues, got %d", len(issues))
+	}
+}
+
+func TestGetOpenPRCount_TimelineRequest(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/repos/commaai/flash/issues/42/timeline" {
+			t.Errorf("unexpected timeline path: %s", r.URL.Path)
+		}
+		if got := r.URL.Query().Get("per_page"); got != "100" {
+			t.Errorf("expected per_page=100, got %q", got)
+		}
+		if got := r.URL.Query().Get("page"); got != "1" {
+			t.Errorf("expected page=1, got %q", got)
+		}
+		w.WriteHeader(http.StatusOK)
+		writeTimeline(t, w, nil)
 	}))
 	defer server.Close()
 
@@ -448,6 +570,59 @@ func TestGetOpenPRCount_QueryUsesHashPrefix(t *testing.T) {
 	count := client.GetOpenPRCount("commaai/flash", 42)
 	if count != 0 {
 		t.Errorf("expected 0 PRs, got %d", count)
+	}
+}
+
+func TestGetOpenPRCount_DeduplicatesOpenPRsAndPaginates(t *testing.T) {
+	var requests []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests = append(requests, r.URL.Query().Get("page"))
+		w.WriteHeader(http.StatusOK)
+
+		if r.URL.Query().Get("page") == "1" {
+			events := make([]map[string]any, 0, 100)
+			for i := 0; i < 99; i++ {
+				events = append(events, timelinePullRequestEvent(i+1,
+					"https://github.com/org/repo/pull/1", "open"))
+			}
+			// Exactly 100 events force the second timeline page.
+			events = append(events, map[string]any{"event": "labeled"})
+			writeTimeline(t, w, events)
+			return
+		}
+
+		writeTimeline(t, w, []map[string]any{
+			timelinePullRequestEvent(1, "https://github.com/org/repo/pull/1", "open"),
+			timelinePullRequestEvent(2, "https://github.com/org/repo/pull/2", "open"),
+			timelinePullRequestEvent(3, "https://github.com/org/repo/pull/3", "closed"),
+			timelinePullRequestEvent(4, "https://github.com/other/repo/pull/4", "open"),
+			map[string]any{
+				"event": "mentioned",
+				"source": map[string]any{
+					"issue": map[string]any{
+						"number":       5,
+						"html_url":     "https://github.com/org/repo/pull/5",
+						"state":        "open",
+						"pull_request": map[string]any{},
+						"repository":   map[string]any{"full_name": "org/repo"},
+					},
+				},
+			},
+			map[string]any{"event": "mentioned", "source": map[string]any{"issue": map[string]any{"number": 4}}},
+		})
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	count, err := client.getOpenPRCount("org/repo", 42)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if count != 2 {
+		t.Fatalf("expected 2 unique open PRs, got %d", count)
+	}
+	if len(requests) != 2 || requests[0] != "1" || requests[1] != "2" {
+		t.Errorf("expected timeline pages 1 and 2, got %v", requests)
 	}
 }
 

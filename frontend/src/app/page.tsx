@@ -69,7 +69,7 @@ export default function Home() {
               </div>
               <div className="text-right">
                 <div className="text-hacker-muted text-xs font-mono">
-                  TOTAL VALUE
+                  TOTAL USD VALUE
                 </div>
                 <div className="text-hacker-green font-mono font-bold text-lg glow-green">
                   {loading ? "$--" : `$${stats.totalValue.toLocaleString()}`}

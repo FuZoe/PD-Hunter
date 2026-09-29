@@ -14,8 +14,9 @@ import json
 import os
 import re
 import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from openai import OpenAI
+from typing import Any
 
 INPUT_FILE = "bounty_issues.json"
 OUTPUT_FILE = "enriched_bounties.json"
@@ -45,6 +46,33 @@ MANUAL_RISK_OVERRIDES = {
     }
 }
 
+SUPPORTED_TOKEN_CURRENCIES = ("MRG", "XTM", "XTR")
+
+
+@dataclass(frozen=True)
+class BountyReward:
+    """A reward in its native currency, before any USD-only scoring."""
+
+    amount: int
+    currency: str
+    source: str
+    explicit: bool
+
+
+_AMOUNT_PATTERN = r"(?:\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)(?:\s*[kK])?"
+_USD_RE = re.compile(rf"\$(?P<amount>{_AMOUNT_PATTERN})")
+_TOKEN_AFTER_AMOUNT_RE = re.compile(
+    rf"(?P<amount>{_AMOUNT_PATTERN})\s*[-:]?\s*"
+    rf"(?P<currency>{'|'.join(SUPPORTED_TOKEN_CURRENCIES)})\b",
+    re.IGNORECASE,
+)
+_TOKEN_BEFORE_AMOUNT_RE = re.compile(
+    rf"\b(?P<currency>{'|'.join(SUPPORTED_TOKEN_CURRENCIES)})"
+    rf"\s*[-:=]?\s*(?P<amount>{_AMOUNT_PATTERN})",
+    re.IGNORECASE,
+)
+_REWARD_CONTEXT_RE = re.compile(r"(?:/bounty\b|\bbount(?:y|ies)\b|\breward\b|\bpayout\b|\bprize\b)", re.IGNORECASE)
+
 
 def get_issue_key(issue: dict) -> str:
     """Return the stable repository+issue key used for preserved intelligence."""
@@ -61,6 +89,8 @@ def apply_manual_risk_override(issue: dict, intel: dict) -> dict:
     adjusted["friction_level"] = override["friction_level"]
     adjusted["technical_hint"] = override["technical_hint"]
     adjusted["bounty_amount"] = override["bounty_amount"]
+    adjusted["bounty_currency"] = "USD"
+    adjusted["bounty_native_amount"] = override["bounty_amount"]
     adjusted["bounty_tier"] = get_bounty_tier(override["bounty_amount"])
     adjusted["is_hidden_gem"] = False
     adjusted["risk_level"] = override["risk_level"]
@@ -80,56 +110,152 @@ def apply_manual_risk_override(issue: dict, intel: dict) -> dict:
     return adjusted
 
 
-def extract_amount_from_text(text: str) -> int:
-    """Extract dollar amount from text (e.g., '$100', '$1.2k', '$1,000')"""
+def _parse_amount(raw_amount: str) -> int:
+    normalized = raw_amount.replace(",", "").replace(" ", "")
+    multiplier = 1000 if normalized.lower().endswith("k") else 1
+    if multiplier != 1:
+        normalized = normalized[:-1]
+    return int(float(normalized) * multiplier)
+
+
+def _reward_is_explicit(text: str, start: int, end: int) -> bool:
+    context_start = max(0, start - 48)
+    context_end = min(len(text), end + 48)
+    return bool(_REWARD_CONTEXT_RE.search(text[context_start:context_end]))
+
+
+def _extract_reward_candidates(text: str, source: str) -> list[BountyReward]:
     if not text:
-        return 0
-    
-    # Match patterns like $100, $1.2k, $1,000, $1000
-    patterns = [
-        r'\$(\d{1,3}(?:,\d{3})+)',  # $1,000 or $10,000
-        r'\$(\d+\.?\d*)k',           # $1.2k or $1k
-        r'\$(\d+)',                   # $100 or $1000
-    ]
-    
-    for pattern in patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            amount_str = match.group(1).replace(',', '')
-            if 'k' in text[match.start():match.end()].lower():
-                return int(float(amount_str) * 1000)
-            return int(float(amount_str))
-    
+        return []
+
+    candidates: list[tuple[int, BountyReward]] = []
+    occupied_ranges: list[tuple[int, int]] = []
+
+    for pattern in (_TOKEN_AFTER_AMOUNT_RE, _TOKEN_BEFORE_AMOUNT_RE):
+        for match in pattern.finditer(text):
+            match_range = (match.start(), match.end())
+            if any(match_range[0] < end and start < match_range[1] for start, end in occupied_ranges):
+                continue
+            occupied_ranges.append(match_range)
+            candidates.append(
+                (
+                    match.start(),
+                    BountyReward(
+                        amount=_parse_amount(match.group("amount")),
+                        currency=match.group("currency").upper(),
+                        source=source,
+                        explicit=_reward_is_explicit(text, match.start(), match.end()),
+                    ),
+                )
+            )
+
+    for match in _USD_RE.finditer(text):
+        candidates.append(
+            (
+                match.start(),
+                BountyReward(
+                    amount=_parse_amount(match.group("amount")),
+                    currency="USD",
+                    source=source,
+                    explicit=_reward_is_explicit(text, match.start(), match.end()),
+                ),
+            )
+        )
+
+    return [candidate for _, candidate in sorted(candidates, key=lambda item: item[0])]
+
+
+def extract_amount_from_text(text: str) -> int:
+    """Extract the first USD amount while preserving the legacy return type."""
+    for candidate in _extract_reward_candidates(text, "text"):
+        if candidate.currency == "USD":
+            return candidate.amount
     return 0
+
+
+def get_bounty_reward(issue: dict) -> BountyReward | None:
+    """Select the most credible declared reward from labels, title, and body.
+
+    Labels remain the preferred source when they explicitly describe a bounty.
+    An explicit declaration such as ``/bounty $75`` can override a generic amount
+    label such as ``$1``.
+    """
+    candidates: list[tuple[int, int, BountyReward]] = []
+    sequence = 0
+
+    source_values = [
+        ("label", label)
+        for label in issue.get("labels", [])
+        if isinstance(label, str)
+    ]
+    source_values.extend(
+        [
+            ("title", issue.get("title", "")),
+            ("body", (issue.get("body") or "")[:5000]),
+        ]
+    )
+
+    source_priority = {"label": 300, "title": 200, "body": 100}
+    for source, text in source_values:
+        for reward in _extract_reward_candidates(text, source):
+            # Explicit reward language outranks a generic amount from a normally
+            # higher-priority source. Ties retain the first textual declaration.
+            confidence = source_priority[source]
+            if reward.currency != "USD":
+                # A native-currency declaration is meaningful even when it is not
+                # surrounded by the word "bounty" (for example, ``50 MRG``).
+                confidence += 125
+            if reward.explicit:
+                confidence += 250
+            if (
+                source == "label"
+                and reward.currency == "USD"
+                and reward.amount <= 1
+                and not reward.explicit
+            ):
+                # A repository-wide ``$1`` marker is commonly a placeholder, not
+                # the actual payout. Let a declared token reward override it.
+                confidence -= 150
+            candidates.append((confidence, -sequence, reward))
+            sequence += 1
+
+    if not candidates:
+        return None
+    return max(candidates, key=lambda item: (item[0], item[1]))[2]
+
+
+def get_bounty_fields(issue: dict) -> dict:
+    """Return backward-compatible USD fields plus native reward metadata."""
+    reward = get_bounty_reward(issue)
+    if reward is None:
+        return {
+            "bounty_amount": 0,
+            "bounty_currency": None,
+            "bounty_native_amount": 0,
+        }
+
+    return {
+        # Existing consumers use this value for USD ranking and aggregation.
+        "bounty_amount": reward.amount if reward.currency == "USD" else 0,
+        "bounty_currency": reward.currency,
+        "bounty_native_amount": reward.amount,
+    }
+
 
 def get_bounty_amount(issue: dict) -> int:
-    """Smart extraction of bounty amount from title, labels, and body"""
-    # Priority 1: Check labels (most reliable)
-    for label in issue.get("labels", []):
-        amount = extract_amount_from_text(label)
-        if amount > 0:
-            return amount
-    
-    # Priority 2: Check title
-    amount = extract_amount_from_text(issue.get("title", ""))
-    if amount > 0:
-        return amount
-    
-    # Priority 3: Check body (first 1000 chars)
-    body = issue.get("body", "")[:1000]
-    amount = extract_amount_from_text(body)
-    if amount > 0:
-        return amount
-    
-    return 0
+    """Return only a confirmed USD amount for legacy callers and scoring."""
+    return get_bounty_fields(issue)["bounty_amount"]
 
-def get_bounty_tier(amount: int) -> str:
+def get_bounty_tier(amount: int, currency: str | None = "USD") -> str:
     """Determine bounty tier based on amount
-    
+
     S-Tier: $1000+ (high-value bounties)
     A-Tier: $200+ (mid-value bounties)
     B-Tier: <$200 (entry-level bounties)
+    Unpriced: non-USD rewards without a reliable conversion rate
     """
+    if currency and currency != "USD":
+        return "Unpriced"
     if amount >= 1000:
         return "S-Tier"
     elif amount >= 200:
@@ -188,7 +314,7 @@ def is_hidden_gem(issue: dict) -> bool:
     comment_count = issue.get("comment_count", 0)
     return open_pr_count <= 3 and comment_count <= 10
 
-def analyze_issue_with_ai(client: OpenAI, issue: dict) -> dict:
+def analyze_issue_with_ai(client: Any, issue: dict) -> dict:
     """Call GPT-4o to analyze the issue and generate Hunter Intelligence"""
     
     body_preview = issue.get("body", "")[:2000] if issue.get("body") else "No description"
@@ -278,13 +404,35 @@ def load_existing_intelligence() -> dict:
     return existing_intel
 
 
+def summarize_enriched_issues(enriched_issues: list[dict]) -> tuple[dict[str, int], int]:
+    """Return tier and hidden-gem counts without assuming every tier is USD-priced."""
+    tiers = {"S-Tier": 0, "A-Tier": 0, "B-Tier": 0, "Unpriced": 0}
+    hidden_gems_count = 0
+    for issue in enriched_issues:
+        tier = issue["hunter_intelligence"]["bounty_tier"]
+        # Keep the summary resilient to older/manual records with a custom tier.
+        tiers.setdefault(tier, 0)
+        tiers[tier] += 1
+        if issue["hunter_intelligence"].get("is_hidden_gem", False):
+            hidden_gems_count += 1
+    return tiers, hidden_gems_count
+
+
 def main():
     token = os.getenv("GITHUB_TOKEN")
     if not token:
         print("Error: GITHUB_TOKEN environment variable not set")
         print("GitHub Models requires a GitHub token for authentication")
         return
-    
+
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise SystemExit(
+            "Error: the 'openai' package is required to run enrichment; "
+            "install requirements.txt first"
+        ) from exc
+
     client = OpenAI(
         base_url="https://models.inference.ai.azure.com",
         api_key=token
@@ -305,8 +453,11 @@ def main():
     
     for i, issue in enumerate(issues, 1):
         issue_num = issue["number"]
-        bounty_amount = get_bounty_amount(issue)
-        bounty_tier = get_bounty_tier(bounty_amount)
+        bounty_fields = get_bounty_fields(issue)
+        bounty_amount = bounty_fields["bounty_amount"]
+        bounty_tier = get_bounty_tier(
+            bounty_amount, bounty_fields["bounty_currency"]
+        )
         
         # Check if we already have expert intelligence for this issue
         issue_key = get_issue_key(issue)
@@ -325,7 +476,7 @@ def main():
                 "friction_level": existing.get("friction_level", "Medium"),
                 "technical_hint": existing.get("technical_hint", "Review the issue details."),
                 "bounty_tier": bounty_tier,
-                "bounty_amount": bounty_amount,
+                **bounty_fields,
                 "is_hidden_gem": hidden_gem,
                 "bounty_score": score,
                 "score_breakdown": score_breakdown
@@ -349,7 +500,7 @@ def main():
                 "friction_level": ai_analysis.get("friction_level", "Medium"),
                 "technical_hint": ai_analysis.get("technical_hint", "Review the issue details."),
                 "bounty_tier": bounty_tier,
-                "bounty_amount": bounty_amount,
+                **bounty_fields,
                 "is_hidden_gem": hidden_gem,
                 "bounty_score": score,
                 "score_breakdown": score_breakdown
@@ -371,18 +522,13 @@ def main():
     print(f"  Preserved: {preserved_count} expert hints")
     print(f"  New (AI):  {new_count} hints generated")
     
-    tiers = {"S-Tier": 0, "A-Tier": 0, "B-Tier": 0}
-    hidden_gems_count = 0
-    for issue in enriched_issues:
-        tier = issue["hunter_intelligence"]["bounty_tier"]
-        tiers[tier] += 1
-        if issue["hunter_intelligence"].get("is_hidden_gem", False):
-            hidden_gems_count += 1
+    tiers, hidden_gems_count = summarize_enriched_issues(enriched_issues)
     
     print(f"\nTier Summary:")
-    print(f"  S-Tier ($500+): {tiers['S-Tier']}")
+    print(f"  S-Tier ($1000+): {tiers['S-Tier']}")
     print(f"  A-Tier ($200+): {tiers['A-Tier']}")
     print(f"  B-Tier (other): {tiers['B-Tier']}")
+    print(f"  Unpriced (token): {tiers['Unpriced']}")
     print(f"\nHidden Gems (low competition): {hidden_gems_count}")
 
 if __name__ == "__main__":

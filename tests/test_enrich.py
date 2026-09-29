@@ -11,10 +11,13 @@ from enrich_bounties import (
     apply_manual_risk_override,
     extract_amount_from_text,
     get_bounty_amount,
+    get_bounty_fields,
+    get_bounty_reward,
     get_bounty_tier,
     is_hidden_gem,
     calculate_bounty_score,
     load_existing_intelligence,
+    summarize_enriched_issues,
 )
 
 
@@ -74,11 +77,30 @@ class TestGetBountyTier:
     def test_b_tier_zero(self):
         assert get_bounty_tier(0) == "B-Tier"
 
+    def test_non_usd_reward_is_unpriced(self):
+        assert get_bounty_tier(0, "MRG") == "Unpriced"
+
     def test_b_tier_low(self):
         assert get_bounty_tier(50) == "B-Tier"
 
     def test_b_tier_boundary(self):
         assert get_bounty_tier(199) == "B-Tier"
+
+
+class TestEnrichedSummary:
+    def test_token_rewards_are_counted_as_unpriced(self):
+        tiers, hidden_gems = summarize_enriched_issues([
+            {"hunter_intelligence": {"bounty_tier": "Unpriced", "is_hidden_gem": True}},
+            {"hunter_intelligence": {"bounty_tier": "B-Tier", "is_hidden_gem": False}},
+        ])
+        assert tiers == {"S-Tier": 0, "A-Tier": 0, "B-Tier": 1, "Unpriced": 1}
+        assert hidden_gems == 1
+
+    def test_legacy_custom_tier_does_not_crash_summary(self):
+        tiers, _ = summarize_enriched_issues([
+            {"hunter_intelligence": {"bounty_tier": "Legacy", "is_hidden_gem": False}},
+        ])
+        assert tiers["Legacy"] == 1
 
 
 class TestIsHiddenGem:
@@ -125,6 +147,127 @@ class TestGetBountyAmount:
     def test_empty_issue(self):
         issue = {"labels": [], "title": "", "body": ""}
         assert get_bounty_amount(issue) == 0
+
+    def test_explicit_body_command_overrides_generic_amount_label(self):
+        issue = {
+            "labels": ["💎 Bounty", "$1"],
+            "title": "Add is_extended_promotional column",
+            "body": "Some details\n\n/bounty $75",
+        }
+
+        reward = get_bounty_reward(issue)
+
+        assert reward is not None
+        assert reward.source == "body"
+        assert reward.explicit is True
+        assert get_bounty_amount(issue) == 75
+
+    def test_explicit_bounty_label_still_has_priority(self):
+        issue = {
+            "labels": ["$500 bounty"],
+            "title": "[$100 bounty] Fix",
+            "body": "/bounty $75",
+        }
+
+        assert get_bounty_amount(issue) == 500
+
+    def test_token_title_overrides_placeholder_dollar_label(self):
+        issue = {
+            "labels": ["💎 Bounty", "$1"],
+            "title": "[50 MRG] Implement the feature",
+            "body": "Details",
+        }
+
+        reward = get_bounty_reward(issue)
+
+        assert reward is not None
+        assert reward.currency == "MRG"
+        assert reward.amount == 50
+
+    def test_token_body_overrides_placeholder_dollar_label(self):
+        issue = {
+            "labels": ["💎 Bounty", "$1"],
+            "title": "Implement the feature",
+            "body": "Reward is 50 MRG",
+        }
+
+        reward = get_bounty_reward(issue)
+
+        assert reward is not None
+        assert reward.currency == "MRG"
+        assert reward.amount == 50
+
+
+class TestTokenBountyRewards:
+    @pytest.mark.parametrize(
+        ("issue", "amount", "currency"),
+        [
+            (
+                {
+                    "labels": ["bounty", "reward:50-mrg"],
+                    "title": "[50 MRG] Implement the feature",
+                    "body": "## 50 MRG",
+                },
+                50,
+                "MRG",
+            ),
+            (
+                {
+                    "labels": ["bounty", "bounty-M"],
+                    "title": "Fix CPU mining",
+                    "body": "## Bounty\n\n**Tier:** M — 60,000 XTM",
+                },
+                60000,
+                "XTM",
+            ),
+            (
+                {
+                    "labels": ["bounty"],
+                    "title": "Undo Move mechanic [bounty: 222 XTR]",
+                    "body": "",
+                },
+                222,
+                "XTR",
+            ),
+        ],
+    )
+    def test_native_reward_is_preserved_without_becoming_usd(
+        self, issue, amount, currency
+    ):
+        reward = get_bounty_reward(issue)
+        fields = get_bounty_fields(issue)
+
+        assert reward is not None
+        assert reward.amount == amount
+        assert reward.currency == currency
+        assert fields == {
+            "bounty_amount": 0,
+            "bounty_currency": currency,
+            "bounty_native_amount": amount,
+        }
+        assert get_bounty_amount(issue) == 0
+
+    def test_usd_reward_retains_legacy_amount_and_currency_metadata(self):
+        issue = {
+            "labels": ["bounty"],
+            "title": "Implement feature",
+            "body": "/bounty $1.2k",
+        }
+
+        assert get_bounty_fields(issue) == {
+            "bounty_amount": 1200,
+            "bounty_currency": "USD",
+            "bounty_native_amount": 1200,
+        }
+
+    def test_unknown_reward_has_no_assumed_currency(self):
+        issue = {"labels": ["bounty"], "title": "Fix bug", "body": "No amount"}
+
+        assert get_bounty_fields(issue) == {
+            "bounty_amount": 0,
+            "bounty_currency": None,
+            "bounty_native_amount": 0,
+        }
 
 
 class TestCalculateBountyScore:
@@ -212,6 +355,8 @@ class TestManualRiskOverrides:
         assert "vamOS" in adjusted["risk_warning"]
         assert adjusted["friction_level"] == "High"
         assert adjusted["bounty_amount"] == 2000
+        assert adjusted["bounty_currency"] == "USD"
+        assert adjusted["bounty_native_amount"] == 2000
         assert adjusted["is_hidden_gem"] is False
         assert adjusted["bounty_score"] == 25
         assert adjusted["score_breakdown"]["feasibility"] == 30

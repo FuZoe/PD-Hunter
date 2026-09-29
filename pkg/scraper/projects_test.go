@@ -145,6 +145,46 @@ func TestDoGraphQLRequest_NoToken(t *testing.T) {
 	}
 }
 
+func TestDoGraphQLRequest_RateLimitedGraphQLPayloadRetries(t *testing.T) {
+	callCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		callCount++
+		w.Header().Set("X-RateLimit-Remaining", "0")
+		w.Header().Set("X-RateLimit-Reset", "1")
+		w.WriteHeader(http.StatusOK)
+		if callCount < 2 {
+			_, _ = w.Write([]byte(`{"data":null,"errors":[{"type":"RATE_LIMITED","message":"API rate limit exceeded"}]}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"data": {}}`))
+	}))
+	defer server.Close()
+
+	client := &Client{
+		HTTPClient: &http.Client{Timeout: 5 * time.Second},
+		Token:      "test-token",
+		BaseURL:    server.URL,
+	}
+
+	data, err := client.DoGraphQLRequest("query { viewer { login } }", nil)
+	if err != nil {
+		t.Fatalf("unexpected error after retry: %v", err)
+	}
+	if callCount != 2 {
+		t.Fatalf("expected one retry, got %d requests", callCount)
+	}
+	if !strings.Contains(string(data), `"data"`) {
+		t.Fatalf("expected successful GraphQL response, got %s", data)
+	}
+}
+
+func TestIsGraphQLRateLimitResponseDoesNotFlagSuccessfulPayload(t *testing.T) {
+	headers := http.Header{"X-RateLimit-Remaining": []string{"0"}}
+	if isGraphQLRateLimitResponse(headers, []byte(`{"data": {}}`)) {
+		t.Fatal("did not expect a successful GraphQL payload to be rate limited")
+	}
+}
+
 func TestFetchProjectItems_WithIssues(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -592,10 +632,8 @@ func TestScanAll_WithProjects(t *testing.T) {
 		}
 
 		// REST API requests (GET)
-		query := r.URL.Query().Get("q")
-
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 1, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 
@@ -748,9 +786,8 @@ func TestScanAll_ProjectFiltersNonBountyLabels(t *testing.T) {
 			return
 		}
 
-		query := r.URL.Query().Get("q")
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 0, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 		// Label scan returns nothing (all items are in project only)
@@ -797,10 +834,9 @@ func TestScanAll_ProjectError(t *testing.T) {
 		}
 
 		// REST works fine
-		query := r.URL.Query().Get("q")
 		w.WriteHeader(http.StatusOK)
-		if strings.Contains(query, "is:pr") {
-			w.Write([]byte(`{"total_count": 0, "items": []}`))
+		if strings.Contains(r.URL.Path, "/timeline") {
+			writeTimeline(t, w, nil)
 			return
 		}
 		w.Write([]byte(`{
@@ -836,12 +872,11 @@ func TestScanAll_ProjectError(t *testing.T) {
 		},
 	}
 
-	// ScanAll should continue even if project fetch fails
 	issues, err := client.ScanAll(config)
-	if err != nil {
-		t.Fatalf("ScanAll should not return error on project failure: %v", err)
+	if err == nil {
+		t.Fatal("expected ScanAll to return project error")
 	}
-	if len(issues) != 1 {
-		t.Errorf("expected 1 issue from label scan (project failed), got %d", len(issues))
+	if issues != nil {
+		t.Errorf("expected no issues when project fetch fails, got %d", len(issues))
 	}
 }
