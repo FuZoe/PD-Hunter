@@ -72,3 +72,21 @@ func TestLoadConfig_SingleOrg(t *testing.T) {
 		t.Errorf("expected name 'solo', got '%s'", config.Organizations[0].Name)
 	}
 }
+
+// TestLoadConfig_RootMappingJSON validates that the repository root mapping.json
+// is valid JSON and contains a non-empty organizations array. This prevents
+// regressions like invalid JSON or truncated objects from reaching production.
+func TestLoadConfig_RootMappingJSON(t *testing.T) {
+	config, err := LoadConfig("../../mapping.json")
+	if err != nil {
+		t.Fatalf("root mapping.json failed to parse: %v", err)
+	}
+	if len(config.Organizations) == 0 {
+		t.Fatal("root mapping.json has zero organizations")
+	}
+	for i, org := range config.Organizations {
+		if org.Name == "" {
+			t.Errorf("organization[%d] has empty name", i)
+		}
+	}
+}
