@@ -8,6 +8,7 @@ venv/
 # Go
 /hunter
 /hunter.exe
+/fetch_bounty_issues.exe
 coverage.out
 
 # Node / Frontend

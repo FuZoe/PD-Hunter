@@ -26,6 +26,7 @@ const tierButtons: { filter: TierFilter; label: string; hoverBorder: string }[] 
   { filter: "S-Tier", label: "S-TIER", hoverBorder: "hover:border-hacker-yellow" },
   { filter: "A-Tier", label: "A-TIER", hoverBorder: "hover:border-hacker-purple" },
   { filter: "B-Tier", label: "B-TIER", hoverBorder: "hover:border-hacker-cyan" },
+  { filter: "Unpriced", label: "TOKEN", hoverBorder: "hover:border-hacker-green" },
 ];
 
 export default function FilterBar({

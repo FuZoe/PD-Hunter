@@ -27,6 +27,9 @@ export function useBounties() {
       .length,
     bTier: bounties.filter((b) => b.hunter_intelligence.bounty_tier === "B-Tier")
       .length,
+    unpriced: bounties.filter(
+      (b) => b.hunter_intelligence.bounty_tier === "Unpriced"
+    ).length,
     lowFriction: bounties.filter(
       (b) => b.hunter_intelligence.friction_level === "Low"
     ).length,

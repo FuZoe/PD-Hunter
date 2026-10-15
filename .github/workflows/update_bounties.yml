@@ -15,6 +15,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: bounty-update
+  cancel-in-progress: false
+
 permissions:
   contents: write
   issues: write
@@ -83,7 +87,7 @@ jobs:
                   hi = item['hunter_intelligence']
                   if hi.get('friction_level') not in ('High', 'Medium', 'Low'):
                       errors.append(f'Issue #{item[\"number\"]} invalid friction_level: {hi.get(\"friction_level\")}')
-                  if hi.get('bounty_tier') not in ('S-Tier', 'A-Tier', 'B-Tier'):
+                  if hi.get('bounty_tier') not in ('S-Tier', 'A-Tier', 'B-Tier', 'Unpriced'):
                       errors.append(f'Issue #{item[\"number\"]} invalid bounty_tier: {hi.get(\"bounty_tier\")}')
           if errors:
               print(f'Validation errors ({len(errors)}):')
