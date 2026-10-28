@@ -27,11 +27,11 @@
       "bounty",
       "tools"
     ],
-    "comment_count": 5,
+    "comment_count": 6,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2026-09-02T15:18:12Z",
-    "updated_at": "2026-10-27T00:17:36Z",
+    "updated_at": "2026-10-28T10:58:06Z",
     "author": "adeebshihadeh",
     "body": "Needs to be good enough that no one complains they miss PlotJuggler!\n\nBounty paid out once it’s deleted and no issues for a week. "
   },
