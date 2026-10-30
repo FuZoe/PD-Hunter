@@ -2,108 +2,252 @@
   "organizations": [
     {
       "name": "projectdiscovery",
-      "labels": ["💎 Bounty", "bounty"],
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
       "note": "Standard PD bounties with diamond icon."
     },
     {
       "name": "onyx-dot-app",
-      "labels": ["💎 Bounty", "Bounty"],
+      "labels": [
+        "💎 Bounty",
+        "Bounty"
+      ],
       "note": "Formerly Danswer. High-value AI search bounties."
     },
     {
       "name": "commaai",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Autonomous driving bounties, often $1,000+."
     },
     {
       "name": "appwrite",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source backend-as-a-service platform."
     },
     {
       "name": "supabase",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source Firebase alternative."
     },
     {
       "name": "calcom",
-      "labels": ["bounty", "💰 Bounty"],
+      "labels": [
+        "bounty",
+        "💰 Bounty",
+        "💎 Bounty"
+      ],
       "note": "Open-source scheduling infrastructure (formerly cal-com)."
     },
     {
       "name": "twentyhq",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source CRM platform."
     },
     {
       "name": "formbricks",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source survey and experience management."
     },
     {
       "name": "documenso",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source DocuSign alternative."
     },
     {
       "name": "highlight",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source full-stack monitoring platform."
     },
     {
       "name": "trigger-dev",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source background job framework."
     },
     {
       "name": "algora-io",
-      "labels": ["bounty", "💎 Bounty"],
+      "labels": [
+        "bounty",
+        "💎 Bounty"
+      ],
       "note": "Bounty marketplace for open-source."
     },
     {
       "name": "hoppscotch",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source API development ecosystem."
     },
     {
       "name": "nhost",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source Firebase alternative with GraphQL."
     },
     {
       "name": "zeropsio",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Cloud platform with open-source bounties."
     },
     {
       "name": "qdrant",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "High-performance vector search engine."
     },
     {
       "name": "remotion-dev",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Programmatic video creation framework."
     },
     {
       "name": "golemcloud",
-      "labels": ["bounty"],
-      "note": "Invincible distributed computing platform."
+      "labels": [
+        "bounty",
+        "💎 Bounty"
+      ],
+      "note": "Distributed computing platform. Historical total bounties $143,000+ via Algora."
     },
     {
       "name": "millionco",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Extremely fast virtual DOM for React (formerly million-js)."
     },
     {
       "name": "zio",
-      "labels": ["bounty"],
-      "note": "Type-safe composable asynchronous programming for Scala."
+      "labels": [
+        "bounty",
+        "💎 Bounty",
+        "$250"
+      ],
+      "note": "Type-safe composable asynchronous programming for Scala. Algora bounties $150–$4,000."
     },
     {
       "name": "keephq",
-      "labels": ["bounty"],
+      "labels": [
+        "bounty"
+      ],
       "note": "Open-source alert management platform."
+    },
+    {
+      "name": "tenstorrent",
+      "labels": [
+        "bounty"
+      ],
+      "note": "AI hardware company, high-value bounties $3,500–$10,000, C++/Metal."
+    },
+    {
+      "name": "archestra-ai",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "AI platform, bounties $25–$4,000, TypeScript."
+    },
+    {
+      "name": "getkyo",
+      "labels": [
+        "💎 Bounty",
+        "$250",
+        "bounty"
+      ],
+      "note": "Scala ecosystem, bounties $150–$4,000 via Algora."
+    },
+    {
+      "name": "tscircuit",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Circuit design framework, bounties $1–$170, TypeScript."
+    },
+    {
+      "name": "activepieces",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Open-source automation platform, bounties $50–$100, TypeScript."
+    },
+    {
+      "name": "Dokploy",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Open-source Vercel/Netlify alternative, bounties $50–$1,000 via Algora."
+    },
+    {
+      "name": "coollabsio",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Coolify open-source Heroku alternative, PHP/Laravel, bounties via Algora."
+    },
+    {
+      "name": "mediar-ai",
+      "labels": [
+        "bounty",
+        "💎 Bounty"
+      ],
+      "note": "Screenpipe screen recording AI tool, bounties up to $1,000, Rust."
+    },
+    {
+      "name": "tari-project",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Privacy blockchain project, Rust."
+    },
+    {
+      "name": "PX4",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "PX4 Autopilot open-source drone flight control, C/C++ via Algora."
+    },
+    {
+      "name": "FreezingMoon",
+      "labels": [
+        "bounty"
+      ],
+      "note": "Ancient Beast open-source turn-based game, bounties 8–10 XTR, JS/CSS."
+    },
+    {
+      "name": "Cap-go",
+      "labels": [
+        "💎 Bounty",
+        "bounty"
+      ],
+      "note": "Capacitor live update tools and plugins via Algora."
     }
   ],
   "projects": [
