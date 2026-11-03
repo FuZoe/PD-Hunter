@@ -104,6 +104,51 @@
       "name": "keephq",
       "labels": ["bounty"],
       "note": "Open-source alert management platform."
+    },
+    {
+      "name": "tenstorrent",
+      "labels": ["bounty"],
+      "note": "AI hardware company, C++/Metal bounties."
+    },
+    {
+      "name": "archestra-ai",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "AI platform with active bounties."
+    },
+    {
+      "name": "getkyo",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Kyo ecosystem bounties via Algora."
+    },
+    {
+      "name": "tscircuit",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Circuit design framework with active bounties."
+    },
+    {
+      "name": "activepieces",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Open-source automation platform."
+    },
+    {
+      "name": "Dokploy",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Open-source Vercel/Netlify alternative."
+    },
+    {
+      "name": "coollabsio",
+      "labels": ["💎 Bounty", "bounty"],
+      "note": "Coolify open-source Heroku alternative."
+    },
+    {
+      "name": "mediar-ai",
+      "labels": ["bounty"],
+      "note": "Screenpipe screen recording AI tool."
+    },
+    {
+      "name": "tari-project",
+      "labels": ["bounty"],
+      "note": "Tari Project bounties."
     }
   ],
   "projects": [
