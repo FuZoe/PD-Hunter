@@ -234,6 +234,68 @@ func TestDoRequest_ExhaustedBudgetDelaysNextRequest(t *testing.T) {
 	}
 }
 
+func TestDoGraphQLRequest_RateLimitedIn200IsRetried(t *testing.T) {
+	var clock *fakeClock
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if calls == 1 {
+			w.Header().Set("X-RateLimit-Remaining", "0")
+			w.Header().Set("X-RateLimit-Reset", fmt.Sprint(clock.t.Add(30*time.Second).Unix()))
+			w.Write([]byte(`{"errors": [{"type": "RATE_LIMITED", "message": "API rate limit exceeded"}]}`))
+			return
+		}
+		w.Write([]byte(`{"data": {}}`))
+	}))
+	defer server.Close()
+
+	client, c := newClockClient(server.URL)
+	clock = c
+
+	data, err := client.DoGraphQLRequest("query { viewer { login } }", nil)
+	if err != nil {
+		t.Fatalf("expected success after the reset, got: %v", err)
+	}
+	if string(data) != `{"data": {}}` {
+		t.Errorf("expected the retried response, got %s", data)
+	}
+	if got := clock.total(); got != 31*time.Second {
+		t.Errorf("expected to wait 31s for the GraphQL reset, waited %v", got)
+	}
+}
+
+func TestDoGraphQLRequest_OtherErrorsIn200NotRetried(t *testing.T) {
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		w.Write([]byte(`{"errors": [{"type": "NOT_FOUND", "message": "Could not resolve"}]}`))
+	}))
+	defer server.Close()
+
+	client, _ := newClockClient(server.URL)
+	if _, err := client.DoGraphQLRequest("query { x }", nil); err != nil {
+		t.Fatalf("non-rate-limit GraphQL errors are returned to the caller as data: %v", err)
+	}
+	if calls != 1 {
+		t.Errorf("expected 1 call, got %d", calls)
+	}
+}
+
+func TestFetchProjectItems_FailsWhenLabelsTruncated(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"data": {"organization": {"projectV2": {"items": {"pageInfo": {"hasNextPage": false}, "nodes": [
+			{"content": {"number": 7, "url": "https://github.com/org/repo/issues/7", "state": "OPEN",
+				"labels": {"totalCount": 101, "nodes": [{"name": "bounty"}]}, "repository": {"nameWithOwner": "org/repo"}}}
+		]}}}}}`))
+	}))
+	defer server.Close()
+
+	client := newMockClient(server.URL, "test")
+	if _, err := client.FetchProjectItems("org", 1); err == nil {
+		t.Fatal("expected an error when not every label was fetched")
+	}
+}
+
 func TestSearchIssues_IncompleteResultsRetriedThenFails(t *testing.T) {
 	calls := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

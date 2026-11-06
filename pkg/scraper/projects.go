@@ -28,7 +28,8 @@ query($org: String!, $number: Int!, $cursor: String) {
               updatedAt
               author { login }
               body
-              labels(first: 20) {
+              labels(first: 100) {
+                totalCount
                 nodes { name }
               }
               repository {
@@ -105,7 +106,8 @@ type graphQLAuthor struct {
 }
 
 type graphQLLabels struct {
-	Nodes []graphQLLabelNode `json:"nodes"`
+	TotalCount int                `json:"totalCount"`
+	Nodes      []graphQLLabelNode `json:"nodes"`
 }
 
 type graphQLLabelNode struct {
@@ -152,7 +154,26 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 			req.Header.Set("Authorization", "Bearer "+c.Token)
 		}
 		return req, nil
-	})
+	}, graphQLRateLimited)
+}
+
+// graphQLRateLimited reports whether a 200 GraphQL response carries a
+// RATE_LIMITED error, which GitHub uses for an exhausted primary limit.
+func graphQLRateLimited(body []byte) bool {
+	var resp struct {
+		Errors []struct {
+			Type string `json:"type"`
+		} `json:"errors"`
+	}
+	if json.Unmarshal(body, &resp) != nil {
+		return false
+	}
+	for _, e := range resp.Errors {
+		if e.Type == "RATE_LIMITED" {
+			return true
+		}
+	}
+	return false
 }
 
 // FetchProjectItems queries a GitHub Projects V2 board and returns the issue-linked items as GitHubIssue slices.
@@ -204,6 +225,11 @@ func (c *Client) FetchProjectItems(orgLogin string, projectNumber int) ([]GitHub
 			// Skip closed issues
 			if strings.ToLower(node.Content.State) != "open" {
 				continue
+			}
+
+			// Exclusion and bounty-label checks need every label.
+			if n := node.Content.Labels.TotalCount; n > len(node.Content.Labels.Nodes) {
+				return nil, fmt.Errorf("issue %s has %d labels, more than the %d fetched", node.Content.URL, n, len(node.Content.Labels.Nodes))
 			}
 
 			labels := make([]GitHubLabel, len(node.Content.Labels.Nodes))

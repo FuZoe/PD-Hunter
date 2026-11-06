@@ -74,8 +74,8 @@ func (c *Config) Validate() error {
 	for i, org := range c.Organizations {
 		where := fmt.Sprintf("organizations[%d]", i)
 		checkName(where, org.Name)
-		if len(org.Labels) == 0 {
-			add("%s (%s): labels is empty", where, org.Name)
+		if len(org.Labels) == 0 && len(org.TextSearches) == 0 {
+			add("%s (%s): labels and text_searches are both empty", where, org.Name)
 		}
 		errs = append(errs, validateLabels(fmt.Sprintf("%s (%s) labels", where, org.Name), org.Labels)...)
 		for j, ts := range org.TextSearches {
