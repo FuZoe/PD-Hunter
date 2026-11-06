@@ -94,8 +94,8 @@ func TestLoadConfig_RejectsInvalidConfigs(t *testing.T) {
 		wantErr string
 	}{
 		{"misspelled field", `{"organizations": [{"name": "a", "lables": ["bounty"]}]}`, `unknown field "lables"`},
-		{"missing labels", `{"organizations": [{"name": "a", "note": "x"}]}`, "labels is empty"},
-		{"empty labels", `{"organizations": [{"name": "a", "labels": []}]}`, "labels is empty"},
+		{"missing labels", `{"organizations": [{"name": "a", "note": "x"}]}`, "labels and text_searches are both empty"},
+		{"empty labels", `{"organizations": [{"name": "a", "labels": []}]}`, "labels and text_searches are both empty"},
 		{"blank label", `{"organizations": [{"name": "a", "labels": ["bounty", "  "]}]}`, "entry 1 is blank"},
 		{"padded label", `{"organizations": [{"name": "a", "labels": [" bounty"]}]}`, "leading or trailing whitespace"},
 		{"quoted label", `{"organizations": [{"name": "a", "labels": ["say \"hi\""]}]}`, "double quotes"},
@@ -145,5 +145,17 @@ func TestLoadConfig_AcceptsNewFields(t *testing.T) {
 	}
 	if len(config.Organizations[0].TextSearches) != 1 || len(config.ExcludeLabels) != 1 || len(config.InactiveOrganizations) != 1 {
 		t.Errorf("new fields were not parsed: %+v", config)
+	}
+}
+
+func TestLoadConfig_TextOnlyOrganization(t *testing.T) {
+	content := `{"organizations": [{"name": "a", "labels": [], "note": "n",
+		"text_searches": [{"in": "title", "phrase": "bounty"}]}]}`
+	path := filepath.Join(t.TempDir(), "mapping.json")
+	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+		t.Fatalf("failed to write temp file: %v", err)
+	}
+	if _, err := LoadConfig(path); err != nil {
+		t.Fatalf("an organization with only text_searches should be valid: %v", err)
 	}
 }

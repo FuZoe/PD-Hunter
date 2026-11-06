@@ -159,14 +159,21 @@ func (c *Client) rateLimitRetryAt(resp *http.Response, body []byte, attempt int)
 	if resp.StatusCode != http.StatusForbidden && resp.StatusCode != http.StatusTooManyRequests {
 		return time.Time{}, false
 	}
+	return c.retryAt(resp.Header, body, resp.StatusCode == http.StatusTooManyRequests, attempt)
+}
+
+// retryAt works out when to retry a rate-limited request from its headers.
+// limited forces a backoff when the headers say nothing; otherwise the body
+// must mention a rate limit.
+func (c *Client) retryAt(h http.Header, body []byte, limited bool, attempt int) (time.Time, bool) {
 	now := c.currentTime()
-	if s := resp.Header.Get("Retry-After"); s != "" {
+	if s := h.Get("Retry-After"); s != "" {
 		if secs, err := strconv.Atoi(s); err == nil && secs >= 0 {
 			return now.Add(time.Duration(secs) * time.Second), true
 		}
 	}
-	if resp.Header.Get("X-RateLimit-Remaining") == "0" {
-		if reset, err := strconv.ParseInt(resp.Header.Get("X-RateLimit-Reset"), 10, 64); err == nil {
+	if h.Get("X-RateLimit-Remaining") == "0" {
+		if reset, err := strconv.ParseInt(h.Get("X-RateLimit-Reset"), 10, 64); err == nil {
 			retryAt := time.Unix(reset, 0).Add(time.Second)
 			if retryAt.Before(now.Add(time.Second)) {
 				retryAt = now.Add(time.Second)
@@ -176,8 +183,7 @@ func (c *Client) rateLimitRetryAt(resp *http.Response, body []byte, attempt int)
 	}
 	// Secondary rate limits without headers: GitHub asks clients to wait at
 	// least a minute and back off exponentially.
-	if resp.StatusCode == http.StatusTooManyRequests ||
-		strings.Contains(strings.ToLower(string(body)), "rate limit") {
+	if limited || strings.Contains(strings.ToLower(string(body)), "rate limit") {
 		return now.Add(time.Minute << uint(attempt)), true
 	}
 	return time.Time{}, false
@@ -185,8 +191,9 @@ func (c *Client) rateLimitRetryAt(resp *http.Response, body []byte, attempt int)
 
 // send performs a request with pacing and retries. newReq must build a fresh
 // request for every attempt. errPrefix labels HTTP errors ("HTTP",
-// "GraphQL HTTP").
-func (c *Client) send(b rateBucket, errPrefix string, newReq func() (*http.Request, error)) ([]byte, error) {
+// "GraphQL HTTP"). limitedBody, if set, detects rate limits reported in the
+// body of a 200 response (GraphQL does this).
+func (c *Client) send(b rateBucket, errPrefix string, newReq func() (*http.Request, error), limitedBody func([]byte) bool) ([]byte, error) {
 	var lastErr error
 	for attempt := 0; attempt < maxAttempts; attempt++ {
 		if err := c.waitTurn(b); err != nil {
@@ -213,8 +220,11 @@ func (c *Client) send(b rateBucket, errPrefix string, newReq func() (*http.Reque
 			switch {
 			case readErr != nil:
 				lastErr = fmt.Errorf("reading response: %w", readErr)
-			case resp.StatusCode == http.StatusOK:
+			case resp.StatusCode == http.StatusOK && (limitedBody == nil || !limitedBody(body)):
 				return body, nil
+			case resp.StatusCode == http.StatusOK:
+				lastErr = fmt.Errorf("%s 200: rate limited: %s", errPrefix, string(body))
+				retryAt, _ = c.retryAt(resp.Header, body, true, attempt)
 			default:
 				lastErr = fmt.Errorf("%s %d: %s", errPrefix, resp.StatusCode, string(body))
 				if at, ok := c.rateLimitRetryAt(resp, body, attempt); ok {
@@ -248,7 +258,7 @@ func (c *Client) DoRequest(reqURL string) ([]byte, error) {
 			req.Header.Set("Authorization", "Bearer "+c.Token)
 		}
 		return req, nil
-	})
+	}, nil)
 }
 
 // bucketFor picks the rate-limit bucket for a REST URL.
