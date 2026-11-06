@@ -112,6 +112,7 @@ func TestDoGraphQLRequest_Error(t *testing.T) {
 		HTTPClient: &http.Client{Timeout: 5 * time.Second},
 		Token:      "test-token",
 		BaseURL:    server.URL,
+		sleep:      func(time.Duration) {},
 	}
 
 	_, err := client.DoGraphQLRequest("query { viewer { login } }", nil)
@@ -825,6 +826,7 @@ func TestScanAll_ProjectError(t *testing.T) {
 		HTTPClient: &http.Client{Timeout: 5 * time.Second},
 		Token:      "test-token",
 		BaseURL:    server.URL,
+		sleep:      func(time.Duration) {},
 	}
 
 	config := &Config{
@@ -836,12 +838,15 @@ func TestScanAll_ProjectError(t *testing.T) {
 		},
 	}
 
-	// ScanAll should continue even if project fetch fails
+	// A failed project fetch leaves the results incomplete, so the scan fails.
 	issues, err := client.ScanAll(config)
-	if err != nil {
-		t.Fatalf("ScanAll should not return error on project failure: %v", err)
+	if err == nil {
+		t.Fatal("expected ScanAll to fail when a project fetch fails")
 	}
-	if len(issues) != 1 {
-		t.Errorf("expected 1 issue from label scan (project failed), got %d", len(issues))
+	if !strings.Contains(err.Error(), "fetching project org/1") {
+		t.Errorf("expected error to name the project, got: %v", err)
+	}
+	if issues != nil {
+		t.Errorf("expected no issues on failure, got %d", len(issues))
 	}
 }

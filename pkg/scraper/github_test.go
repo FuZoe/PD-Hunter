@@ -109,7 +109,7 @@ func TestDoRequest_ServerError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := NewClient("")
+	client := newMockClient(server.URL, "")
 	_, err := client.DoRequest(server.URL)
 	if err == nil {
 		t.Fatal("expected error for 500 response, got nil")
@@ -121,6 +121,7 @@ func newMockClient(serverURL, token string) *Client {
 		HTTPClient: &http.Client{Timeout: 5 * time.Second},
 		Token:      token,
 		BaseURL:    serverURL,
+		sleep:      func(time.Duration) {},
 	}
 }
 
@@ -134,6 +135,12 @@ func TestNewClient(t *testing.T) {
 	}
 	if client.BaseURL != defaultBaseURL {
 		t.Errorf("expected BaseURL '%s', got '%s'", defaultBaseURL, client.BaseURL)
+	}
+	if client.SearchInterval != searchDelayAuthenticated {
+		t.Errorf("expected authenticated search interval %v, got %v", searchDelayAuthenticated, client.SearchInterval)
+	}
+	if NewClient("").SearchInterval != searchDelayUnauthenticated {
+		t.Error("expected slower search pacing without a token")
 	}
 }
 
@@ -205,7 +212,10 @@ func TestGetOpenPRCount_WithResults(t *testing.T) {
 	defer server.Close()
 
 	client := newMockClient(server.URL, "test")
-	count := client.GetOpenPRCount("org/repo", 42)
+	count, err := client.GetOpenPRCount("org/repo", 42)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if count != 3 {
 		t.Errorf("expected 3 PRs, got %d", count)
 	}
@@ -219,7 +229,10 @@ func TestGetOpenPRCount_Zero(t *testing.T) {
 	defer server.Close()
 
 	client := newMockClient(server.URL, "test")
-	count := client.GetOpenPRCount("org/repo", 99)
+	count, err := client.GetOpenPRCount("org/repo", 99)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if count != 0 {
 		t.Errorf("expected 0 PRs, got %d", count)
 	}
@@ -233,9 +246,8 @@ func TestGetOpenPRCount_Error(t *testing.T) {
 	defer server.Close()
 
 	client := newMockClient(server.URL, "test")
-	count := client.GetOpenPRCount("org/repo", 1)
-	if count != 0 {
-		t.Errorf("expected 0 on error, got %d", count)
+	if _, err := client.GetOpenPRCount("org/repo", 1); err == nil {
+		t.Error("expected an error so the scan does not publish a wrong PR count")
 	}
 }
 
@@ -247,9 +259,8 @@ func TestGetOpenPRCount_InvalidJSON(t *testing.T) {
 	defer server.Close()
 
 	client := newMockClient(server.URL, "test")
-	count := client.GetOpenPRCount("org/repo", 1)
-	if count != 0 {
-		t.Errorf("expected 0 on invalid JSON, got %d", count)
+	if _, err := client.GetOpenPRCount("org/repo", 1); err == nil {
+		t.Error("expected an error for invalid JSON")
 	}
 }
 
@@ -337,7 +348,7 @@ func TestScanAll_DeduplicatesIssues(t *testing.T) {
 				"title": "Duplicate issue",
 				"html_url": "https://github.com/org/repo/issues/1",
 				"state": "open",
-				"labels": [{"name": "bounty"}],
+				"labels": [{"name": "bounty"}, {"name": "reward"}],
 				"comments": 1,
 				"created_at": "2024-01-01T00:00:00Z",
 				"updated_at": "2024-01-01T00:00:00Z",
@@ -379,8 +390,8 @@ func TestScanAll_SkipsPRs(t *testing.T) {
 		w.Write([]byte(`{
 			"total_count": 2,
 			"items": [
-				{"number": 1, "title": "This is a PR", "html_url": "https://github.com/org/repo/pull/1", "state": "open", "labels": [], "comments": 0, "created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "user": {"login": "dev"}, "body": "", "pull_request": {}},
-				{"number": 2, "title": "Real issue", "html_url": "https://github.com/org/repo/issues/2", "state": "open", "labels": [], "comments": 0, "created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "user": {"login": "dev"}, "body": ""}
+				{"number": 1, "title": "This is a PR", "html_url": "https://github.com/org/repo/pull/1", "state": "open", "labels": [{"name": "bounty"}], "comments": 0, "created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "user": {"login": "dev"}, "body": "", "pull_request": {}},
+				{"number": 2, "title": "Real issue", "html_url": "https://github.com/org/repo/issues/2", "state": "open", "labels": [{"name": "bounty"}], "comments": 0, "created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "user": {"login": "dev"}, "body": ""}
 			]
 		}`))
 	}))
@@ -419,13 +430,13 @@ func TestScanAll_SearchError(t *testing.T) {
 		},
 	}
 
-	// ScanAll continues on error (prints warning), returns empty
+	// A failed search must fail the scan instead of publishing partial data.
 	issues, err := client.ScanAll(config)
-	if err != nil {
-		t.Fatalf("ScanAll should not return error on search failure: %v", err)
+	if err == nil {
+		t.Fatal("expected ScanAll to fail when a search fails")
 	}
-	if len(issues) != 0 {
-		t.Errorf("expected 0 issues on search error, got %d", len(issues))
+	if issues != nil {
+		t.Errorf("expected no issues on failure, got %d", len(issues))
 	}
 }
 
@@ -445,7 +456,10 @@ func TestGetOpenPRCount_QueryUsesHashPrefix(t *testing.T) {
 	defer server.Close()
 
 	client := newMockClient(server.URL, "test")
-	count := client.GetOpenPRCount("commaai/flash", 42)
+	count, err := client.GetOpenPRCount("commaai/flash", 42)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if count != 0 {
 		t.Errorf("expected 0 PRs, got %d", count)
 	}
