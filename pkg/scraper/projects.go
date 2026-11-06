@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
-	"time"
 )
 
 const projectItemsQuery = `
@@ -143,46 +141,18 @@ func (c *Client) DoGraphQLRequest(query string, variables map[string]interface{}
 		return nil, fmt.Errorf("marshaling GraphQL request: %w", err)
 	}
 
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		if attempt > 0 {
-			waitTime := time.Duration(attempt*5) * time.Second
-			fmt.Printf("  Retrying GraphQL in %v (attempt %d/%d)...\n", waitTime, attempt+1, maxRetries)
-			time.Sleep(waitTime)
-		}
-
+	return c.send(bucketGraphQL, "GraphQL HTTP", func() (*http.Request, error) {
 		req, err := http.NewRequest("POST", c.graphQLURL(), bytes.NewReader(bodyBytes))
 		if err != nil {
 			return nil, err
 		}
-
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Accept", "application/json")
 		if c.Token != "" {
 			req.Header.Set("Authorization", "Bearer "+c.Token)
 		}
-
-		resp, err := c.HTTPClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-
-		body, _ := io.ReadAll(resp.Body)
-		resp.Body.Close()
-
-		if resp.StatusCode == http.StatusOK {
-			return body, nil
-		}
-
-		if resp.StatusCode == 429 || resp.StatusCode == 403 {
-			if attempt < maxRetries-1 {
-				continue
-			}
-		}
-
-		return nil, fmt.Errorf("GraphQL HTTP %d: %s", resp.StatusCode, string(body))
-	}
-
-	return nil, fmt.Errorf("GraphQL max retries exceeded")
+		return req, nil
+	})
 }
 
 // FetchProjectItems queries a GitHub Projects V2 board and returns the issue-linked items as GitHubIssue slices.
@@ -199,8 +169,6 @@ func (c *Client) FetchProjectItems(orgLogin string, projectNumber int) ([]GitHub
 		if cursor != nil {
 			variables["cursor"] = *cursor
 		}
-
-		time.Sleep(requestDelay)
 
 		data, err := c.DoGraphQLRequest(projectItemsQuery, variables)
 		if err != nil {
