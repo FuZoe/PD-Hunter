@@ -183,7 +183,7 @@
     "open_pr_count": 1,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-06T14:55:51Z",
-    "updated_at": "2026-11-06T15:39:57Z",
+    "updated_at": "2026-11-07T01:43:01Z",
     "author": "jberkowitzTT",
     "body": "\n📝 Background\n\nttnn.scale_mask_softmax_in_place with SoftmaxShardedMultiCoreProgramConfig can hang or read incorrect mask values when the input shard layout and mask shape/specification do not align. These cases can break correctness in sharded attention workloads and may hang the device instead of returning a clear validation error.\n\nAn open change already addresses the causal-mask case where a shard is shorter than or not divisible by the mask height, and the causal mask/input batch-size mismatch. This bounty is for the remaining issues below; coordinate with that change and do not duplicate its scope: [PR #63692](https://github.com/tenstorrent/tt-metal/pull/63692).\n\n🎯 What Success Looks Like\n\nA row-major mask combined with is_causal_mask=True is either handled correctly or rejected during validation with a clear error before device execution; it must not hang.\n\nCausal interleaved mask readers wrap rows using the mask’s height, not the input width. Non-square causal masks produce correct results without out-of-bounds reads.\n\nMask addressing remains correct when a shard crosses a batch boundary; the batch cursor must not advance early or read beyond the mask tensor.\n\nA sharded mask with an incompatible shard specification (including shard orientation) is rejected clearly or handled correctly; it must not silently read a different core’s shard.\n\nAdd regression tests for each addressed case, covering valid configurations and invalid configurations as appropriate. Compare supported outputs against a PyTorch reference.\n\nExisting relevant sharded and causal softmax tests continue to pass, and existing supported configurations retain their behavior.\n\n💡 Problem to Solve\n\nThe sharded softmax factory, mask readers, and validation do not consistently enforce or honor the assumptions used to walk masks:\n\nA row-major mask with is_causal_mask=True can select a reader that does not follow the causal compute’s per-row mask consumption, causing a hang.\n\nCausal interleaved readers can wrap mask rows using the input width rather than the mask height, leading to incorrect/out-of-bounds reads for non-square masks.\n\nWhen a shard spans a batch boundary, integer division in the per-batch core calculation can make mask addressing advance to the next batch too early.\n\nValidation checks mask layout and padded shape but does not ensure that a sharded mask’s shard specification matches the input’s expected distribution.\n\n\nThis bounty is subject to the [Tenstorrent Bounty Program Terms \u0026 Conditions](https://docs.tenstorrent.com/bounty_terms.html)."
   },
@@ -196,11 +196,11 @@
       "bounty",
       "bounty_difficulty/medium"
     ],
-    "comment_count": 7,
-    "open_pr_count": 1,
+    "comment_count": 8,
+    "open_pr_count": 2,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-06T00:36:43Z",
-    "updated_at": "2026-11-06T18:05:51Z",
+    "updated_at": "2026-11-07T04:10:30Z",
     "author": "jberkowitzTT",
     "body": "## 📝 Background\n\nttnn.softmax_in_place and ttnn.scale_mask_softmax_in_place can silently return incorrect results for height-sharded inputs when used with SoftmaxShardedMultiCoreProgramConfig and the shard grid does not begin at core (0, 0). On affected offset grids, some shards are softmaxed while others are left unchanged with their input logits. The same failure pattern is reproducible on Wormhole and Blackhole in ttsim.\n\nThis is a correctness issue: the operation returns without an error, but the output can be substantially wrong. Sharded layer_norm and rms_norm on comparable offset grids are correct.\n## 🎯 What Success Looks Like\n\n    Fix both softmax_in_place and scale_mask_softmax_in_place for supported height-sharded inputs whose shard grid is offset from (0, 0).\n\n    Fix both softmax_in_place and scale_mask_softmax_in_place for supported height-sharded inputs whose shard grid is offset from (0, 0).\n    Add regression coverage for height-sharded inputs on grids at (0, 0), (1, 0), and (0, 1), covering both ROW_MAJOR and COL_MAJOR orientations, with and without a mask.\n\n    Add regression coverage for height-sharded inputs on grids at (0, 0), (1, 0), and (0, 1), covering both ROW_MAJOR and COL_MAJOR orientations, with and without a mask.\n    Compare the output shard by shard against the corresponding PyTorch softmax result (including the masked result for scale_mask_softmax_in_place) using the repository's established correctness tolerances. Verify that every shard is updated and correct, not merely that the operation returns successfully.\n\n    Compare the output shard by shard against the corresponding PyTorch softmax result (including the masked result for scale_mask_softmax_in_place) using the repository's established correctness tolerances. Verify that every shard is updated and correct, not merely that the operation returns successfully.\n    Preserve correct behavior for origin-based shard grids and the existing supported configurations.\n\n    Preserve correct behavior for origin-based shard grids and the existing supported configurations.\n    The focused regression tests pass on the applicable TT hardware/simulator test target, and the PR passes required CI. Document any unrelated known simulator failures separately rather than expanding this bounty to cover them.\n\n    The focused regression tests pass on the applicable TT hardware/simulator test target, and the PR passes required CI. Document any unrelated known simulator failures separately rather than expanding this bounty to cover them.\n    The change is reviewed and approved by the relevant engineering team before merge.\n\n    The change is reviewed and approved by the relevant engineering team before merge.\n\n## 💡 Problem to Solve\n\nThe shared validate_sharded_input validation accepts an offset shard grid after comparing its bounding-box dimensions against compute_with_storage_grid_size. The sharded softmax factory, however, currently constructs its work range from (0, 0) and enumerates per-core runtime arguments from the origin. This can launch work on cores outside the input shard grid while leaving actual shards on offset cores untouched.\n\nUpdate the host-side sharded softmax program setup so its work units and per-core runtime arguments correspond to the input tensor's shard grid and its orientation. Add focused tests that reproduce and prevent the incorrect results for both unmasked and masked softmax. No kernel changes are expected unless investigation shows they are necessary.\n\n\nNOTE THAT THIS BOUNTY IS SUBJECT TO THE [TENSTORRENT BOUNTY PROGRAM TERMS \u0026 CONDITIONS](https://docs.tenstorrent.com/bounty_terms.html)."
   },
@@ -212,11 +212,11 @@
     "labels": [
       "💎 Bounty"
     ],
-    "comment_count": 83,
+    "comment_count": 82,
     "open_pr_count": 1,
     "repository": "tscircuit/pcb-viewer",
     "created_at": "2025-02-15T18:11:19Z",
-    "updated_at": "2026-11-05T11:28:37Z",
+    "updated_at": "2026-11-07T02:01:57Z",
     "author": "seveibar",
     "body": "/bounty $3"
   },
@@ -496,6 +496,23 @@
     "updated_at": "2026-11-05T13:02:12Z",
     "author": "0xskr33p",
     "body": "## Bounty: Mitigate Next.js CVE Risk by Pinning Version\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nThe `wxtm-bridge-frontend` currently depends on `\"next\": \"^16.1.1\"`, which allows npm/yarn to resolve any semver-compatible version in the 16.x range, including versions with known CVEs. Pin Next.js to exactly `16.1.7` (the latest patched release) and remove the `^` caret to prevent unintended resolution to vulnerable versions. Update `eslint-config-next` to match.\n\n### Acceptance Criteria\n\n- [ ] `package.json` specifies `\"next\": \"16.1.7\"` (exact, no caret)\n- [ ] `eslint-config-next` version is updated to `\"16.1.7\"` (exact, no caret) to match\n- [ ] `package-lock.json` / `yarn.lock` is regenerated with the pinned versions\n- [ ] The app builds successfully (`npm run build` or `yarn build` passes with no new errors)\n- [ ] Wrap/unwrap flow verified working end-to-end via TU with the updated bridge frontend (screenshot or recording)\n\n### Context\n\n- Original issue: https://github.com/tari-project/wxtm-bridge-frontend/issues/103\n- Current versions: `\"next\": \"^16.1.1\"`, `\"eslint-config-next\": \"^16.1.1\"`\n- Next.js changelog: https://github.com/vercel/next.js/releases\n- The frontend depends on private `@aspect` npm packages (api \u0026 contracts). To test locally you either need an npm token for the private registry, or build the public `api` and `contracts` repos locally and link them as dependencies\n- Full integration testing requires running the bridge frontend as a tapplet inside Tari Universe (TU)\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #103`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord"
+  },
+  {
+    "number": 501,
+    "title": "Contribution: fix(storage_sqlite): preserve prior exit epochs on deactivation and tie-break registrations by id (tari-project/tari-ootle#3338)",
+    "url": "https://github.com/tari-project/special_contributions/issues/501",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-07T03:18:40Z",
+    "updated_at": "2026-11-07T03:18:41Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3338](https://github.com/tari-project/tari-ootle/pull/3338): fix(storage_sqlite): preserve prior exit epochs on deactivation and tie-break registrations by id.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #501` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #501`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3338\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 499,
