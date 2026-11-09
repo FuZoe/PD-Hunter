@@ -326,11 +326,11 @@
       "bounty",
       "bounty_difficulty/easy"
     ],
-    "comment_count": 11,
-    "open_pr_count": 5,
+    "comment_count": 10,
+    "open_pr_count": 3,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-06T14:55:51Z",
-    "updated_at": "2026-11-07T18:03:31Z",
+    "updated_at": "2026-11-09T12:36:20Z",
     "author": "jberkowitzTT",
     "body": "\n📝 Background\n\nttnn.scale_mask_softmax_in_place with SoftmaxShardedMultiCoreProgramConfig can hang or read incorrect mask values when the input shard layout and mask shape/specification do not align. These cases can break correctness in sharded attention workloads and may hang the device instead of returning a clear validation error.\n\nAn open change already addresses the causal-mask case where a shard is shorter than or not divisible by the mask height, and the causal mask/input batch-size mismatch. This bounty is for the remaining issues below; coordinate with that change and do not duplicate its scope: [PR #63692](https://github.com/tenstorrent/tt-metal/pull/63692).\n\n🎯 What Success Looks Like\n\nA row-major mask combined with is_causal_mask=True is either handled correctly or rejected during validation with a clear error before device execution; it must not hang.\n\nCausal interleaved mask readers wrap rows using the mask’s height, not the input width. Non-square causal masks produce correct results without out-of-bounds reads.\n\nMask addressing remains correct when a shard crosses a batch boundary; the batch cursor must not advance early or read beyond the mask tensor.\n\nA sharded mask with an incompatible shard specification (including shard orientation) is rejected clearly or handled correctly; it must not silently read a different core’s shard.\n\nAdd regression tests for each addressed case, covering valid configurations and invalid configurations as appropriate. Compare supported outputs against a PyTorch reference.\n\nExisting relevant sharded and causal softmax tests continue to pass, and existing supported configurations retain their behavior.\n\n💡 Problem to Solve\n\nThe sharded softmax factory, mask readers, and validation do not consistently enforce or honor the assumptions used to walk masks:\n\nA row-major mask with is_causal_mask=True can select a reader that does not follow the causal compute’s per-row mask consumption, causing a hang.\n\nCausal interleaved readers can wrap mask rows using the input width rather than the mask height, leading to incorrect/out-of-bounds reads for non-square masks.\n\nWhen a shard spans a batch boundary, integer division in the per-batch core calculation can make mask addressing advance to the next batch too early.\n\nValidation checks mask layout and padded shape but does not ensure that a sharded mask’s shard specification matches the input’s expected distribution.\n\n\nThis bounty is subject to the [Tenstorrent Bounty Program Terms & Conditions](https://docs.tenstorrent.com/bounty_terms.html).",
     "hunter_intelligence": {
@@ -338,13 +338,13 @@
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 750,
-      "is_hidden_gem": false,
-      "bounty_score": 35,
+      "is_hidden_gem": true,
+      "bounty_score": 44,
       "score_breakdown": {
         "amount": 15,
         "feasibility": 60,
-        "competition": 3,
-        "freshness": 99
+        "competition": 35,
+        "freshness": 100
       }
     }
   },
@@ -358,10 +358,10 @@
       "bounty_difficulty/medium"
     ],
     "comment_count": 9,
-    "open_pr_count": 8,
+    "open_pr_count": 4,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-06T00:36:43Z",
-    "updated_at": "2026-11-07T18:03:04Z",
+    "updated_at": "2026-11-09T12:36:13Z",
     "author": "jberkowitzTT",
     "body": "## 📝 Background\n\nttnn.softmax_in_place and ttnn.scale_mask_softmax_in_place can silently return incorrect results for height-sharded inputs when used with SoftmaxShardedMultiCoreProgramConfig and the shard grid does not begin at core (0, 0). On affected offset grids, some shards are softmaxed while others are left unchanged with their input logits. The same failure pattern is reproducible on Wormhole and Blackhole in ttsim.\n\nThis is a correctness issue: the operation returns without an error, but the output can be substantially wrong. Sharded layer_norm and rms_norm on comparable offset grids are correct.\n## 🎯 What Success Looks Like\n\n    Fix both softmax_in_place and scale_mask_softmax_in_place for supported height-sharded inputs whose shard grid is offset from (0, 0).\n\n    Fix both softmax_in_place and scale_mask_softmax_in_place for supported height-sharded inputs whose shard grid is offset from (0, 0).\n    Add regression coverage for height-sharded inputs on grids at (0, 0), (1, 0), and (0, 1), covering both ROW_MAJOR and COL_MAJOR orientations, with and without a mask.\n\n    Add regression coverage for height-sharded inputs on grids at (0, 0), (1, 0), and (0, 1), covering both ROW_MAJOR and COL_MAJOR orientations, with and without a mask.\n    Compare the output shard by shard against the corresponding PyTorch softmax result (including the masked result for scale_mask_softmax_in_place) using the repository's established correctness tolerances. Verify that every shard is updated and correct, not merely that the operation returns successfully.\n\n    Compare the output shard by shard against the corresponding PyTorch softmax result (including the masked result for scale_mask_softmax_in_place) using the repository's established correctness tolerances. Verify that every shard is updated and correct, not merely that the operation returns successfully.\n    Preserve correct behavior for origin-based shard grids and the existing supported configurations.\n\n    Preserve correct behavior for origin-based shard grids and the existing supported configurations.\n    The focused regression tests pass on the applicable TT hardware/simulator test target, and the PR passes required CI. Document any unrelated known simulator failures separately rather than expanding this bounty to cover them.\n\n    The focused regression tests pass on the applicable TT hardware/simulator test target, and the PR passes required CI. Document any unrelated known simulator failures separately rather than expanding this bounty to cover them.\n    The change is reviewed and approved by the relevant engineering team before merge.\n\n    The change is reviewed and approved by the relevant engineering team before merge.\n\n## 💡 Problem to Solve\n\nThe shared validate_sharded_input validation accepts an offset shard grid after comparing its bounding-box dimensions against compute_with_storage_grid_size. The sharded softmax factory, however, currently constructs its work range from (0, 0) and enumerates per-core runtime arguments from the origin. This can launch work on cores outside the input shard grid while leaving actual shards on offset cores untouched.\n\nUpdate the host-side sharded softmax program setup so its work units and per-core runtime arguments correspond to the input tensor's shard grid and its orientation. Add focused tests that reproduce and prevent the incorrect results for both unmasked and masked softmax. No kernel changes are expected unless investigation shows they are necessary.\n\n\nNOTE THAT THIS BOUNTY IS SUBJECT TO THE [TENSTORRENT BOUNTY PROGRAM TERMS & CONDITIONS](https://docs.tenstorrent.com/bounty_terms.html).",
     "hunter_intelligence": {
@@ -370,30 +370,28 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 750,
       "is_hidden_gem": false,
-      "bounty_score": 35,
+      "bounty_score": 40,
       "score_breakdown": {
         "amount": 15,
         "feasibility": 60,
-        "competition": 0,
-        "freshness": 99
+        "competition": 22,
+        "freshness": 100
       }
     }
   },
   {
-    "number": 64877,
-    "title": "[Bounty proposal] GeneralCLarge softmax factory uses bfloat8_b intermediates (inconsistent with GeneralW/GeneralH)",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/64877",
+    "number": 64960,
+    "title": "[Bounty proposal] Fix ttnn.grid_sample memory_config overrides, sharded/interleaved factories, and padding OOB reads",
+    "url": "https://github.com/tenstorrent/tt-metal/issues/64960",
     "state": "open",
-    "labels": [
-      "community"
-    ],
+    "labels": [],
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-08T11:40:50Z",
-    "updated_at": "2026-11-08T11:47:29Z",
-    "author": "mahmoodbatterycenter-byte",
-    "body": "## Summary\n\nThe `GeneralCLarge` softmax factory uses `bfloat8_b` for intermediate buffers (EXPS, RECIP, ADD, TMP) when the input is `bfloat8_b` and fp32 accumulation is not enabled. The `GeneralW` and `GeneralH` factories correctly promote to at least `Float16_b` to avoid precision loss. This inconsistency causes avoidable accuracy degradation for softmax operations with `dim` other than the last two dimensions when using `bfloat8_b` input.\n\n## Location\n\nFile: `ttnn/cpp/ttnn/operations/normalization/softmax/device/softmax_program_factory_general_c_large.cpp`\n\n**Line 63**:\n```cpp\nconst auto intermed_data_format = fp32_dest_acc_en ? tt::DataFormat::Float32 : data_format;\n```\n\nCompare with the corrected versions in:\n\n**`softmax_program_factory_general_w_small.cpp` line 67**:\n```cpp\nconst auto intermed_data_format = fp32_dest_acc_en ? tt::DataFormat::Float32 : tt::DataFormat::Float16_b;\n```\n\n**`softmax_program_factory_general_h_small.cpp` line 65**:\n```cpp\nconst auto intermed_data_format = fp32_dest_acc_en ? tt::DataFormat::Float32 : tt::DataFormat::Float16_b;\n```\n\nThe W and H factories even have comments referencing issue #32934 about this exact problem, but the fix was not applied to the C large factory.\n\n## Problem\n\nWhen computing softmax along dimensions other than the last two (which routes through the `GeneralCLarge` factory):\n\n1. Intermediate exponential values are stored in `bfloat8_b` format (8-bit mantissa)\n2. The sum of exponentials is accumulated in `bfloat8_b`\n3. The reciprocal is computed in `bfloat8_b`\n4. Each intermediate step loses precision that could be preserved by using `Float16_b` (10-bit mantissa)\n\nThis is particularly problematic because:\n- Softmax is numerically sensitive to precision in the exp/sum/reciprocal chain\n- `bfloat8_b` has significantly less precision than `Float16_b` for these intermediate values\n- The other factories already apply this fix, showing it's the correct approach\n\n## Proposed Fix\n\nChange line 63 in `softmax_program_factory_general_c_large.cpp` to match the W and H factories:\n\n```cpp\nconst auto intermed_data_format = fp32_dest_acc_en ? tt::DataFormat::Float32 : tt::DataFormat::Float16_b;\n```\n\nAdd a comment referencing issue #32934 for consistency with the other factories.\n\n## Impact\n\n- **Accuracy**: Reduces precision loss in intermediate softmax computations for `bfloat8_b` inputs\n- **Consistency**: All three general factories (W, H, C) now use the same precision promotion strategy\n- **Performance**: Minimal - `Float16_b` intermediates use the same bandwidth as `bfloat8_b` on most paths\n- **Compatibility**: No API changes; purely internal improvement\n\n## Test Case\n\n```python\nimport ttnn\nimport torch\n\n# Create input that exposes precision loss\ntorch.manual_seed(42)\nx = torch.randn(1, 1, 64, 128).bfloat16() * 10  # Large values amplify precision issues\nx_bf8 = ttnn.from_torch(x, dtype=ttnn.bfloat8_b, layout=ttnn.TILE_LAYOUT, device=device)\n\n# Softmax along dim=2 (routes through GeneralCLarge)\nresult = ttnn.softmax(x_bf8, dim=2)\nresult_torch = ttnn.to_torch(result)\n\n# Compare with higher-precision reference\nx_f16 = ttnn.from_torch(x, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device)\nresult_f16 = ttnn.softmax(x_f16, dim=2)\nresult_f16_torch = ttnn.to_torch(result_f16)\n\n# Current: max abs diff ~1e-2 (bfloat8_b intermediates)\n# After fix: max abs diff ~1e-3 (Float16_b intermediates)\nprint(f\"Max diff: {(result_torch - result_f16_torch).abs().max()}\")\n```\n\n## Bounty Request\n\nGiven that:\n1. This is a clear code inconsistency (W/H fixed, C not fixed)\n2. References known issue #32934\n3. Affects accuracy for a specific but important use case (non-last-dim softmax with bfloat8_b)\n4. Fix is straightforward and low-risk\n\nI propose a **$400 bounty** for this fix.\n\n## Verification\n\nThe fix should:\n1. Pass all existing softmax tests\n2. Improve PCC (Pearson Correlation Coefficient) for bfloat8_b softmax along non-last dimensions\n3. Match the behavior of GeneralW and GeneralH factories\n\n---\n\n**Note**: I am available to implement this fix if assigned.\n",
+    "created_at": "2026-11-09T10:29:47Z",
+    "updated_at": "2026-11-09T10:29:47Z",
+    "author": "tomisu76",
+    "body": "### Summary\n\n`ttnn.grid_sample` (`ttnn/cpp/ttnn/operations/pool/grid_sample/`) currently contains three related memory-configuration and bounds-checking defects across `GridSampleOperation::compute_output_specs`, `GridSampleBilinearProgramFactory`, `GridSampleNearestProgramFactory`, and the dataflow kernels:\n\n1. **Caller-provided `memory_config` is silently ignored when `grid` is `HEIGHT_SHARDED` (`grid_sample_device_operation.cpp:198-270, 331`)**:\n   - In `ttnn::prim::grid_sample` (`grid_sample_device_operation.cpp:331`), `.output_mem_config` defaults to `memory_config.value_or(grid.memory_config())`, which carries `grid.shard_spec()` even when `memory_config` is omitted.\n   - To avoid using `grid`'s coordinate shard width (`2*K` or `6*K`) as the output shard width (`C` or `C*K`), `compute_output_specs` guards both the `INTERLEAVED` bilinear branch (`line 200`) and the explicit `shard_spec().has_value()` branch (`line 206`) with `!grid_tensor.memory_config().is_sharded()`.\n   - Consequently, whenever `grid_tensor` is `HEIGHT_SHARDED`:\n     - Passing `memory_config=ttnn.DRAM_MEMORY_CONFIG` or `ttnn.L1_MEMORY_CONFIG` (`INTERLEAVED`) in `bilinear` mode is **silently ignored** and replaced with a `HEIGHT_SHARDED` L1 output on `grid_tensor`'s core grid.\n     - Passing a custom `HEIGHT_SHARDED` `memory_config` with a different `ShardSpec` (core grid, orientation, or shard height) in either `nearest` or `bilinear` mode is **silently ignored** and replaced with `grid_tensor`'s `ShardSpec`.\n\n2. **Program factories conflate `grid_tensor.is_sharded()` with `output_tensor.is_sharded()` (`grid_sample_bilinear_program_factory.cpp:33, 60-82, 202-216, 367-452` and `grid_sample_nearest_program_factory.cpp:29, 51-74`)**:\n   - Both `GridSampleBilinearProgramFactory::create_descriptor` and `GridSampleNearestProgramFactory::create_descriptor` set `is_sharded = grid_tensor.is_sharded()` and assume `grid_tensor` and `output_tensor` always have identical sharding state, core grids, orientations, and corresponding shard heights.\n   - In `GridSampleBilinearProgramFactory`:\n     - When `grid_tensor` is `INTERLEAVED` and `output_tensor` is `HEIGHT_SHARDED`, `is_sharded` is `false`, so `output_cb` is left unbacked (`nullptr`), work is partitioned across the full device compute grid instead of `output_tensor.shard_spec().grid`, and `writer_grid_sample_interleaved.cpp` attempts interleaved page writes into a sharded L1 output buffer.\n     - When `grid_tensor` is `HEIGHT_SHARDED` and `output_tensor` is `INTERLEAVED`, `output_tensor.shard_spec().value()` throws `std::bad_optional_access`.\n   - In both factories, when `grid_tensor` and `output_tensor` are both `HEIGHT_SHARDED` with different `ShardSpec`s, aliasing `grid_cb` directly to `grid_tensor.buffer()` reads mismatched local L1 shards instead of reading `grid_tensor` pages via `TensorAccessor`.\n\n3. **Out-of-bounds NoC reads on trailing shard padding sticks (`writer_grid_sample_nearest_sharded.cpp:227-235` and `reader_grid_sample_interleaved_start_id.cpp:29, 72-97`)**:\n   - In `writer_grid_sample_nearest_sharded.cpp:227-235`, `if constexpr (!is_sharded) { noc.async_read(grid_tensor_accessor, ..., {.page_id = grid_stick_idx + start_page_id}, {}); }` executes **before** `if (curr_batch < batch_size)`. When an output shard has trailing padding sticks (`curr_batch >= batch_size`), it issues out-of-bounds NoC reads past the end of `grid_tensor` before discarding the read data in the `else` branch.\n   - In `reader_grid_sample_interleaved_start_id.cpp:29, 72-97`, `ct_arg[5]` (`input_batch`) is passed by `GridSampleBilinearProgramFactory` (`:228`) but ignored by the kernel. When `output_tensor` is `HEIGHT_SHARDED` with uneven shards or surplus cores (`curr_batch >= input_batch`), `spatial_pos` reads past the end of `grid_tensor` instead of pushing zero-weight placeholder pages to `scalar_dfb` and `input_dfb`.\n\n---\n\n### Proposed Fix\n\n1. **`grid_sample_device_operation.cpp`**:\n   - In `ttnn::prim::grid_sample`, when `memory_config` is omitted, default `.output_mem_config` to `MemoryConfig(grid.memory_config().memory_layout(), grid.memory_config().buffer_type())` (with `shard_spec = std::nullopt`) so `output_mem_config.shard_spec().has_value()` is `true` if and only if the caller explicitly supplied a `ShardSpec`.\n   - In `GridSampleOperation::compute_output_specs`, respect `INTERLEAVED` `output_mem_config` in `bilinear` mode and explicit `output_mem_config.shard_spec()` in both `nearest` and `bilinear` modes regardless of whether `grid_tensor` is sharded.\n   - In `GridSampleOperation::validate_on_program_cache_miss`, validate explicit output `ShardSpec` buffer type (`L1`), height divisibility (`output_sticks_per_grid_stick`), and width (`C_padded`).\n2. **`grid_sample_nearest_program_factory.cpp` & `grid_sample_bilinear_program_factory.cpp`**:\n   - Gate the zero-copy local L1 `grid_cb` fast path (`is_sharded`) on `grid_tensor` and `output_tensor` both being sharded with matching `grid`, `orientation`, and corresponding `shape[0]`.\n   - In `GridSampleBilinearProgramFactory`, separate `is_output_sharded = output_tensor.is_sharded()` from `is_sharded` so `HEIGHT_SHARDED <-> INTERLEAVED` and distinct `HEIGHT_SHARDED` `ShardSpec`s partition work and configure `output_cb` / `has_writer` / `enable_split_reader` accurately.\n3. **`writer_grid_sample_nearest_sharded.cpp` & `reader_grid_sample_interleaved_start_id.cpp`**:\n   - Move the `!is_sharded` `grid_tensor_accessor` NoC read inside `if (curr_batch < batch_size)` in `writer_grid_sample_nearest_sharded.cpp`.\n   - Read `input_batch = get_compile_time_arg_val(5)` in `reader_grid_sample_interleaved_start_id.cpp` and guard `grid_tensor_accessor` reads with `if (curr_batch < input_batch)`, pushing zero-weight placeholder pages when `curr_batch >= input_batch`.\n4. **`tests/ttnn/unit_tests/operations/pool/test_grid_sample.py`**:\n   - Add unit test coverage for `HEIGHT_SHARDED` grid -> `INTERLEAVED` (`DRAM`/`L1`) output in `bilinear` mode, `INTERLEAVED` grid -> custom `HEIGHT_SHARDED` output with trailing shard padding sticks, and `HEIGHT_SHARDED` grid -> distinct `HEIGHT_SHARDED` `ShardSpec` output in both `nearest` and `bilinear` modes.\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -410,50 +408,18 @@
     }
   },
   {
-    "number": 64878,
-    "title": "[Bounty proposal] Sharded softmax uses Float16_b sum scaler when fp32_dest_acc_en=true (inconsistent with interleaved)",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/64878",
+    "number": 64958,
+    "title": "[Bounty proposal] Fix ttnn.rotate crashes, device hangs, and CB misbinding across sharded/interleaved memory_config transitions",
+    "url": "https://github.com/tenstorrent/tt-metal/issues/64958",
     "state": "open",
-    "labels": [
-      "community"
-    ],
+    "labels": [],
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-08T11:41:00Z",
-    "updated_at": "2026-11-08T11:41:15Z",
-    "author": "mahmoodbatterycenter-byte",
-    "body": "## Summary\n\nThe sharded softmax factory uses `Float16_b` for the sum scaler (RECIP_SUM_EXPS) buffer when `fp32_dest_acc_en=true` with non-fp32 inputs, while the interleaved factory correctly uses `Float32`. This causes the sharded and interleaved paths to produce different results for the same input, with the sharded path being strictly less accurate.\n\n## Location\n\n**Sharded factory** - `ttnn/cpp/ttnn/operations/normalization/softmax/device/softmax_program_factory_attention_optimized_sharded.cpp`\n\n**Lines 58-59**:\n```cpp\nconst tt::DataFormat sum_scaler_cb_data_format =\n    im_cb_data_format == tt::DataFormat::Float32 ? tt::DataFormat::Float32 : tt::DataFormat::Float16_b;\n```\n\n**Interleaved factory** - `ttnn/cpp/ttnn/operations/normalization/softmax/device/softmax_program_factory_attention_optimized.cpp`\n\n**Lines 116-120**:\n```cpp\nconst tt::DataFormat acc_cb_data_format = fp32_dest_acc_en ? tt::DataFormat::Float32 : tt::DataFormat::Float16_b;\nconst tt::DataFormat sum_scaler_cb_data_format = acc_cb_data_format;\n```\n\n## Problem\n\nThe sum of exponentials is the denominator in the softmax computation: `softmax(x_i) = exp(x_i) / sum(exp(x_j))`. When `fp32_dest_acc_en=true`:\n\n1. **Interleaved path**: Accumulates exp values in fp32, stores sum in `Float32` buffer, computes reciprocal in fp32 → **high accuracy**\n2. **Sharded path**: Accumulates exp values in fp32, but stores sum in `Float16_b` buffer, computes reciprocal in bf16 → **reduced accuracy**\n\nThe sharded path truncates the sum from fp32 to bf16 before taking the reciprocal, which directly reduces the precision of every output element. This is particularly problematic because:\n\n- The sum of exponentials can be large, and bf16 has limited dynamic range\n- Taking the reciprocal amplifies any precision loss in the sum\n- Users expect `fp32_dest_acc_en=true` to give them fp32 accuracy throughout the critical path\n\n## Proposed Fix\n\nChange the sharded factory to match the interleaved factory's logic:\n\n```cpp\n// Lines 58-59 in softmax_program_factory_attention_optimized_sharded.cpp\nconst tt::DataFormat acc_cb_data_format = fp32_dest_acc_en ? tt::DataFormat::Float32 : tt::DataFormat::Float16_b;\nconst tt::DataFormat sum_scaler_cb_data_format = acc_cb_data_format;\n```\n\nThis ensures that when fp32 accumulation is enabled, the sum scaler buffer also uses fp32 format, matching the interleaved behavior.\n\n## Impact\n\n- **Accuracy**: Sharded path now matches interleaved path accuracy when `fp32_dest_acc_en=true`\n- **Consistency**: Both attention-optimized factories use the same precision strategy\n- **Performance**: Minimal - `Float32` buffer uses 2x the bandwidth of `Float16_b`, but this is a small buffer\n- **Breaking change**: Results from sharded softmax will change (become more accurate) when `fp32_dest_acc_en=true`\n\n## Test Case\n\n```python\nimport ttnn\nimport torch\n\n# Create input\ntorch.manual_seed(42)\nx = torch.randn(1, 1, 128, 128).bfloat16()\nx_sharded = ttnn.from_torch(x, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device, \n                            memory_config=ttnn.L1_MEMORY_CONFIG)\nx_interleaved = ttnn.from_torch(x, dtype=ttnn.bfloat16, layout=ttnn.TILE_LAYOUT, device=device,\n                                memory_config=ttnn.DRAM_MEMORY_CONFIG)\n\n# Enable fp32 accumulation\ncompute_config = ttnn.init_device.compute_kernel_config(\n    math_fidelity=ttnn.MathFidelity.HiFi4,\n    fp32_dest_acc_en=True,\n    math_mode=ttnn.MathMode.Default\n)\n\n# Softmax with sharded (uses sharded factory)\nresult_sharded = ttnn.softmax(x_sharded, dim=-1, compute_kernel_config=compute_config)\nresult_sharded_torch = ttnn.to_torch(result_sharded)\n\n# Softmax with interleaved (uses interleaved factory)\nresult_interleaved = ttnn.softmax(x_interleaved, dim=-1, compute_kernel_config=compute_config)\nresult_interleaved_torch = ttnn.to_torch(result_interleaved)\n\n# Current: max diff ~1e-3 (sharded less accurate due to bf16 sum scaler)\n# After fix: max diff ~1e-6 (both use fp32 sum scaler)\nprint(f\"Max diff between sharded and interleaved: {(result_sharded_torch - result_interleaved_torch).abs().max()}\")\n```\n\n## Bounty Request\n\nGiven that:\n1. This causes sharded and interleaved paths to produce different results\n2. The sharded path is strictly less accurate when `fp32_dest_acc_en=true`\n3. Fix is straightforward and improves consistency\n4. Affects all users of attention-optimized sharded softmax with fp32 accumulation\n\nI propose a **$500 bounty** for this fix, similar to the other softmax accuracy bounties.\n\n## Verification\n\nThe fix should:\n1. Pass all existing softmax tests\n2. Make sharded and interleaved factories produce identical results (within floating-point tolerance) when `fp32_dest_acc_en=true`\n3. Improve PCC for sharded softmax with fp32 accumulation enabled\n\n---\n\n**Note**: I am available to implement this fix if assigned.\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 64876,
-    "title": "[Bounty proposal] Switch numeric_stable default to true in softmax in-place APIs now that #28531 is fixed",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/64876",
-    "state": "open",
-    "labels": [
-      "community"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-08T11:39:59Z",
-    "updated_at": "2026-11-08T11:40:11Z",
-    "author": "mahmoodbatterycenter-byte",
-    "body": "## Summary\n\nIssue #28531 (falcon7b accuracy with numeric_stable) is now **closed**, but the TODO comments in `softmax_nanobind.cpp` still defer switching the default value from `false` to `true`. This leaves users of the in-place fused softmax APIs silently getting numerically unstable results by default.\n\n## Location\n\nFile: `ttnn/cpp/ttnn/operations/normalization/softmax/softmax_nanobind.cpp`\n\n**Line 369-371** (scale_mask_softmax_in_place):\n```cpp\n// TODO: switch the default value to 'true' once model accuracy is fixed\n// See issue #28531\nnb::arg(\"numeric_stable\") = false);\n```\n\n**Line 448-450** (scale_causal_mask_hw_dims_softmax_in_place):\n```cpp\n// TODO: switch the default value to 'true' once model accuracy is fixed\n// See issue #28531\nnb::arg(\"numeric_stable\") = false);\n```\n\n## Problem\n\nThe non-in-place APIs (`softmax` and `softmax_in_place`) correctly default to `numeric_stable=true`, but the in-place fused variants default to `false`. This inconsistency means:\n\n1. Users calling `scale_mask_softmax_in_place` or `scale_causal_mask_hw_dims_softmax_in_place` silently get numerically unstable softmax by default\n2. For inputs with large values, this causes exp overflow and incorrect results\n3. The TODO explicitly acknowledges this is wrong and should be fixed once #28531 is resolved\n\n## Proposed Fix\n\nChange both defaults from `false` to `true`:\n\n```cpp\n// Line 371\nnb::arg(\"numeric_stable\") = true);\n\n// Line 450  \nnb::arg(\"numeric_stable\") = true);\n```\n\nRemove the TODO comments since the prerequisite (#28531) is now closed.\n\n## Impact\n\n- **Correctness**: Users get numerically stable results by default, matching the non-in-place API behavior\n- **Consistency**: All softmax APIs now have the same default\n- **Breaking change**: Code that relied on the unstable default for performance may see slight slowdown, but will gain accuracy\n\n## Bounty Request\n\nGiven that:\n1. This is a known correctness issue with explicit TODO markers\n2. The blocking issue (#28531) is now resolved\n3. The fix is straightforward but requires understanding of the numeric stability implications\n4. Affects all users of the in-place fused softmax APIs\n\nI propose a **$500 bounty** for this fix, similar to the other softmax bounties (#64647, #64575).\n\n## Verification\n\nThe fix should:\n1. Pass all existing softmax tests\n2. Re-enable the falcon7b test that was disabled in #28531\n3. Demonstrate that in-place and non-in-place APIs now produce identical results for the same input\n\n---\n\n**Note**: I am available to implement this fix if assigned. I have prior experience with the softmax codebase from bounty proposals #64840 and PR #64797.\n",
+    "created_at": "2026-11-09T09:55:44Z",
+    "updated_at": "2026-11-09T09:58:38Z",
+    "author": "tomisu76",
+    "body": "### Summary\n\n`ttnn.rotate` accepts an explicit output `memory_config` parameter (`ttnn.rotate(input_tensor, angle, ..., memory_config=...)`), and `RotateDeviceOperation::compute_output_specs` supports creating either sharded or interleaved output tensors independently of the input tensor's memory configuration.\n\nHowever, both `NearestProgramFactory` and `BilinearProgramFactory` conflate input sharding with output sharding (`any_sharded`), resulting in multiple deterministic host crashes (`std::bad_optional_access`, `TT_FATAL`), L1 circular buffer aliasing bugs, and a device hang when `input_tensor.memory_config()` and the requested output `memory_config` differ or when an output shard grid has surplus cores.\n\n---\n\n### Root Cause Analysis (Verified on `main` @ `0de8c7f3aade6170fc456b904dbf72e3f776b6aa`)\n\n#### 1. `NearestProgramFactory::create_descriptor` crashes with `std::bad_optional_access` and misbinds `output_cb` when input is `HEIGHT_SHARDED` and output is `INTERLEAVED` (`DRAM` or `L1`)\n- In [`ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_nearest_program_factory.cpp#L94-L100`](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_nearest_program_factory.cpp#L94-L100):\n  ```cpp\n  if (is_sharded && !is_nd_sharded) {\n      const auto input_shard_spec = input_tensor.shard_spec().value();\n      all_cores = input_shard_spec.grid;\n      num_cores = input_shard_spec.num_cores();\n      input_nsticks_per_core = input_shard_spec.shape[0];\n      output_nsticks_per_core = output_tensor.shard_spec().value().shape[0];\n  ```\n  `is_sharded` only checks `input_tensor.is_sharded()`. When `output_tensor` is `DRAM_MEMORY_CONFIG` or `L1_MEMORY_CONFIG` (interleaved), `output_tensor.shard_spec()` is `std::nullopt`, throwing `std::bad_optional_access`.\n- In [`rotate_nearest_program_factory.cpp#L134-L135`](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_nearest_program_factory.cpp#L134-L135):\n  `aligned_output_stick_nbytes` checks `any_sharded` (which is derived solely from `input_tensor`) instead of checking whether `output_tensor` is sharded, using an unaligned stick size when writing from a sharded input to a DRAM-interleaved output (or vice versa).\n- In [`rotate_nearest_program_factory.cpp#L184-L196`](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_nearest_program_factory.cpp#L184-L196):\n  `output_cb` is only a burst staging FIFO between `reader_rotate_nearest_interleaved.cpp` and `writer_rotate_nearest_interleaved.cpp` (which always writes every output stick via `TensorAccessor` `output_tensor_accessor`). Binding `.buffer = any_sharded ? output_tensor.buffer() : nullptr` fails with `TT_FATAL: Only L1 buffers can have an associated circular buffer!` when `output_tensor` is in DRAM, corrupts L1 when `output_tensor` is L1 interleaved, and causes race conditions when `input_tensor` and `output_tensor` have different `HEIGHT_SHARDED` shard specs.\n\n#### 2. `BilinearProgramFactory::create_descriptor` fails when input is `HEIGHT_SHARDED` and output is `INTERLEAVED` (or uses a different `HEIGHT_SHARDED` spec)\n- In [`ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_bilinear_program_factory.cpp#L136`](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_bilinear_program_factory.cpp#L136), `const bool any_sharded = is_input_sharded || is_output_sharded;` is used to configure `output_cb` ([L201-L215](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_bilinear_program_factory.cpp#L201-L215)) and to skip creating `writer_desc` ([L318](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_bilinear_program_factory.cpp#L318), [L377](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_bilinear_program_factory.cpp#L377)).\n- When `is_input_sharded && !is_output_sharded`:\n  - `output_cb` is bound to `output_tensor.buffer()` (throwing `TT_FATAL: Only L1 buffers can have an associated circular buffer!` for DRAM output, or aliasing the interleaved L1 buffer across cores), and `writer_grid_sample_interleaved.cpp` is never launched to drain `output_cb`.\n- Furthermore, `reader_rotate_bilinear_interleaved.cpp` reads from `input_tensor` exclusively via `TensorAccessor` (`input_tensor_accessor`) into an unbacked local `input_cb`. Only `output_cb` is backed by a tensor buffer when `is_output_sharded` is true. Partitioning cores by `output_shard_spec` when `is_output_sharded` is true and by `split_work_to_cores` when `is_output_sharded` is false allows `BilinearProgramFactory` to handle any combination of `HEIGHT_SHARDED` and `INTERLEAVED` inputs/outputs (including uneven shards and distinct input/output shard specs).\n\n#### 3. `BilinearProgramFactory::create_descriptor` hangs the device when `output_shard_spec.grid` has more cores than active stick shards\n- In [`rotate_bilinear_program_factory.cpp#L114-L123`](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_bilinear_program_factory.cpp#L114-L123):\n  ```cpp\n  } else if (is_output_sharded) {\n      const auto output_shard_spec = output_tensor.shard_spec().value();\n      output_nsticks_per_core = output_shard_spec.shape[0];\n      num_cores = (total_output_sticks + output_nsticks_per_core - 1) / output_nsticks_per_core;\n      all_cores = output_shard_spec.grid;\n  ```\n  Both `reader_desc` and `compute_desc_group_1` (`total_interpolations = output_nsticks_per_core`) are launched on `all_cores` (`output_shard_spec.grid`), but runtime arguments are only populated for `num_cores`. If `output_shard_spec.grid.num_cores() > num_cores` (e.g. 100 sticks with `shard_height = 36` on a 4-core grid), the remaining core(s) receive default `num_sticks = 0` in the reader while `compute_pool_2d` blocks indefinitely waiting for `output_nsticks_per_core` pages. Setting `num_cores = output_shard_spec.num_cores()` matches the `is_input_sharded` path, allowing `reader_rotate_bilinear_interleaved.cpp` to push fill pages for `curr_batch >= input_batch`.\n\n#### 4. Missing output `memory_config` validation in `RotateDeviceOperation::validate_inputs`\n- [`rotate_device_operation.cpp#L60-L66`](https://github.com/tenstorrent/tt-metal/blob/0de8c7f3aade6170fc456b904dbf72e3f776b6aa/ttnn/cpp/ttnn/operations/pool/rotate/device/rotate_device_operation.cpp#L60-L66) validates `input.memory_config()`, but never validates `operation_attributes.memory_config` (allowing `WIDTH_SHARDED`/`BLOCK_SHARDED` output configs, mismatched shard widths, or `ND_SHARDED` configs in bilinear mode to reach the program factories and crash).\n\n---\n\n### Minimal Reproducer\n\n```python\nimport torch\nimport ttnn\n\ndef test_repro(device):\n    torch_input = torch.randn((1, 8, 8, 64), dtype=torch.bfloat16)\n    shard_spec = ttnn.ShardSpec(\n        ttnn.CoreRangeSet({ttnn.CoreRange(ttnn.CoreCoord(0, 0), ttnn.CoreCoord(1, 0))}),\n        (32, 64),\n        ttnn.ShardOrientation.ROW_MAJOR,\n    )\n    sharded_cfg = ttnn.MemoryConfig(ttnn.TensorMemoryLayout.HEIGHT_SHARDED, ttnn.BufferType.L1, shard_spec)\n\n    ttnn_in_sharded = ttnn.from_torch(\n        torch_input, layout=ttnn.ROW_MAJOR_LAYOUT, device=device, memory_config=sharded_cfg\n    )\n\n    # 1. Nearest: HEIGHT_SHARDED input -> DRAM_MEMORY_CONFIG output\n    # Crashes on main with: std::bad_optional_access at rotate_nearest_program_factory.cpp:99\n    out_nearest = ttnn.rotate(\n        ttnn_in_sharded, angle=45.0, interpolation_mode=\"nearest\", memory_config=ttnn.DRAM_MEMORY_CONFIG\n    )\n\n    # 2. Bilinear: HEIGHT_SHARDED input -> DRAM_MEMORY_CONFIG output\n    # Crashes on main with: TT_FATAL: Only L1 buffers can have an associated circular buffer!\n    out_bilinear = ttnn.rotate(\n        ttnn_in_sharded, angle=45.0, interpolation_mode=\"bilinear\", memory_config=ttnn.DRAM_MEMORY_CONFIG\n    )\n```\n\n---\n\n### Proposed Fix\n\n1. **`rotate_device_operation.cpp`**: Validate `operation_attributes.memory_config` (require `HEIGHT_SHARDED` in `L1` and matching channel shard width when sharded, and require legacy `ShardSpec` in `bilinear` mode).\n2. **`rotate_nearest_program_factory.cpp`**: Decouple input sharding from output sharding when computing `aligned_output_stick_nbytes`, remove the unconditional `output_tensor.shard_spec().value()` dereference, and keep `output_cb` as a local double-buffered burst FIFO (`num_cb_pages * NEAREST_BUFFERING_FACTOR`, `.buffer = nullptr`).\n3. **`rotate_bilinear_program_factory.cpp`**: Drive output CB backing and core partitioning by `is_output_sharded` (using `num_cores = output_shard_spec.num_cores()` to prevent hangs on surplus grid cores, and using `split_work_to_cores` + `writer_grid_sample_interleaved.cpp` whenever `!is_output_sharded`).\n4. **`test_rotate.py`**: Add unit tests covering `HEIGHT_SHARDED <-> INTERLEAVED` (`DRAM`/`L1`), `HEIGHT_SHARDED -> HEIGHT_SHARDED` with distinct shard grids/heights, uneven sharding with surplus grid cores, and invalid output `memory_config` rejection.",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -493,66 +459,6 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 64898,
-    "title": "[Bounty proposal] clamp_bw/clip_bw use wrong memory config variable in early-return branches; hardsigmoid_bw drops output_mem_config on intermediate multiply",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/64898",
-    "state": "open",
-    "labels": [
-      "community"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 2,
-    "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-08T14:28:28Z",
-    "updated_at": "2026-11-08T14:28:40Z",
-    "author": "mahmoodbatterycenter-byte",
-    "body": "## Bug Description\n\n### Bug 1: clamp_bw / clip_bw memory config inconsistency\n\nIn `ttnn/cpp/ttnn/operations/eltwise/unary_backward/unary_backward.cpp`, both overloads of `clamp_bw` resolve `output_mem_config` into `output_memory_config` at the top. The both-present branch correctly uses `output_memory_config`, but the `!max` and `!min` early-return branches use the raw `output_mem_config` optional.\n\n**Affected lines:** 93-94, 99-100, 123-124, 129-130\n\n### Bug 2: hardsigmoid_bw missing output_mem_config on intermediate multiply\n\nAt line 685, `ttnn::multiply(grad, 1.0f / 6.0f)` does not forward `output_mem_config`.\n\n**Proposed bounty:** $400\n**Difficulty:** Easy\n**PR:** #64897",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "A-Tier",
-      "bounty_amount": 400,
-      "is_hidden_gem": true,
-      "bounty_score": 49,
-      "score_breakdown": {
-        "amount": 8,
-        "feasibility": 60,
-        "competition": 68,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 64840,
-    "title": "[Bounty proposal] scale_causal_mask_hw_dims_softmax_in_place: mask geometry is not validated against the shard block, and the hw-dims reader wrap can read past the mask",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/64840",
-    "state": "open",
-    "labels": [
-      "community"
-    ],
-    "comment_count": 2,
-    "open_pr_count": 2,
-    "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-08T03:02:04Z",
-    "updated_at": "2026-11-08T15:15:13Z",
-    "author": "illsuc",
-    "body": "### 📝 Background\n\n`ttnn.scale_causal_mask_hw_dims_softmax_in_place` with `SoftmaxShardedMultiCoreProgramConfig`\naccepts attention masks whose geometry does not match the input/shard layout, and can then\nsilently read out of bounds or apply the wrong mask rows. Two concrete failure cases follow.\nBoth are in the hw-dims path only (`is_scale_causal_mask_hw_dims_softmax`), which keeps its\nown cursor and reader and is explicitly left unchanged by #64681.\n\n**Case A — mask narrower than the input: out-of-bounds mask reads, no wrap, no error.**\n\nThe hw-dims validation branch (`ttnn/cpp/ttnn/operations/normalization/softmax/device/softmax_device_operation.cpp`,\nthe `is_scale_causal_mask_hw_dims_softmax` block) checks layout, sharding, orientation and\nscale, but never checks the mask width/height against the input or the program config. The\ngeneric non-sharded TILE check only requires the mask to span at least one tile.\n\nThe factory computes `num_tiles_in_attn_mask = mask_H * mask_W / tile_hw` and advances each\ncore's cursor by `(start + block_h * block_w) % num_tiles_in_attn_mask`\n(`softmax_program_factory_attention_optimized_sharded.cpp`, run-args section). The reader\n(`kernels/attention/dataflow/reader_unary_sharded_sm_causal_mask_hw_dims.cpp`) wraps with an\nequality test at row ends only:\n\n```cpp\nif (mask_id == mask_num_tiles) {\n    mask_id = 0;\n}\n```\n\nRepro shape: input `[1, 1, 64, 128]` height-sharded ROW_MAJOR, shard `[64, 128]`\n(`block_h = 2`, `block_w = 4`, one core), mask `[1, 1, 32, 96]` TILE non-sharded, scale set.\nEvery existing validation passes. `mask_num_tiles = 3`, `block_wt = 4`: the first row reads\npages 0,1,2,3 — page 3 is past the end of the 3-page mask. `mask_id` becomes 4, skips the\nexact equality, never wraps, and every following row reads further out of bounds. The op\nreturns silently with garbage mask values.\n\n**Case B — mask height not compatible with block_h: wrong mask rows, silently.**\n\nWith matching widths but a mask shorter than the input (or a mask tile-height not divisible\nby `block_h`), the modulo cursor hands different cores overlapping or misaligned mask rows.\nExample: input `[1, 1, 128, 128]`, shard `[64, 128]` (`block_h = 2`, `block_w = 4`, 2 cores),\nmask `[1, 1, 96, 128]` (3 tile rows, 12 tiles). Core 0 starts at 0 (rows 0,1); core 1 starts\nat 8 (row 2), wraps to 0 after its first row, and applies mask row 0 to input rows 96–127.\nNo error. The default causal path rejects this class of shape via #63692\n(`block_h` not a multiple of the mask height); the hw-dims path has no equivalent check.\n\nRelated observation (lower confidence, possibly intended broadcast semantics): the host\ncursor wraps within `mask_H * mask_W` of a single batch, so with a multi-batch mask\n`[B, 1, H, W]` every batch reads batch 0's mask. If that is intended, validation should say\nso (reject `mask_batch > 1` or document broadcast); today it is silent either way.\n\n### 🔗 Relationship to existing work (no overlap)\n\n- #64575 / #64576: offset shard grids — unrelated.\n- #64647 / #64681: `scale_mask_softmax_in_place` default/RM/sharded-mask paths. #64681\n  states \"The hw_dims path keeps its own cursor and is unchanged.\" If its width-mismatch\n  rejection lands in shared validation, Case A's trigger is rejected there and this\n  proposal reduces to Case B (height/block compatibility) plus the reader hardening.\n- #63692: causal shard-height rejection for the default path only.\n- #64407 / #63910: RM-causal and sharded-mask-spec errors — different paths.\n\n### 🎯 What Success Looks Like\n\n- The hw-dims path rejects, with a clear pre-dispatch `TT_FATAL`, a mask whose width differs\n  from the input width, and a mask whose tile height is not compatible with `block_h`\n  (mirroring #63692's default-path behavior), or handles those shapes correctly if a\n  well-defined semantics exists.\n- The reader wrap no longer depends on exact equality (e.g. `mask_id %= mask_num_tiles`\n  at row ends) so a misconfiguration can never produce an out-of-bounds NoC read.\n- Multi-batch mask behavior is either validated or documented.\n- Regression tests: matched geometry (existing model configs unchanged, e.g. Falcon-40B\n  decode), narrower mask rejected, incompatible height rejected, multi-core cursor\n  alignment compared against a PyTorch reference tile-row by tile-row.\n- Existing sharded/causal softmax tests keep passing; PR passes required CI.\n\n### 💡 Suggested approach\n\nHost-side validation in the hw-dims branch of `validate_on_program_cache_miss` plus a\none-line wrap hardening in the reader; focused pytest coverage. No compute-kernel changes\nexpected. Verification can run on ttsim (Wormhole) without silicon, as done in #64681.\n\nNOTE THAT THIS PROPOSAL IS SUBJECT TO THE TENSTORRENT BOUNTY PROGRAM TERMS & CONDITIONS\n(https://docs.tenstorrent.com/bounty_terms.html).",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 46,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 66,
         "freshness": 100
       }
     }
@@ -1081,11 +987,11 @@
       "bounty",
       "bounty-S"
     ],
-    "comment_count": 8,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-11-05T11:02:34Z",
-    "updated_at": "2026-11-08T18:13:52Z",
+    "updated_at": "2026-11-09T14:13:22Z",
     "author": "brianp",
     "body": "## Bounty: MCP server gives no error when the configured port is already in use\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIf you set the MCP server port (Settings → MCP Server → Advanced) to a port another process is already using, the server correctly refuses to start, but the panel just shows **Stopped**. The panel says nothing about the port, and the log only has `MCP server stopped` / `MCP server shut down cleanly`. To the user it looks like the server died for no reason.\n\nThe backend already builds a clear error. `McpServerManager::start` in `src-tauri/src/mcp/server.rs` (around line 126) fails with \"MCP server failed to bind to configured port …\", and `set_mcp_port` in `src-tauri/src/mcp/commands.rs` returns it to the frontend. But `commitPort` in `src/containers/floating/Settings/sections/mcp/AdvancedSettings.tsx` only calls `console.error` and quietly puts the old port value back in the field.\n\nA smaller related problem: the port input ignores invalid values (non-numeric, below 1024 or above 65535) without telling the user. Typing into the field without clearing it first gave `193334444`, which was rejected silently.\n\n### Acceptance Criteria\n\n- [ ] When the chosen port is already in use, the MCP settings panel shows a clear, translatable message such as \"Port 4444 is already in use. Choose another port.\"\n- [ ] The bind failure is logged at `warn` or `error` level with the port number and the OS error\n- [ ] After the failure, the panel shows the server's real state and which port is configured. It's clear what to do next (pick another port), and the user doesn't have to guess by toggling the server\n- [ ] The same message appears when you enable the server and its saved port is taken (the `McpServerManager::start()` path in `commands.rs`), not only when you change the port\n- [ ] When an out-of-range or non-numeric port is entered, the user gets inline feedback (e.g. \"Port must be between 1024 and 65535\") instead of the value being silently reset\n- [ ] The security behaviour stays the same: the server must not fall back to a random port\n- [ ] Tests cover the error display (extend `AdvancedSettings.test.tsx`)\n- [ ] New strings are added to the `en` locale only. Other locales are filled in by the translation process\n\n### Context\n\n- Bind: `src-tauri/src/mcp/server.rs` `McpServerManager::start` / `restart`\n- Commands: `src-tauri/src/mcp/commands.rs` (`set_mcp_port`, enable path)\n- UI: `src/containers/floating/Settings/sections/mcp/AdvancedSettings.tsx` (`commitPort`)\n- Repro: enable the MCP server, then run something on port 4444 (e.g. `nc -l 4444`), set the port to 4444 and press Enter\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3492`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
     "hunter_intelligence": {
@@ -1094,11 +1000,11 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 47,
+      "bounty_score": 46,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 69,
+        "competition": 67,
         "freshness": 100
       }
     }
@@ -1132,7 +1038,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1232,6 +1138,378 @@
     }
   },
   {
+    "number": 577,
+    "title": "Security report: tari-ootle unseparated UtxoAddress(TARI_TOKEN, commitment) Namespace Between claim_burn and execute_stealth_transfer Allows L1 Burner to Pre-Create and Spend the Burn Commitment UTXO v0, Permanently Blocking the Recipient's ClaimBurn (GHSA-8mh4-mhrw-5j87)",
+    "url": "https://github.com/tari-project/special_contributions/issues/577",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T12:57:54Z",
+    "updated_at": "2026-11-09T12:57:55Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-8mh4-mhrw-5j87](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-8mh4-mhrw-5j87).\n\nThe report showed that unseparated UtxoAddress(TARI_TOKEN, commitment) Namespace Between claim_burn and execute_stealth_transfer Allows L1 Burner to Pre-Create and Spend the Burn Commitment UTXO v0, Permanently Blocking the Recipient's ClaimBurn. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3633. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #577` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #577`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 574,
+    "title": "Contribution: fix(walletd): validate submitted tx headers and swap outputs and handle wait_result lag (tari-project/tari-ootle#3620)",
+    "url": "https://github.com/tari-project/special_contributions/issues/574",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T11:26:25Z",
+    "updated_at": "2026-11-09T11:26:26Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3620](https://github.com/tari-project/tari-ootle/pull/3620): fix(walletd): validate submitted tx headers and swap outputs and handle wait_result lag.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #574` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #574`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3620\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 573,
+    "title": "Security report: tari-ootle non-Canonical Duplicate Command Entries in CommandsCommitProofV1 Pass ForeignProposal Validation and Split Honest Local Block Votes on BlockForeignProposalBytesExceeded (GHSA-rg88-cq7p-wmx2)",
+    "url": "https://github.com/tari-project/special_contributions/issues/573",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T11:17:45Z",
+    "updated_at": "2026-11-09T11:17:46Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-rg88-cq7p-wmx2](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-rg88-cq7p-wmx2).\n\nThe report showed that non-Canonical Duplicate Command Entries in CommandsCommitProofV1 Pass ForeignProposal Validation and Split Honest Local Block Votes on BlockForeignProposalBytesExceeded. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3626. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #573` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #573`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 572,
+    "title": "Contribution: fix(consensus): reject invalid, shard-group-mismatched and empty foreign proposal atoms when voting (tari-project/tari-ootle#3220)",
+    "url": "https://github.com/tari-project/special_contributions/issues/572",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T11:16:33Z",
+    "updated_at": "2026-11-09T11:16:34Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3220](https://github.com/tari-project/tari-ootle/pull/3220): fix(consensus): reject invalid, shard-group-mismatched and empty foreign proposal atoms when voting.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #572` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #572`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3220\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 571,
+    "title": "Contribution: fix(consensus): report local abort on AllAccept disagreement and validate foreign proposal atoms (tari-project/tari-ootle#3535)",
+    "url": "https://github.com/tari-project/special_contributions/issues/571",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T11:15:17Z",
+    "updated_at": "2026-11-09T11:15:18Z",
+    "author": "sdbondi",
+    "body": "Bounty for @LBCron for contributing [tari-project/tari-ootle#3535](https://github.com/tari-project/tari-ootle/pull/3535): fix(consensus): report local abort on AllAccept disagreement and validate foreign proposal atoms.\n\n**No further code work is required here.**\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #571` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #571`, naming this issue\n- [ ] It is opened by @LBCron, the author of tari-project/tari-ootle#3535\n- [ ] It changes only `YYYY/MM/LBCron_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 569,
+    "title": "Contribution: fix(validator_node): reject padded consensus gossip and trigger shutdown on task failure (tari-project/tari-ootle#3573)",
+    "url": "https://github.com/tari-project/special_contributions/issues/569",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T10:59:45Z",
+    "updated_at": "2026-11-09T10:59:45Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3573](https://github.com/tari-project/tari-ootle/pull/3573): fix(validator_node): reject padded consensus gossip and trigger shutdown on task failure.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #569` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #569`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3573\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 568,
+    "title": "mempool harding cve",
+    "url": "https://github.com/tari-project/special_contributions/issues/568",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T10:57:26Z",
+    "updated_at": "2026-11-09T10:57:26Z",
+    "author": "SWvheerden",
+    "body": "CVE for mempool hardening ",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 567,
+    "title": "Contribution: fix(ootle-rs): enforce balance checks for revealed-only and burn-claim statements (tari-project/tari-ootle#3531)",
+    "url": "https://github.com/tari-project/special_contributions/issues/567",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T10:41:07Z",
+    "updated_at": "2026-11-09T10:41:08Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3531](https://github.com/tari-project/tari-ootle/pull/3531): fix(ootle-rs): enforce balance checks for revealed-only and burn-claim statements.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #567` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #567`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3531\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 563,
+    "title": "Contribution: fix(template_macros): fix cbor index detection, impl parsing, and tuple returns (tari-project/tari-ootle#3576)",
+    "url": "https://github.com/tari-project/special_contributions/issues/563",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T10:16:06Z",
+    "updated_at": "2026-11-09T10:16:07Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3576](https://github.com/tari-project/tari-ootle/pull/3576): fix(template_macros): fix cbor index detection, impl parsing, and tuple returns.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #563` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #563`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3576\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 555,
+    "title": "Contribution: perf(consensus): let later local-only claims lock a ValidatorFeePool while an earlier withdrawal is pending (tari-project/tari-ootle#3226)",
+    "url": "https://github.com/tari-project/special_contributions/issues/555",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T08:19:29Z",
+    "updated_at": "2026-11-09T08:19:30Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3226](https://github.com/tari-project/tari-ootle/pull/3226): perf(consensus): let later local-only claims lock a ValidatorFeePool while an earlier withdrawal is pending.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #555` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #555`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3226\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 549,
+    "title": "Contribution: fix(engine): reject ComponentAddressAllocation early if component already exists (#3575) (tari-project/tari-ootle#3584)",
+    "url": "https://github.com/tari-project/special_contributions/issues/549",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T08:07:56Z",
+    "updated_at": "2026-11-09T08:07:57Z",
+    "author": "sdbondi",
+    "body": "Bounty for @mekserina for contributing [tari-project/tari-ootle#3584](https://github.com/tari-project/tari-ootle/pull/3584): fix(engine): reject ComponentAddressAllocation early if component already exists (#3575).\n\n**No further code work is required here.**\n\n## Done when\n\n@mekserina opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #549` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #549`, naming this issue\n- [ ] It is opened by @mekserina, the author of tari-project/tari-ootle#3584\n- [ ] It changes only `YYYY/MM/mekserina_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 541,
+    "title": "Bug report: tari-ootle resource Auth Hook (`invoke_resource_access_hook`) Serializes Full Caller `component_state` into `arg_scope` Causing `RootSubstateNotFound` Asset Lock on Spent UTXOs and Holds Caller Component `Write` Lock Across Hook Invocation (`crates/engine/src/runtime/impl.rs`, `processor.rs`) (GHSA-mqgw-67fj-29w6)",
+    "url": "https://github.com/tari-project/special_contributions/issues/541",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T07:23:01Z",
+    "updated_at": "2026-11-09T07:23:02Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @sonson0910 for reporting a bug in `tari-ootle` through GitHub Security Advisories: [GHSA-mqgw-67fj-29w6](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-mqgw-67fj-29w6).\n\nThe report showed that resource Auth Hook (`invoke_resource_access_hook`) Serializes Full Caller `component_state` into `arg_scope` Causing `RootSubstateNotFound` Asset Lock on Spent UTXOs and Holds Caller Component `Write` Lock Across Hook Invocation (`crates/engine/src/runtime/impl.rs`, `processor.rs`). The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3616. **No code work is required here.**\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #541` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #541`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 528,
     "title": "Contribution: fix(wallet): pass multiple lock IDs through transaction submission (tari-project/tari-ootle#3218)",
     "url": "https://github.com/tari-project/special_contributions/issues/528",
@@ -1247,223 +1525,6 @@
     "updated_at": "2026-11-09T03:24:15Z",
     "author": "sdbondi",
     "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3218](https://github.com/tari-project/tari-ootle/pull/3218): fix(wallet): pass multiple lock IDs through transaction submission.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #528` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #528`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3218\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 527,
-    "title": "Contribution: fix(engine_types): validate preconditions before mutating ResourceContainer (tari-project/tari-ootle#3518)",
-    "url": "https://github.com/tari-project/special_contributions/issues/527",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T03:21:39Z",
-    "updated_at": "2026-11-09T03:21:40Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3518](https://github.com/tari-project/tari-ootle/pull/3518): fix(engine_types): validate preconditions before mutating ResourceContainer.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #527` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #527`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3518\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 526,
-    "title": "Contribution: fix(rpc_state_sync): reject gapped version proofs and enforce the proof schedule (tari-project/tari-ootle#3507)",
-    "url": "https://github.com/tari-project/special_contributions/issues/526",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T03:15:36Z",
-    "updated_at": "2026-11-09T03:15:37Z",
-    "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3507](https://github.com/tari-project/tari-ootle/pull/3507): fix(rpc_state_sync): reject gapped version proofs and enforce the proof schedule.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #526` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #526`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3507\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 519,
-    "title": "Contribution: fix(transaction): charge invocation floor on stealth template functions and merge workspace keys (tari-project/tari-ootle#3486)",
-    "url": "https://github.com/tari-project/special_contributions/issues/519",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T12:39:16Z",
-    "updated_at": "2026-11-08T12:39:17Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3486](https://github.com/tari-project/tari-ootle/pull/3486): fix(transaction): charge invocation floor on stealth template functions and merge workspace keys.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #519` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #519`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3486\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 518,
-    "title": "Contribution: fix(state_store_rocksdb): fix exclusive upper bounds in range queries and rewinds (tari-project/tari-ootle#3478)",
-    "url": "https://github.com/tari-project/special_contributions/issues/518",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T12:38:13Z",
-    "updated_at": "2026-11-08T12:38:14Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3478](https://github.com/tari-project/tari-ootle/pull/3478): fix(state_store_rocksdb): fix exclusive upper bounds in range queries and rewinds.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #518` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #518`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3478\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 516,
-    "title": "Contribution: fix(validator_node,consensus,walletd,indexer): avoid refutable select patterns on broadcast receivers (tari-project/tari-ootle#3341)",
-    "url": "https://github.com/tari-project/special_contributions/issues/516",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T11:18:48Z",
-    "updated_at": "2026-11-08T11:18:49Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3341](https://github.com/tari-project/tari-ootle/pull/3341): fix(validator_node,consensus,walletd,indexer): avoid refutable select patterns on broadcast receivers.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #516` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #516`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3341\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 515,
-    "title": "Contribution: fix(walletd): refuse granting signing_requests:approve to API keys (tari-project/tari-ootle#3545)",
-    "url": "https://github.com/tari-project/special_contributions/issues/515",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T11:11:30Z",
-    "updated_at": "2026-11-08T11:11:31Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3545](https://github.com/tari-project/tari-ootle/pull/3545): fix(walletd): refuse granting signing_requests:approve to API keys.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #515` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #515`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3545\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 514,
-    "title": "Security report: tari-ootle tari_walletd allows minting API keys with SigningRequests(Approve) and omits account-scope authorization in handle_list (nfts.list) (GHSA-5hh3-fvmf-xxhq)",
-    "url": "https://github.com/tari-project/special_contributions/issues/514",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T11:11:18Z",
-    "updated_at": "2026-11-08T11:11:19Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @cyczzhao-lab for reporting a security weakness in `tari-ootle` through GitHub Security Advisories: [GHSA-5hh3-fvmf-xxhq](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-5hh3-fvmf-xxhq).\n\nThe report showed that tari_walletd allows minting API keys with SigningRequests(Approve) and omits account-scope authorization in handle_list (nfts.list). The reporter did not touch any shared network.\n\nThe fix was implemented separately by @Ninkuki in tari-project/tari-ootle#3545. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #514` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #514`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the credited reporter\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1506,161 +1567,6 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 512,
-    "title": "Contribution: fix(engine): reuse current component lock in ComponentAction::GetTemplateAddress (tari-project/tari-ootle#3513)",
-    "url": "https://github.com/tari-project/special_contributions/issues/512",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T10:52:15Z",
-    "updated_at": "2026-11-08T10:52:16Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3513](https://github.com/tari-project/tari-ootle/pull/3513): fix(engine): reuse current component lock in ComponentAction::GetTemplateAddress.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #512` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #512`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3513\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 511,
-    "title": "Contribution: fix(jellyfish): validate CBOR NibblePath length, nibbles, and duplicate keys (tari-project/tari-ootle#3512)",
-    "url": "https://github.com/tari-project/special_contributions/issues/511",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T10:49:35Z",
-    "updated_at": "2026-11-08T10:49:36Z",
-    "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3512](https://github.com/tari-project/tari-ootle/pull/3512): fix(jellyfish): validate CBOR NibblePath length, nibbles, and duplicate keys.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #511` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #511`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3512\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 510,
-    "title": "Contribution: fix(libp2p-messaging): preserve stream ordering and handle closed pending dials (tari-project/tari-ootle#3509)",
-    "url": "https://github.com/tari-project/special_contributions/issues/510",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T10:29:16Z",
-    "updated_at": "2026-11-08T10:29:17Z",
-    "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3509](https://github.com/tari-project/tari-ootle/pull/3509): fix(libp2p-messaging): preserve stream ordering and handle closed pending dials.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #510` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #510`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3509\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 509,
-    "title": "Contribution: fix(ootle_wasm): validate canonical public keys in parse_ootle_address and revealed_receiver (tari-project/tari-ootle#3487)",
-    "url": "https://github.com/tari-project/special_contributions/issues/509",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T10:25:44Z",
-    "updated_at": "2026-11-08T10:25:45Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3487](https://github.com/tari-project/tari-ootle/pull/3487): fix(ootle_wasm): validate canonical public keys in parse_ootle_address and revealed_receiver.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #509` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #509`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3487\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 507,
-    "title": "Contribution: fix(storage): require Input pledge in SubstatePledge::satisfies_requirement (tari-project/tari-ootle#3466)",
-    "url": "https://github.com/tari-project/special_contributions/issues/507",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T03:29:58Z",
-    "updated_at": "2026-11-08T03:29:59Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3466](https://github.com/tari-project/tari-ootle/pull/3466): fix(storage): require Input pledge in SubstatePledge::satisfies_requirement.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #507` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #507`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3466\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
         "freshness": 99
       }
     }
@@ -1692,7 +1598,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1723,7 +1629,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1743,37 +1649,6 @@
     "updated_at": "2026-11-06T04:44:27Z",
     "author": "sdbondi",
     "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3228](https://github.com/tari-project/tari-ootle/pull/3228): fix(transaction_validation): enforce permitted fee instructions and fee-payment presence.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #471` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #471`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3228\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 458,
-    "title": "Contribution: fix(engine_types): enforce exact CBOR decoding for substates, metadata and manifest args (tari-project/tari-ootle#3331)",
-    "url": "https://github.com/tari-project/special_contributions/issues/458",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-05T11:47:16Z",
-    "updated_at": "2026-11-05T11:47:17Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Vallejo1921 for contributing [tari-project/tari-ootle#3331](https://github.com/tari-project/tari-ootle/pull/3331): fix(engine_types): enforce exact CBOR decoding for substates, metadata and manifest args.\n\n**No further code work is required here.**\n\n## Done when\n\n@Vallejo1921 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #458` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #458`, naming this issue\n- [ ] It is opened by @Vallejo1921, the author of tari-project/tari-ootle#3331\n- [ ] It changes only `YYYY/MM/Vallejo1921_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1811,7 +1686,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1842,7 +1717,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1873,7 +1748,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1909,7 +1784,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1940,7 +1815,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1971,7 +1846,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2002,7 +1877,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2033,7 +1908,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2281,7 +2156,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2312,7 +2187,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2343,7 +2218,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2374,7 +2249,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2405,7 +2280,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2436,7 +2311,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2467,7 +2342,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2498,7 +2373,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2529,7 +2404,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2560,7 +2435,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2591,7 +2466,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2684,7 +2559,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -2715,7 +2590,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 84
+        "freshness": 83
       }
     }
   },
@@ -2751,6 +2626,37 @@
     }
   },
   {
+    "number": 556,
+    "title": "Contribution: fix(consensus): require embedded foreign proposals to match block commands (tari-project/tari-ootle#3359)",
+    "url": "https://github.com/tari-project/special_contributions/issues/556",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-M"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-09T08:54:40Z",
+    "updated_at": "2026-11-09T08:54:41Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3359](https://github.com/tari-project/tari-ootle/pull/3359): fix(consensus): require embedded foreign proposals to match block commands.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #556` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #556`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3359\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 521,
     "title": "Security report: tari-ootle a validator that does not vote on a finalizing block reports the previous life cycle's decision (GHSA-9f9q-g46r-7rrc)",
     "url": "https://github.com/tari-project/special_contributions/issues/521",
@@ -2777,7 +2683,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2839,7 +2745,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -2865,7 +2771,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2963,7 +2869,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -3087,7 +2993,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -3118,7 +3024,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -3185,37 +3091,6 @@
     }
   },
   {
-    "number": 520,
-    "title": "Security report: tari-ootle prepare_multishard_no_execution Ignores Hard Input-Lock Conflicts on Versioned Local Inputs and Prepares the Transaction as Commit, Stalling the Shard Group at LocalAccept with NotAllForeignInputPledges (GHSA-xfcc-w7c2-q869)",
-    "url": "https://github.com/tari-project/special_contributions/issues/520",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-L"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T13:03:55Z",
-    "updated_at": "2026-11-08T13:03:56Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-xfcc-w7c2-q869](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-xfcc-w7c2-q869).\n\nThe report showed that prepare_multishard_no_execution Ignores Hard Input-Lock Conflicts on Versioned Local Inputs and Prepares the Transaction as Commit, Stalling the Shard Group at LocalAccept with NotAllForeignInputPledges. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @ket4min-susan in tari-project/tari-ootle#3227. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #520` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #520`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
     "number": 426,
     "title": "Security report: tari-ootle `CallFunction` executes `&self` methods as static functions: component access rules are bypassed and the method acts with the template's resource authority (GHSA-gf2x-v6mp-cc46)",
     "url": "https://github.com/tari-project/special_contributions/issues/426",
@@ -3273,7 +3148,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
@@ -3364,7 +3239,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 13
+        "freshness": 12
       }
     }
   },
@@ -3491,7 +3366,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 81
+        "freshness": 80
       }
     }
   },
@@ -3525,7 +3400,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 68
+        "freshness": 67
       }
     }
   },
@@ -3622,7 +3497,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 59,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -3819,7 +3694,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 37,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -3852,39 +3727,6 @@
         "feasibility": 60,
         "competition": 73,
         "freshness": 0
-      }
-    }
-  },
-  {
-    "number": 2016,
-    "title": "ability icons snap if skipping during upgrade [bounty: 7 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/2016",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "abilities",
-      "bounty"
-    ],
-    "comment_count": 8,
-    "open_pr_count": 2,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2022-01-30T00:09:38Z",
-    "updated_at": "2026-10-31T13:33:43Z",
-    "author": "DreadKnight",
-    "body": "The smooth transition animation of ability icon gets disabled somehow when skipping turn during the ability upgrade animation (upgrade icon over the ability icon), causing the icon to snap in and out instantly next times depending if the ability is usable.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 42,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 54,
-        "freshness": 96
       }
     }
   },
@@ -3951,7 +3793,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -4022,39 +3864,6 @@
     }
   },
   {
-    "number": 1772,
-    "title": "showcase ability targeting area better [bounty: 16 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/1772",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "abilities",
-      "bounty"
-    ],
-    "comment_count": 7,
-    "open_pr_count": 2,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2020-10-13T11:04:12Z",
-    "updated_at": "2026-10-30T20:52:42Z",
-    "author": "DreadKnight",
-    "body": "Area abilities, such as Godlet Printer, should show dashed hexagons for occupied hexagons within range to better reflect total area.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 43,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 56,
-        "freshness": 95
-      }
-    }
-  },
-  {
     "number": 1469,
     "title": "modular abilities [bounty: 70 XTR]",
     "url": "https://github.com/FreezingMoon/AncientBeast/issues/1469",
@@ -4084,39 +3893,6 @@
         "feasibility": 60,
         "competition": 0,
         "freshness": 27
-      }
-    }
-  },
-  {
-    "number": 1445,
-    "title": "Disturbing Sound sprite [bounty: 31 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/1445",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "abilities",
-      "bounty"
-    ],
-    "comment_count": 23,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2018-08-27T08:07:23Z",
-    "updated_at": "2026-10-31T21:29:54Z",
-    "author": "DreadKnight",
-    "body": "Chimera's Disturbing Sound is a range attack and should have a missile sprite.\r\n\r\nThis is composed of two sprites: the musical note will be displayed inside the circle, but only the circle will be rotating (clockwise by default is moving towards right side).\r\n\r\nFiles in `assets/units/sprites/`:\r\n`Chimera - Disturbing Sound - circle.png`\r\n`Chimera - Disturbing Sound - note.png`\r\n\r\nBased on https://opengameart.org/content/music-magic-effect#comment-78455",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 39,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 39,
-        "freshness": 96
       }
     }
   },
@@ -4173,7 +3949,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 43,
+      "bounty_score": 42,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -4212,39 +3988,6 @@
         "feasibility": 60,
         "competition": 52,
         "freshness": 27
-      }
-    }
-  },
-  {
-    "number": 2534,
-    "title": "more intuitive movement abilities [bounty: 12 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/2534",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "abilities",
-      "input"
-    ],
-    "comment_count": 2,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2024-02-11T03:28:18Z",
-    "updated_at": "2026-03-27T11:37:48Z",
-    "author": "DreadKnight",
-    "body": "Depends on / complementary with: #2533\r\n\r\nDirect movement related abilities should indicate the new location of active unit via 10% opacity cardboard that fades away on action confirmation.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 35,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 81,
-        "freshness": 0
       }
     }
   }
