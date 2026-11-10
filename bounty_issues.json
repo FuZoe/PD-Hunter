@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 185,
+    "comment_count": 187,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-09T00:08:31Z",
+    "updated_at": "2026-11-10T13:13:51Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -496,11 +496,11 @@
       "bounty",
       "bounty-S"
     ],
-    "comment_count": 6,
+    "comment_count": 7,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-11-07T15:46:12Z",
-    "updated_at": "2026-11-08T15:55:26Z",
+    "updated_at": "2026-11-10T10:47:15Z",
     "author": "brianp",
     "body": "## Bounty: L2 opens the \"set a PIN\" flow while the L1 wallet is still loading\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIf you click the L2 sidebar button before the L1 wallet has finished loading, Universe asks you to set a PIN even when one is already set. If you enter a PIN anyway, it fails with \"A PIN is already set for this wallet\".\n\nThe cause is in the frontend. `openL2()` in `src/store/actions/l2OpenActions.ts` reads `useWalletStore.is_pin_locked` and opens the `l2_pin_required` (create PIN) dialog when it's `false`. That flag defaults to `false` and is only set when the wallet setup phase emits it (`src-tauri/src/setup/phase_wallet.rs:239`, `emit_pin_locked`). Until then, the app can't tell \"no PIN\" apart from \"not loaded yet\".\n\n### Acceptance Criteria\n\n- [ ] With a PIN already set, clicking the L2 button while the L1 wallet is still loading never opens the create-PIN dialog\n- [ ] While the PIN state is unknown, the L2 button either waits or is disabled with a loading indication, and once the wallet has loaded it goes to the normal unlock/PIN-entry flow\n- [ ] A wallet that really has no PIN still gets the create-PIN dialog, both before and after loading finishes\n- [ ] Any other UI that uses `is_pin_locked` to tell whether a PIN is set (e.g. `L2Wallet.tsx` burn button, `L2WalletCard.tsx`, `SendModal.tsx`, `VerifySeedPhrase.tsx`) doesn't treat \"not loaded yet\" as \"no PIN\"\n- [ ] Unit tests cover the loading state (extend `l2OpenActions.test.ts` and/or `L2WalletCard.test.tsx`)\n- [ ] The PR includes a short screen recording of the fixed behaviour: launch with a PIN set and click L2 during wallet load\n\n### Context\n\n- Entry point: `src/containers/navigation/Sidebars/buttons/L2Button.tsx` → `openL2()` in `src/store/actions/l2OpenActions.ts`\n- PIN state source: `src-tauri/src/setup/phase_wallet.rs` (`PinManager::pin_locked()` → `EventsEmitter::emit_pin_locked`)\n- Backend error text: `src-tauri/src/internal_wallet.rs:667`\n- A good fix probably lets the store say \"unknown\" (e.g. `is_pin_locked: boolean | undefined`), or reads the PIN state on demand, instead of relying on a `false` default\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3518`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n"
   },
@@ -514,11 +514,11 @@
       "bounty",
       "bounty-S"
     ],
-    "comment_count": 6,
+    "comment_count": 7,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-11-05T11:10:29Z",
-    "updated_at": "2026-11-08T20:44:26Z",
+    "updated_at": "2026-11-10T11:35:15Z",
     "author": "brianp",
     "body": "## Bounty: Scheduled mining window doesn't apply its mode when mining is already running\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nWhen a scheduled mining window starts while you're already mining, the UI switches to the scheduled mode (e.g. Ludicrous), but the miners keep running with the old settings (e.g. Eco). If mining was stopped when the window starts, it mines in the scheduled mode correctly.\n\nThe `Mine` branch in `src-tauri/src/event_scheduler.rs` (around line 1096) saves the mode with `set_selected_mining_mode` and then calls `CpuManager::start_mining()` / `GpuManager::start_mining()`. Both return early when the miner is already running (`src-tauri/src/mining/cpu/manager.rs:174`, `src-tauri/src/mining/gpu/manager.rs:354`), so the new mode never reaches the miners. A manual mode change works because `selectMiningMode` in `src/store/actions/appConfigStoreActions.ts` stops the miners before starting them again.\n\n### Acceptance Criteria\n\n- [ ] When a scheduled window starts while mining is running in a different mode, the CPU and GPU miners restart with the scheduled mode's settings (e.g. xmrig's `--threads` matches the new mode)\n- [ ] When the scheduled mode is the same as the current one, the miners aren't restarted\n- [ ] Starting a window from a stopped state still works as it does today\n- [ ] When the window ends, mining stops, as it does today (`handle_exit_callback` in `event_scheduler.rs`). Restoring the mode or running state from before the window is out of scope\n- [ ] Only the miners that were enabled get restarted. If CPU or GPU mining is disabled, the scheduler doesn't turn it on\n- [ ] Preferably the stop-then-start logic lives in one backend helper that both the scheduler and the manual mode change can use, rather than being duplicated\n- [ ] The PR includes log excerpts from a manual test: mine in Eco, schedule a Ludicrous window, and show the miners restarting with the new thread count when the window starts\n\n### Context\n\n- Scheduler: `src-tauri/src/event_scheduler.rs` (`Mine` handler)\n- Early-return guards: `src-tauri/src/mining/cpu/manager.rs` `start_mining_inner`, `src-tauri/src/mining/gpu/manager.rs` `start_mining_inner`\n- Manual path: `selectMiningMode` in `src/store/actions/appConfigStoreActions.ts`\n- Logs from the report, where the window started while mining was already running:\n  ```\n  INFO  Starting gpu miner: LolMiner\n  INFO  GPU miner is already running\n  INFO  Starting cpu miner\n  INFO  CPU miner is already running\n  ```\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3494`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n"
   },
@@ -532,11 +532,11 @@
       "bounty",
       "bounty-S"
     ],
-    "comment_count": 9,
+    "comment_count": 11,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-11-05T11:02:34Z",
-    "updated_at": "2026-11-09T14:13:22Z",
+    "updated_at": "2026-11-10T10:18:20Z",
     "author": "brianp",
     "body": "## Bounty: MCP server gives no error when the configured port is already in use\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIf you set the MCP server port (Settings → MCP Server → Advanced) to a port another process is already using, the server correctly refuses to start, but the panel just shows **Stopped**. The panel says nothing about the port, and the log only has `MCP server stopped` / `MCP server shut down cleanly`. To the user it looks like the server died for no reason.\n\nThe backend already builds a clear error. `McpServerManager::start` in `src-tauri/src/mcp/server.rs` (around line 126) fails with \"MCP server failed to bind to configured port …\", and `set_mcp_port` in `src-tauri/src/mcp/commands.rs` returns it to the frontend. But `commitPort` in `src/containers/floating/Settings/sections/mcp/AdvancedSettings.tsx` only calls `console.error` and quietly puts the old port value back in the field.\n\nA smaller related problem: the port input ignores invalid values (non-numeric, below 1024 or above 65535) without telling the user. Typing into the field without clearing it first gave `193334444`, which was rejected silently.\n\n### Acceptance Criteria\n\n- [ ] When the chosen port is already in use, the MCP settings panel shows a clear, translatable message such as \"Port 4444 is already in use. Choose another port.\"\n- [ ] The bind failure is logged at `warn` or `error` level with the port number and the OS error\n- [ ] After the failure, the panel shows the server's real state and which port is configured. It's clear what to do next (pick another port), and the user doesn't have to guess by toggling the server\n- [ ] The same message appears when you enable the server and its saved port is taken (the `McpServerManager::start()` path in `commands.rs`), not only when you change the port\n- [ ] When an out-of-range or non-numeric port is entered, the user gets inline feedback (e.g. \"Port must be between 1024 and 65535\") instead of the value being silently reset\n- [ ] The security behaviour stays the same: the server must not fall back to a random port\n- [ ] Tests cover the error display (extend `AdvancedSettings.test.tsx`)\n- [ ] New strings are added to the `en` locale only. Other locales are filled in by the translation process\n\n### Context\n\n- Bind: `src-tauri/src/mcp/server.rs` `McpServerManager::start` / `restart`\n- Commands: `src-tauri/src/mcp/commands.rs` (`set_mcp_port`, enable path)\n- UI: `src/containers/floating/Settings/sections/mcp/AdvancedSettings.tsx` (`commitPort`)\n- Repro: enable the MCP server, then run something on port 4444 (e.g. `nc -l 4444`), set the port to 4444 and press Enter\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3492`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n"
   },
@@ -551,11 +551,11 @@
       "bounty",
       "bounty-S"
     ],
-    "comment_count": 5,
+    "comment_count": 7,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-11-05T10:19:13Z",
-    "updated_at": "2026-11-08T05:53:00Z",
+    "updated_at": "2026-11-10T13:11:38Z",
     "author": "brianp",
     "body": "## Bounty: Linux Flatpak copy to clipboard fails silently under Wayland\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIn the Linux Flatpak under a Wayland session, every copy button does nothing. Copy Address never switches to its copied state and nothing reaches the clipboard. The clipboard plugin returns:\n\n```\nUnknown error while interacting with the clipboard: X11 server connection timed out because it was unreachable\n```\n\nThe Flatpak manifest (`flatpak/com.tari.universe.yml`) uses `--socket=wayland` plus `--socket=fallback-x11`, so on Wayland the sandbox gets no `DISPLAY`. `arboard`'s Wayland path (`wl-clipboard-rs`) needs the privileged data-control protocol, which the compositor seems to withhold from sandboxed clients, so it falls back to X11 and fails. `useCopyToClipboard` only sets `isCopied` when `writeText` succeeds, so the failure is invisible. That's especially bad for seed words, where users assume the copy worked.\n\nSeen on Pop!_OS COSMIC (Wayland) with runtime `org.gnome.Platform//50`. Not yet checked on GNOME or KDE.\n\n### Acceptance Criteria\n\n- [ ] In the Flatpak under a Wayland session, all copy actions put the expected text on the clipboard: Copy Address (Receive, wallet details, settings), Copy raw transaction details, seed words, logs/app-data paths, L2 wallet address, and the MCP token/agent config\n- [ ] Copy still works on Windows, macOS, Linux .deb/AppImage, and Flatpak under X11\n- [ ] The sandbox is **not** widened with `--socket=x11` or similar. Writing from the webview (`navigator.clipboard.writeText`, which uses WebKitGTK's GTK clipboard) or another approach that doesn't widen the sandbox is preferred\n- [ ] If a copy fails, the user sees an error (e.g. a toast) instead of nothing happening\n- [ ] The direct `writeText` imports in `AgentConfig.tsx` and `TokenDisplay.tsx` go through the same shared path as `useCopyToClipboard`\n- [ ] The PR includes proof from a real Flatpak build under Wayland (a screen recording or screenshot of pasted output) on at least two desktops, e.g. GNOME plus COSMIC or KDE\n\n### Context\n\n- Hook: `src/hooks/helpers/useCopyToClipboard.ts`\n- Direct plugin users: `src/containers/floating/Settings/sections/mcp/AgentConfig.tsx`, `TokenDisplay.tsx`\n- `ClipboardViewer.tsx` *reads* the clipboard and may have the same problem. It's worth checking, but not required\n- Manifest: `flatpak/com.tari.universe.yml`\n- Repro from the webview console: `window.__TAURI_INTERNALS__.invoke('plugin:clipboard-manager|write_text', { text: 'probe' })`\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3489`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n"
   },
@@ -613,6 +613,244 @@
     "body": "## Bounty: Mitigate Next.js CVE Risk by Pinning Version\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nThe `wxtm-bridge-frontend` currently depends on `\"next\": \"^16.1.1\"`, which allows npm/yarn to resolve any semver-compatible version in the 16.x range, including versions with known CVEs. Pin Next.js to exactly `16.1.7` (the latest patched release) and remove the `^` caret to prevent unintended resolution to vulnerable versions. Update `eslint-config-next` to match.\n\n### Acceptance Criteria\n\n- [ ] `package.json` specifies `\"next\": \"16.1.7\"` (exact, no caret)\n- [ ] `eslint-config-next` version is updated to `\"16.1.7\"` (exact, no caret) to match\n- [ ] `package-lock.json` / `yarn.lock` is regenerated with the pinned versions\n- [ ] The app builds successfully (`npm run build` or `yarn build` passes with no new errors)\n- [ ] Wrap/unwrap flow verified working end-to-end via TU with the updated bridge frontend (screenshot or recording)\n\n### Context\n\n- Original issue: https://github.com/tari-project/wxtm-bridge-frontend/issues/103\n- Current versions: `\"next\": \"^16.1.1\"`, `\"eslint-config-next\": \"^16.1.1\"`\n- Next.js changelog: https://github.com/vercel/next.js/releases\n- The frontend depends on private `@aspect` npm packages (api \u0026 contracts). To test locally you either need an npm token for the private registry, or build the public `api` and `contracts` repos locally and link them as dependencies\n- Full integration testing requires running the bridge frontend as a tapplet inside Tari Universe (TU)\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #103`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord"
   },
   {
+    "number": 602,
+    "title": "Contribution: fix(transaction_manifest): enforce intent cap, variable resolution, and literal bounds (tari-project/tari-ootle#3462)",
+    "url": "https://github.com/tari-project/special_contributions/issues/602",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T12:37:45Z",
+    "updated_at": "2026-11-10T12:37:47Z",
+    "author": "sdbondi",
+    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3462](https://github.com/tari-project/tari-ootle/pull/3462): fix(transaction_manifest): enforce intent cap, variable resolution, and literal bounds.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #602` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #602`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3462\n- [ ] It changes only `YYYY/MM/pa-khan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 601,
+    "title": "Contribution: fix(engine): enforce CallScope and template access rule checks in runtime (tari-project/tari-ootle#3658)",
+    "url": "https://github.com/tari-project/special_contributions/issues/601",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T12:36:15Z",
+    "updated_at": "2026-11-10T12:36:16Z",
+    "author": "sdbondi",
+    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3658](https://github.com/tari-project/tari-ootle/pull/3658): fix(engine): enforce CallScope and template access rule checks in runtime.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #601` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #601`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3658\n- [ ] It changes only `YYYY/MM/pa-khan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 600,
+    "title": "Contribution: fix(engine): remove dropped proofs from workspace, preserve allocation order, and report commit_fees shortfall (tari-project/tari-ootle#3514)",
+    "url": "https://github.com/tari-project/special_contributions/issues/600",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T12:35:35Z",
+    "updated_at": "2026-11-10T12:35:36Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3514](https://github.com/tari-project/tari-ootle/pull/3514): fix(engine): remove dropped proofs from workspace, preserve allocation order, and report commit_fees shortfall.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #600` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #600`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3514\n- [ ] It changes only `YYYY/MM/Burapa-J_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 598,
+    "title": "Contribution: fix(template_abi,ootle_sdk_ffi_c): guard u32 length overflow in TemplateDef and reject uppercase receiver hex (tari-project/tari-ootle#3485)",
+    "url": "https://github.com/tari-project/special_contributions/issues/598",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T10:59:09Z",
+    "updated_at": "2026-11-10T10:59:09Z",
+    "author": "sdbondi",
+    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3485](https://github.com/tari-project/tari-ootle/pull/3485): fix(template_abi,ootle_sdk_ffi_c): guard u32 length overflow in TemplateDef and reject uppercase receiver hex.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #598` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #598`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3485\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 597,
+    "title": "Contribution: fix(walletd,wallet_sdk): verify epoch and checkpoint layout via ValidatorSetApi at sign-act points (tari-project/tari-ootle#3229)",
+    "url": "https://github.com/tari-project/special_contributions/issues/597",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T10:08:22Z",
+    "updated_at": "2026-11-10T10:08:23Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3229](https://github.com/tari-project/tari-ootle/pull/3229): fix(walletd,wallet_sdk): verify epoch and checkpoint layout via ValidatorSetApi at sign-act points.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #597` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #597`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3229\n- [ ] It changes only `YYYY/MM/ket4min-susan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 596,
+    "title": "Security report: tari-ootle ootle Engine Unmetered InstructionArg::Blob / Spend-Script Args \u0026 CBOR Nesting-Depth Bypass, and Consensus Aborted-Transaction Resequencing / Foreign LocalAccept Stage Divergence (GHSA-49cx-57x8-w632)",
+    "url": "https://github.com/tari-project/special_contributions/issues/596",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T10:06:59Z",
+    "updated_at": "2026-11-10T10:07:00Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @Brayaniglesias08 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-49cx-57x8-w632](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-49cx-57x8-w632).\n\nThe report showed that ootle Engine Unmetered InstructionArg::Blob / Spend-Script Args \u0026 CBOR Nesting-Depth Bypass, and Consensus Aborted-Transaction Resequencing / Foreign LocalAccept Stage Divergence. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3669. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@Brayaniglesias08 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #596` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #596`, naming this issue\n- [ ] It is opened by @Brayaniglesias08, the credited reporter\n- [ ] It changes only `YYYY/MM/Brayaniglesias08_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 594,
+    "title": "Contribution: fix(wallet): enforce stealth lock spendability, NonFungible substate filter, and vault version encoding (tari-project/tari-ootle#3645)",
+    "url": "https://github.com/tari-project/special_contributions/issues/594",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T10:04:48Z",
+    "updated_at": "2026-11-10T10:04:49Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3645](https://github.com/tari-project/tari-ootle/pull/3645): fix(wallet): enforce stealth lock spendability, NonFungible substate filter, and vault version encoding.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #594` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #594`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3645\n- [ ] It changes only `YYYY/MM/Burapa-J_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 591,
+    "title": "Contribution: fix(template_lib_types): enforce NonFungibleId::String non-empty decode invariant and NonFungibleAddress error variants (tari-project/tari-ootle#3558)",
+    "url": "https://github.com/tari-project/special_contributions/issues/591",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T08:16:44Z",
+    "updated_at": "2026-11-10T08:16:45Z",
+    "author": "sdbondi",
+    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3558](https://github.com/tari-project/tari-ootle/pull/3558): fix(template_lib_types): enforce NonFungibleId::String non-empty decode invariant and NonFungibleAddress error variants.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #591` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #591`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3558\n- [ ] It changes only `YYYY/MM/pa-khan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 590,
+    "title": "Contribution: fix(tari_bor): enforce exact decode, support indefinite strings/bytes, and reject dup IndexMap keys (tari-project/tari-ootle#3480)",
+    "url": "https://github.com/tari-project/special_contributions/issues/590",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T08:09:36Z",
+    "updated_at": "2026-11-10T08:09:37Z",
+    "author": "sdbondi",
+    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3480](https://github.com/tari-project/tari-ootle/pull/3480): fix(tari_bor): enforce exact decode, support indefinite strings/bytes, and reject dup IndexMap keys.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #590` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #590`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3480\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 589,
+    "title": "Contribution: fix(sidechain): validate QC epoch/height in commit proofs (tari-project/tari-ootle#3525)",
+    "url": "https://github.com/tari-project/special_contributions/issues/589",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T07:53:21Z",
+    "updated_at": "2026-11-10T07:53:22Z",
+    "author": "sdbondi",
+    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3525](https://github.com/tari-project/tari-ootle/pull/3525): fix(sidechain): validate QC epoch/height in commit proofs.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #589` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #589`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3525\n- [ ] It changes only `YYYY/MM/pa-khan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 588,
+    "title": "Contribution: fix: decode cbor bignum amounts and enforce canonical substate address prefixes (tari-project/tari-ootle#3521)",
+    "url": "https://github.com/tari-project/special_contributions/issues/588",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T07:50:57Z",
+    "updated_at": "2026-11-10T07:50:58Z",
+    "author": "sdbondi",
+    "body": "Bounty for @karavel-dev for contributing [tari-project/tari-ootle#3521](https://github.com/tari-project/tari-ootle/pull/3521): fix: decode cbor bignum amounts and enforce canonical substate address prefixes.\n\n**No further code work is required here.**\n\n## Done when\n\n@karavel-dev opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #588` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #588`, naming this issue\n- [ ] It is opened by @karavel-dev, the author of tari-project/tari-ootle#3521\n- [ ] It changes only `YYYY/MM/karavel-dev_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 587,
+    "title": "Contribution: fix(engine): reject zero-amount fee payments and enforce intrinsic argument arity (tari-project/tari-ootle#3543)",
+    "url": "https://github.com/tari-project/special_contributions/issues/587",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T07:44:46Z",
+    "updated_at": "2026-11-10T07:44:47Z",
+    "author": "sdbondi",
+    "body": "Bounty for @LBCron for contributing [tari-project/tari-ootle#3543](https://github.com/tari-project/tari-ootle/pull/3543): fix(engine): reject zero-amount fee payments and enforce intrinsic argument arity.\n\n**No further code work is required here.**\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #587` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #587`, naming this issue\n- [ ] It is opened by @LBCron, the author of tari-project/tari-ootle#3543\n- [ ] It changes only `YYYY/MM/LBCron_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 585,
+    "title": "Contribution: fix(p2p): cap QcSignatures, TcSignatures, and shard_groups on decode and reject trailing bytes (tari-project/tari-ootle#3471)",
+    "url": "https://github.com/tari-project/special_contributions/issues/585",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T06:58:30Z",
+    "updated_at": "2026-11-10T06:58:32Z",
+    "author": "sdbondi",
+    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3471](https://github.com/tari-project/tari-ootle/pull/3471): fix(p2p): cap QcSignatures, TcSignatures, and shard_groups on decode and reject trailing bytes.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #585` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #585`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3471\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 584,
+    "title": "Contribution: fix(consensus_types): timeout certificates never justify the zero block (tari-project/tari-ootle#3534)",
+    "url": "https://github.com/tari-project/special_contributions/issues/584",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-10T06:25:23Z",
+    "updated_at": "2026-11-10T06:25:24Z",
+    "author": "sdbondi",
+    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3534](https://github.com/tari-project/tari-ootle/pull/3534): fix(consensus_types): timeout certificates never justify the zero block.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #584` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #584`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3534\n- [ ] It changes only `YYYY/MM/pa-khan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
     "number": 577,
     "title": "Security report: tari-ootle unseparated UtxoAddress(TARI_TOKEN, commitment) Namespace Between claim_burn and execute_stealth_transfer Allows L1 Burner to Pre-Create and Spend the Burn Commitment UTXO v0, Permanently Blocking the Recipient's ClaimBurn (GHSA-8mh4-mhrw-5j87)",
     "url": "https://github.com/tari-project/special_contributions/issues/577",
@@ -628,40 +866,6 @@
     "updated_at": "2026-11-09T12:57:55Z",
     "author": "sdbondi",
     "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-8mh4-mhrw-5j87](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-8mh4-mhrw-5j87).\n\nThe report showed that unseparated UtxoAddress(TARI_TOKEN, commitment) Namespace Between claim_burn and execute_stealth_transfer Allows L1 Burner to Pre-Create and Spend the Burn Commitment UTXO v0, Permanently Blocking the Recipient's ClaimBurn. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3633. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #577` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #577`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 574,
-    "title": "Contribution: fix(walletd): validate submitted tx headers and swap outputs and handle wait_result lag (tari-project/tari-ootle#3620)",
-    "url": "https://github.com/tari-project/special_contributions/issues/574",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T11:26:25Z",
-    "updated_at": "2026-11-09T11:26:26Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3620](https://github.com/tari-project/tari-ootle/pull/3620): fix(walletd): validate submitted tx headers and swap outputs and handle wait_result lag.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #574` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #574`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3620\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 573,
-    "title": "Security report: tari-ootle non-Canonical Duplicate Command Entries in CommandsCommitProofV1 Pass ForeignProposal Validation and Split Honest Local Block Votes on BlockForeignProposalBytesExceeded (GHSA-rg88-cq7p-wmx2)",
-    "url": "https://github.com/tari-project/special_contributions/issues/573",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T11:17:45Z",
-    "updated_at": "2026-11-09T11:17:46Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-rg88-cq7p-wmx2](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-rg88-cq7p-wmx2).\n\nThe report showed that non-Canonical Duplicate Command Entries in CommandsCommitProofV1 Pass ForeignProposal Validation and Split Honest Local Block Votes on BlockForeignProposalBytesExceeded. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3626. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #573` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #573`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 572,
@@ -681,40 +885,6 @@
     "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3220](https://github.com/tari-project/tari-ootle/pull/3220): fix(consensus): reject invalid, shard-group-mismatched and empty foreign proposal atoms when voting.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #572` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #572`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3220\n- [ ] It changes only `YYYY/MM/ket4min-susan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
-    "number": 571,
-    "title": "Contribution: fix(consensus): report local abort on AllAccept disagreement and validate foreign proposal atoms (tari-project/tari-ootle#3535)",
-    "url": "https://github.com/tari-project/special_contributions/issues/571",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T11:15:17Z",
-    "updated_at": "2026-11-09T11:15:18Z",
-    "author": "sdbondi",
-    "body": "Bounty for @LBCron for contributing [tari-project/tari-ootle#3535](https://github.com/tari-project/tari-ootle/pull/3535): fix(consensus): report local abort on AllAccept disagreement and validate foreign proposal atoms.\n\n**No further code work is required here.**\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #571` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #571`, naming this issue\n- [ ] It is opened by @LBCron, the author of tari-project/tari-ootle#3535\n- [ ] It changes only `YYYY/MM/LBCron_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 569,
-    "title": "Contribution: fix(validator_node): reject padded consensus gossip and trigger shutdown on task failure (tari-project/tari-ootle#3573)",
-    "url": "https://github.com/tari-project/special_contributions/issues/569",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T10:59:45Z",
-    "updated_at": "2026-11-09T10:59:45Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3573](https://github.com/tari-project/tari-ootle/pull/3573): fix(validator_node): reject padded consensus gossip and trigger shutdown on task failure.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #569` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #569`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3573\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
     "number": 568,
     "title": "mempool harding cve",
     "url": "https://github.com/tari-project/special_contributions/issues/568",
@@ -732,40 +902,6 @@
     "body": "CVE for mempool hardening "
   },
   {
-    "number": 567,
-    "title": "Contribution: fix(ootle-rs): enforce balance checks for revealed-only and burn-claim statements (tari-project/tari-ootle#3531)",
-    "url": "https://github.com/tari-project/special_contributions/issues/567",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T10:41:07Z",
-    "updated_at": "2026-11-09T10:41:08Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3531](https://github.com/tari-project/tari-ootle/pull/3531): fix(ootle-rs): enforce balance checks for revealed-only and burn-claim statements.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #567` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #567`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3531\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 563,
-    "title": "Contribution: fix(template_macros): fix cbor index detection, impl parsing, and tuple returns (tari-project/tari-ootle#3576)",
-    "url": "https://github.com/tari-project/special_contributions/issues/563",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T10:16:06Z",
-    "updated_at": "2026-11-09T10:16:07Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3576](https://github.com/tari-project/tari-ootle/pull/3576): fix(template_macros): fix cbor index detection, impl parsing, and tuple returns.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #563` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #563`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3576\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
     "number": 555,
     "title": "Contribution: perf(consensus): let later local-only claims lock a ValidatorFeePool while an earlier withdrawal is pending (tari-project/tari-ootle#3226)",
     "url": "https://github.com/tari-project/special_contributions/issues/555",
@@ -781,23 +917,6 @@
     "updated_at": "2026-11-09T08:19:30Z",
     "author": "sdbondi",
     "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3226](https://github.com/tari-project/tari-ootle/pull/3226): perf(consensus): let later local-only claims lock a ValidatorFeePool while an earlier withdrawal is pending.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #555` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #555`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3226\n- [ ] It changes only `YYYY/MM/ket4min-susan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 549,
-    "title": "Contribution: fix(engine): reject ComponentAddressAllocation early if component already exists (#3575) (tari-project/tari-ootle#3584)",
-    "url": "https://github.com/tari-project/special_contributions/issues/549",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T08:07:56Z",
-    "updated_at": "2026-11-09T08:07:57Z",
-    "author": "sdbondi",
-    "body": "Bounty for @mekserina for contributing [tari-project/tari-ootle#3584](https://github.com/tari-project/tari-ootle/pull/3584): fix(engine): reject ComponentAddressAllocation early if component already exists (#3575).\n\n**No further code work is required here.**\n\n## Done when\n\n@mekserina opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #549` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #549`, naming this issue\n- [ ] It is opened by @mekserina, the author of tari-project/tari-ootle#3584\n- [ ] It changes only `YYYY/MM/mekserina_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 541,
@@ -832,40 +951,6 @@
     "updated_at": "2026-11-09T03:24:15Z",
     "author": "sdbondi",
     "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3218](https://github.com/tari-project/tari-ootle/pull/3218): fix(wallet): pass multiple lock IDs through transaction submission.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #528` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #528`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3218\n- [ ] It changes only `YYYY/MM/ket4min-susan_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 513,
-    "title": "Contribution: feat(validator_node)!: derive node identity from seed phrase (#601) (tari-project/tari-ootle#3386)",
-    "url": "https://github.com/tari-project/special_contributions/issues/513",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-08T11:03:28Z",
-    "updated_at": "2026-11-08T11:03:29Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Vallejo1921 for contributing [tari-project/tari-ootle#3386](https://github.com/tari-project/tari-ootle/pull/3386): feat(validator_node)!: derive node identity from seed phrase (#601).\n\n**No further code work is required here.**\n\n## Done when\n\n@Vallejo1921 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #513` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #513`, naming this issue\n- [ ] It is opened by @Vallejo1921, the author of tari-project/tari-ootle#3386\n- [ ] It changes only `YYYY/MM/Vallejo1921_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 489,
-    "title": "Contribution: fix(transaction_validation): reject UpdateComponentTemplate in fee instructions (#1210) (tari-project/tari-ootle#3330)",
-    "url": "https://github.com/tari-project/special_contributions/issues/489",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-06T09:55:23Z",
-    "updated_at": "2026-11-06T09:55:24Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Vallejo1921 for contributing [tari-project/tari-ootle#3330](https://github.com/tari-project/tari-ootle/pull/3330): fix(transaction_validation): reject UpdateComponentTemplate in fee instructions (#1210).\n\n**No further code work is required here.**\n\n## Done when\n\n@Vallejo1921 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #489` in the description and their XTM payout address on its own line.\n\nNOTE: although this PR was closed, it was opened before the merged PR that did the same thing (3228)\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #489`, naming this issue\n- [ ] It is opened by @Vallejo1921, the author of tari-project/tari-ootle#3330\n- [ ] It changes only `YYYY/MM/Vallejo1921_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 479,
@@ -1429,23 +1514,6 @@
     "body": "Retro bounty for @JustAResearcher for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-m493-gggq-hvvw](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-m493-gggq-hvvw).\n\nThe report showed that a foreign proposal's commit proof was verified against the proposer's committee rather than the committee of the shard group the proposal names, so a quorum of one shard group could sign for another. It included a code-path analysis, a reproduction plan for an isolated network and a suggested fix. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#2737. **No code work is required here.**\n\n## Done when\n\n@JustAResearcher opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #45` in the description and their XTM payout address on its own line.\n"
   },
   {
-    "number": 556,
-    "title": "Contribution: fix(consensus): require embedded foreign proposals to match block commands (tari-project/tari-ootle#3359)",
-    "url": "https://github.com/tari-project/special_contributions/issues/556",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-M"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T08:54:40Z",
-    "updated_at": "2026-11-09T08:54:41Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3359](https://github.com/tari-project/tari-ootle/pull/3359): fix(consensus): require embedded foreign proposals to match block commands.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #556` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #556`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3359\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
     "number": 521,
     "title": "Security report: tari-ootle a validator that does not vote on a finalizing block reports the previous life cycle's decision (GHSA-9f9q-g46r-7rrc)",
     "url": "https://github.com/tari-project/special_contributions/issues/521",
@@ -1804,7 +1872,7 @@
   },
   {
     "number": 2650,
-    "title": "Youtube presentation video [bounty: 9999 XTR]",
+    "title": "Youtube presentation video [bounty: 666 XTR]",
     "url": "https://github.com/FreezingMoon/AncientBeast/issues/2650",
     "state": "open",
     "labels": [
@@ -1815,9 +1883,9 @@
     "open_pr_count": 1,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2024-11-10T06:38:24Z",
-    "updated_at": "2024-11-12T08:57:27Z",
+    "updated_at": "2026-11-10T10:12:57Z",
     "author": "DreadKnight",
-    "body": "Have Ana from Heroes Take Turns YouTube channel make a presentation video about this project.\r\nhttps://youtube.com/@HeroesTakeTurns\r\n\r\n Bounty is meant for Anna and her team."
+    "body": "Should make a presentation video regarding the project, talking about it and how its played."
   },
   {
     "number": 2632,
@@ -1884,33 +1952,16 @@
     "state": "open",
     "labels": [
       "coding",
+      "input",
       "bounty"
     ],
     "comment_count": 15,
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2024-02-10T09:39:50Z",
-    "updated_at": "2026-03-27T13:05:16Z",
+    "updated_at": "2026-11-10T10:09:04Z",
     "author": "DreadKnight",
     "body": "The fullscreen button doesn't do anything at all on iOS/iPhone while using Chrome."
-  },
-  {
-    "number": 2530,
-    "title": "no music on iPhone [bounty: 7 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/2530",
-    "state": "open",
-    "labels": [
-      "coding",
-      "audio",
-      "bounty"
-    ],
-    "comment_count": 13,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2024-02-10T09:38:50Z",
-    "updated_at": "2026-10-31T14:18:48Z",
-    "author": "DreadKnight",
-    "body": "The game doesn't play any music on iOS/iPhone while using Chrome.\r\nNot sure if the SFX itself also works, as I don't own any Apple stuff..."
   },
   {
     "number": 2375,
@@ -1930,25 +1981,6 @@
     "updated_at": "2026-03-27T00:00:16Z",
     "author": "DreadKnight",
     "body": "The pre-match screen should have more consistency between the small and big screen versions:\r\n\r\n- the game version icon from small screen adjustment should be used in both the screen sizes\r\n- \"Ancient Beast\" upper left icon from small screen should be displayed in big version as well\r\n- both changes listed above should receive some code clean-up regarding styling adjustments"
-  },
-  {
-    "number": 2250,
-    "title": "hexagon coordinate view tweaks [bounty: 7 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/2250",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "input",
-      "bounty"
-    ],
-    "comment_count": 13,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2023-04-22T14:18:53Z",
-    "updated_at": "2026-10-31T19:34:57Z",
-    "author": "DreadKnight",
-    "body": "Trying to improve the hexagon coordinate view, but not fully sure if this will work (or it could use tweaks along the way), so the bounty will be granted even if PR not merged if its according to specs (this rule kinda applies to most PRs), see this list:\r\n\r\n- units should no longer be in x-ray mode because that's tedious\r\n- coordinates should display on top of units to be properly visible\r\n- another grid with dashed hexes should display on top of units\r\n- dashed hexagons at 25% opacity for non-unit occupied places\r\n\r\nThe view is visible when hovering the round marker indicator from unit queue or while holding the shift modifier key."
   },
   {
     "number": 2246,
