@@ -27,7 +27,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -152,7 +152,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 61,
-        "freshness": 73
+        "freshness": 72
       }
     }
   },
@@ -213,7 +213,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 59,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -244,7 +244,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 53
+        "freshness": 52
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -283,7 +283,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -330,7 +330,7 @@
     "open_pr_count": 3,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-06T14:55:51Z",
-    "updated_at": "2026-11-09T12:36:20Z",
+    "updated_at": "2026-11-09T15:36:38Z",
     "author": "jberkowitzTT",
     "body": "\n📝 Background\n\nttnn.scale_mask_softmax_in_place with SoftmaxShardedMultiCoreProgramConfig can hang or read incorrect mask values when the input shard layout and mask shape/specification do not align. These cases can break correctness in sharded attention workloads and may hang the device instead of returning a clear validation error.\n\nAn open change already addresses the causal-mask case where a shard is shorter than or not divisible by the mask height, and the causal mask/input batch-size mismatch. This bounty is for the remaining issues below; coordinate with that change and do not duplicate its scope: [PR #63692](https://github.com/tenstorrent/tt-metal/pull/63692).\n\n🎯 What Success Looks Like\n\nA row-major mask combined with is_causal_mask=True is either handled correctly or rejected during validation with a clear error before device execution; it must not hang.\n\nCausal interleaved mask readers wrap rows using the mask’s height, not the input width. Non-square causal masks produce correct results without out-of-bounds reads.\n\nMask addressing remains correct when a shard crosses a batch boundary; the batch cursor must not advance early or read beyond the mask tensor.\n\nA sharded mask with an incompatible shard specification (including shard orientation) is rejected clearly or handled correctly; it must not silently read a different core’s shard.\n\nAdd regression tests for each addressed case, covering valid configurations and invalid configurations as appropriate. Compare supported outputs against a PyTorch reference.\n\nExisting relevant sharded and causal softmax tests continue to pass, and existing supported configurations retain their behavior.\n\n💡 Problem to Solve\n\nThe sharded softmax factory, mask readers, and validation do not consistently enforce or honor the assumptions used to walk masks:\n\nA row-major mask with is_causal_mask=True can select a reader that does not follow the causal compute’s per-row mask consumption, causing a hang.\n\nCausal interleaved readers can wrap mask rows using the input width rather than the mask height, leading to incorrect/out-of-bounds reads for non-square masks.\n\nWhen a shard spans a batch boundary, integer division in the per-batch core calculation can make mask addressing advance to the next batch too early.\n\nValidation checks mask layout and padded shape but does not ensure that a sharded mask’s shard specification matches the input’s expected distribution.\n\n\nThis bounty is subject to the [Tenstorrent Bounty Program Terms & Conditions](https://docs.tenstorrent.com/bounty_terms.html).",
     "hunter_intelligence": {
@@ -941,7 +941,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -973,7 +973,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1071,7 +1071,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -1102,7 +1102,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 19,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -2497,7 +2497,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -2900,7 +2900,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -2931,7 +2931,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -2962,7 +2962,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -3271,7 +3271,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3303,7 +3303,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 31,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3429,12 +3429,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 40,
+      "bounty_score": 39,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 40,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3563,7 +3563,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 59,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -3628,7 +3628,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 27
+        "freshness": 26
       }
     }
   },
@@ -3887,12 +3887,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 19,
+      "bounty_score": 18,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 27
+        "freshness": 26
       }
     }
   },
@@ -3982,12 +3982,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 32,
+      "bounty_score": 31,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 52,
-        "freshness": 27
+        "freshness": 26
       }
     }
   }
