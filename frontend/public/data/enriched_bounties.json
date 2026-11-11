@@ -441,11 +441,11 @@
     "url": "https://github.com/tenstorrent/tt-metal/issues/64933",
     "state": "open",
     "labels": [],
-    "comment_count": 0,
+    "comment_count": 1,
     "open_pr_count": 1,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-09T04:01:51Z",
-    "updated_at": "2026-11-09T04:01:51Z",
+    "updated_at": "2026-11-11T05:59:53Z",
     "author": "HindsightWise",
     "body": "## Summary\n\nIssue #17795 (\"Re-enable COL_MAJOR test cases for `ttnn.upsample`\") is now **closed**, but `tests/ttnn/unit_tests/operations/pool/test_upsample.py` still skips all `BLOCK_SHARDED` + `ShardOrientation.COL_MAJOR` cases (`pytest.skip(\"Disabled until illegal shard configs are fixed (#17795)\")`).\n\nInspecting `UpsampleMultiCoreShardedProgramFactory` in `ttnn/cpp/ttnn/operations/pool/upsample/device/upsample_program_factory_multicore_sharded.cpp` reveals **three C++ bugs** when `input` is `BLOCK_SHARDED` with `ShardOrientation::COL_MAJOR` (plus an axis-limit order bug in `test_upsample.py:181-200` when `core_range=None`):\n\n1. **`create_config_tensor` swaps `(x, y)` logical core coordinates on `BLOCK_SHARDED` + `COL_MAJOR`**: passes `CoreCoord(i, logical_core_to_stick_map[j].core_y)` where `i` is the channel core index on **Y** and `logical_core_to_stick_map[j].core_y` is the NHW core index on **X**.\n2. **`create_program_artifacts` divides `input_stick_nbytes` and `output_stick_nbytes` by `ncores_x` instead of the channel-axis core count**: for `COL_MAJOR`, channels are partitioned along **Y** (`end_coord.y - start_coord.y + 1`), not **X** (`end_coord.x - start_coord.x + 1`).\n3. **`create_program_artifacts` hardcodes `ShardOrientation::COL_MAJOR` for `config_shard_spec` on all `BLOCK_SHARDED` inputs**: `create_config_tensor` loops over channel cores in the outer loop and NHW cores in the inner loop, which produces `COL_MAJOR` core order when `shard_spec.orientation == ROW_MAJOR`, but **`ROW_MAJOR` core order** (`Y` outer, `X` inner) when `shard_spec.orientation == COL_MAJOR`.\n\n---\n\n## Location\n\nFile: `ttnn/cpp/ttnn/operations/pool/upsample/device/upsample_program_factory_multicore_sharded.cpp`\n\n### Bug 1 — Swapped logical `(x, y)` coordinates in `create_config_tensor` (Lines 66–75, 120, 183–186)\n\nAt lines 66–75:\n```cpp\n        if (shard_spec.orientation == ShardOrientation::ROW_MAJOR) {\n            ch_start_core = all_cores.ranges().begin()->start_coord.x;\n            ch_end_core = all_cores.ranges().begin()->end_coord.x;\n            nhw_start_core = all_cores.ranges().begin()->start_coord.y;\n        } else {\n            ch_start_core = all_cores.ranges().begin()->start_coord.y;\n            ch_end_core = all_cores.ranges().begin()->end_coord.y;\n            nhw_start_core = all_cores.ranges().begin()->start_coord.x;\n        }\n```\nAnd at line 120:\n```cpp\n        logical_core_to_stick_map.emplace_back(0, nhw_start_core + core_idx, stick_offset);\n```\nWhen `shard_spec.orientation == ShardOrientation::COL_MAJOR`, `i` in `for (size_t i = ch_start_core; i <= ch_end_core; i++)` is the **Y** coordinate and `logical_core_to_stick_map[j].core_y` (`nhw_start_core + core_idx`) is the **X** coordinate. Yet lines 183–186 unconditionally construct `CoreCoord(i, logical_core_to_stick_map[j].core_y)`:\n```cpp\n                core_coords = device.worker_core_from_logical_core(\n                    is_height_sharded\n                        ? CoreCoord(logical_core_to_stick_map[j].core_x, logical_core_to_stick_map[j].core_y)\n                        : CoreCoord(i, logical_core_to_stick_map[j].core_y));\n```\nOn non-square or asymmetrically offset grids (e.g. `(0, 0)-(1, 3)`), `CoreCoord(y, x)` indexes outside the shard grid (or throws `TT_FATAL` in `worker_core_from_logical_core` when `end_coord.y >= compute_grid.x`). On square grids where an input row straddles two NHW cores, cross-core NoC reads fetch sticks from the wrong channel shard.\n\n### Bug 2 — Wrong channel-core divisor for `input_stick_nbytes` / `output_stick_nbytes` (Lines 311–315)\n\n```cpp\n    // extra limitation to avoid post upsample step of resharding\n    if (input.memory_config().memory_layout() == TensorMemoryLayout::BLOCK_SHARDED) {\n        ncores_x = all_cores.ranges().begin()->end_coord.x - all_cores.ranges().begin()->start_coord.x + 1;\n        input_stick_nbytes = input_stick_nbytes / ncores_x;\n        output_stick_nbytes = output_stick_nbytes / ncores_x;\n    }\n```\nUnder `BLOCK_SHARDED` + `COL_MAJOR`, NHW is sharded along X and channels are sharded along Y (matching `compute_num_cores_nhw` in `upsample_common.cpp:21-24` and `get_cores_with_work` at line 240). Dividing `input_stick_nbytes` and `output_stick_nbytes` by `ncores_x` instead of the channel-axis extent (`end_coord.y - start_coord.y + 1` for `COL_MAJOR`) miscomputes `in_dfb`, `out_dfb`, and the kernel `stick_nbytes` compile-time arg on any non-square grid.\n\n### Bug 3 — Unconditional `ShardOrientation::COL_MAJOR` for `config_shard_spec` (Lines 332–336)\n\n```cpp\n    const auto config_tensor_shard_orientation =\n        input.memory_config().memory_layout() == TensorMemoryLayout::BLOCK_SHARDED ? ShardOrientation::COL_MAJOR\n                                                                                   : shard_spec.orientation;\n    // Use cores_with_work for config tensor sharding - only cores that have actual work need config data\n    const ShardSpec config_shard_spec(cores_with_work, shard_shape, config_tensor_shard_orientation);\n```\nIn `create_config_tensor`, the outer loop iterates over channel cores (`ch_start_core .. ch_end_core`) and the inner loop iterates over NHW cores (`nhw_start_core ..`).\n- When `shard_spec.orientation == ROW_MAJOR` (channels on X, NHW on Y), outer=X and inner=Y emits per-core rows in `COL_MAJOR` core order.\n- When `shard_spec.orientation == COL_MAJOR` (channels on Y, NHW on X), outer=Y and inner=X emits per-core rows in **`ROW_MAJOR` core order**.\nHardcoding `ShardOrientation::COL_MAJOR` distributes config rows in `COL_MAJOR` order while they were generated in `ROW_MAJOR` order.\n\n---\n\n## Proposed Fix\n\n1. **`ttnn/cpp/ttnn/operations/pool/upsample/device/upsample_program_factory_multicore_sharded.cpp`**:\n   - **Lines 183–186**: Construct `CoreCoord(i, logical_core_to_stick_map[j].core_y)` when `shard_spec.orientation == ShardOrientation::ROW_MAJOR` and `CoreCoord(logical_core_to_stick_map[j].core_y, i)` when `ShardOrientation::COL_MAJOR`.\n   - **Lines 311–315**: Compute `ncores_ch` along X for `ROW_MAJOR` and along Y for `COL_MAJOR`, and divide `input_stick_nbytes` / `output_stick_nbytes` by `ncores_ch`.\n   - **Lines 332–336**: For `BLOCK_SHARDED`, set `config_tensor_shard_orientation` to `ShardOrientation::COL_MAJOR` when `shard_spec.orientation == ShardOrientation::ROW_MAJOR`, and `ShardOrientation::ROW_MAJOR` when `shard_spec.orientation == ShardOrientation::COL_MAJOR`.\n2. **`tests/ttnn/unit_tests/operations/pool/test_upsample.py`**:\n   - In `upsample_multicore_common` (`core_range is None`), bound `max_nshards_h` / `max_nshards_w` by the orientation-appropriate grid axes and pass `(ncores[1], ncores[0])` to `get_shard_grid_from_num_cores` when `BLOCK` + `COL_MAJOR` (matching the `core_range != None` branch at lines 162–165).\n   - Remove the two stale `#17795` `pytest.skip` guards in `test_upsample_multicore` and `test_upsample_multicore_corerange`.\n\n---\n\n## Reproduction & Verification\n\n```python\nimport torch\nimport torch.nn as nn\nimport ttnn\n\ndevice = ttnn.open_device(device_id=0, l1_small_size=24576)\ntorch.manual_seed(0)\n\n# Non-square 2x4 grid (0,0)-(1,3), BLOCK_SHARDED + COL_MAJOR\n# 2 NHW cores along X (8 sticks/core), 4 channel cores along Y (32 ch/core)\nx_nchw = torch.randn((1, 128, 4, 4), dtype=torch.bfloat16)\nx_nhwc = x_nchw.permute(0, 2, 3, 1).contiguous()\ngolden = nn.functional.interpolate(x_nchw.float(), scale_factor=(2, 2), mode=\"nearest\").bfloat16().permute(0, 2, 3, 1)\n\ngrid = ttnn.CoreRangeSet({ttnn.CoreRange(ttnn.CoreCoord(0, 0), ttnn.CoreCoord(1, 3))})\nshard_spec = ttnn.ShardSpec(grid, (8, 32), ttnn.ShardOrientation.COL_MAJOR)\nmem_cfg = ttnn.MemoryConfig(ttnn.TensorMemoryLayout.BLOCK_SHARDED, ttnn.BufferType.L1, shard_spec)\n\ntt_in = ttnn.from_torch(x_nhwc, dtype=ttnn.bfloat16, layout=ttnn.ROW_MAJOR_LAYOUT, device=device, memory_config=mem_cfg)\ntt_out = ttnn.upsample(tt_in, (2, 2), mode=\"nearest\")\nout = ttnn.to_torch(tt_out)\nassert torch.equal(out, golden)\nttnn.close_device(device)\n```\n\n---\n\n## Bounty Request\n\nGiven that:\n1. Issue #17795 is closed, but all `BLOCK_SHARDED` + `COL_MAJOR` tests in `test_upsample.py` remain skipped due to these three C++ bugs in `UpsampleMultiCoreShardedProgramFactory`\n2. The bugs cause silent data corruption on square grids (1,792 / 3,072 mismatched elements on `H=3, W=4, C=64`) and out-of-grid core lookups + 2x stick-size miscalculation on rectangular grids\n3. The fix cleanly resolves all three C++ defects and re-enables the full `COL_MAJOR` test matrix in `test_upsample.py`\n\nI propose a **$750 bounty** for this fix (similar to #64575 and #64647). I have the complete patch and regression tests ready to submit if assigned.\n\n— submitted with Antigravity on the contributor's behalf\n",
     "hunter_intelligence": {
@@ -454,12 +454,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
+        "competition": 83,
+        "freshness": 100
       }
     }
   },
@@ -914,54 +914,23 @@
     }
   },
   {
-    "number": 3518,
-    "title": "L2 menu opens PIN setup while L1 wallet is loading, even when a PIN is already set",
-    "url": "https://github.com/tari-project/universe/issues/3518",
+    "number": 3489,
+    "title": "Linux Flatpak: copy to clipboard silently fails under Wayland (no X11 in sandbox)",
+    "url": "https://github.com/tari-project/universe/issues/3489",
     "state": "open",
     "labels": [
       "bug",
-      "bounty",
-      "bounty-S"
-    ],
-    "comment_count": 12,
-    "open_pr_count": 1,
-    "repository": "tari-project/universe",
-    "created_at": "2026-11-07T15:46:12Z",
-    "updated_at": "2026-11-11T02:54:44Z",
-    "author": "brianp",
-    "body": "## Bounty: L2 opens the \"set a PIN\" flow while the L1 wallet is still loading\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIf you click the L2 sidebar button before the L1 wallet has finished loading, Universe asks you to set a PIN even when one is already set. If you enter a PIN anyway, it fails with \"A PIN is already set for this wallet\".\n\nThe cause is in the frontend. `openL2()` in `src/store/actions/l2OpenActions.ts` reads `useWalletStore.is_pin_locked` and opens the `l2_pin_required` (create PIN) dialog when it's `false`. That flag defaults to `false` and is only set when the wallet setup phase emits it (`src-tauri/src/setup/phase_wallet.rs:239`, `emit_pin_locked`). Until then, the app can't tell \"no PIN\" apart from \"not loaded yet\".\n\n### Acceptance Criteria\n\n- [ ] With a PIN already set, clicking the L2 button while the L1 wallet is still loading never opens the create-PIN dialog\n- [ ] While the PIN state is unknown, the L2 button either waits or is disabled with a loading indication, and once the wallet has loaded it goes to the normal unlock/PIN-entry flow\n- [ ] A wallet that really has no PIN still gets the create-PIN dialog, both before and after loading finishes\n- [ ] Any other UI that uses `is_pin_locked` to tell whether a PIN is set (e.g. `L2Wallet.tsx` burn button, `L2WalletCard.tsx`, `SendModal.tsx`, `VerifySeedPhrase.tsx`) doesn't treat \"not loaded yet\" as \"no PIN\"\n- [ ] Unit tests cover the loading state (extend `l2OpenActions.test.ts` and/or `L2WalletCard.test.tsx`)\n- [ ] The PR includes a short screen recording of the fixed behaviour: launch with a PIN set and click L2 during wallet load\n\n### Context\n\n- Entry point: `src/containers/navigation/Sidebars/buttons/L2Button.tsx` → `openL2()` in `src/store/actions/l2OpenActions.ts`\n- PIN state source: `src-tauri/src/setup/phase_wallet.rs` (`PinManager::pin_locked()` → `EventsEmitter::emit_pin_locked`)\n- Backend error text: `src-tauri/src/internal_wallet.rs:667`\n- A good fix probably lets the store say \"unknown\" (e.g. `is_pin_locked: boolean | undefined`), or reads the PIN state on demand, instead of relying on a `false` default\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3518`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 45,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 61,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 3494,
-    "title": "Scheduled mining window doesn't apply its mode when mining is already running",
-    "url": "https://github.com/tari-project/universe/issues/3494",
-    "state": "open",
-    "labels": [
-      "bug",
+      "enhancement",
       "bounty",
       "bounty-S"
     ],
     "comment_count": 8,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
-    "created_at": "2026-11-05T11:10:29Z",
-    "updated_at": "2026-11-10T14:15:34Z",
+    "created_at": "2026-11-05T10:19:13Z",
+    "updated_at": "2026-11-11T12:14:54Z",
     "author": "brianp",
-    "body": "## Bounty: Scheduled mining window doesn't apply its mode when mining is already running\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nWhen a scheduled mining window starts while you're already mining, the UI switches to the scheduled mode (e.g. Ludicrous), but the miners keep running with the old settings (e.g. Eco). If mining was stopped when the window starts, it mines in the scheduled mode correctly.\n\nThe `Mine` branch in `src-tauri/src/event_scheduler.rs` (around line 1096) saves the mode with `set_selected_mining_mode` and then calls `CpuManager::start_mining()` / `GpuManager::start_mining()`. Both return early when the miner is already running (`src-tauri/src/mining/cpu/manager.rs:174`, `src-tauri/src/mining/gpu/manager.rs:354`), so the new mode never reaches the miners. A manual mode change works because `selectMiningMode` in `src/store/actions/appConfigStoreActions.ts` stops the miners before starting them again.\n\n### Acceptance Criteria\n\n- [ ] When a scheduled window starts while mining is running in a different mode, the CPU and GPU miners restart with the scheduled mode's settings (e.g. xmrig's `--threads` matches the new mode)\n- [ ] When the scheduled mode is the same as the current one, the miners aren't restarted\n- [ ] Starting a window from a stopped state still works as it does today\n- [ ] When the window ends, mining stops, as it does today (`handle_exit_callback` in `event_scheduler.rs`). Restoring the mode or running state from before the window is out of scope\n- [ ] Only the miners that were enabled get restarted. If CPU or GPU mining is disabled, the scheduler doesn't turn it on\n- [ ] Preferably the stop-then-start logic lives in one backend helper that both the scheduler and the manual mode change can use, rather than being duplicated\n- [ ] The PR includes log excerpts from a manual test: mine in Eco, schedule a Ludicrous window, and show the miners restarting with the new thread count when the window starts\n\n### Context\n\n- Scheduler: `src-tauri/src/event_scheduler.rs` (`Mine` handler)\n- Early-return guards: `src-tauri/src/mining/cpu/manager.rs` `start_mining_inner`, `src-tauri/src/mining/gpu/manager.rs` `start_mining_inner`\n- Manual path: `selectMiningMode` in `src/store/actions/appConfigStoreActions.ts`\n- Logs from the report, where the window started while mining was already running:\n  ```\n  INFO  Starting gpu miner: LolMiner\n  INFO  GPU miner is already running\n  INFO  Starting cpu miner\n  INFO  CPU miner is already running\n  ```\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3494`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
+    "body": "## Bounty: Linux Flatpak copy to clipboard fails silently under Wayland\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIn the Linux Flatpak under a Wayland session, every copy button does nothing. Copy Address never switches to its copied state and nothing reaches the clipboard. The clipboard plugin returns:\n\n```\nUnknown error while interacting with the clipboard: X11 server connection timed out because it was unreachable\n```\n\nThe Flatpak manifest (`flatpak/com.tari.universe.yml`) uses `--socket=wayland` plus `--socket=fallback-x11`, so on Wayland the sandbox gets no `DISPLAY`. `arboard`'s Wayland path (`wl-clipboard-rs`) needs the privileged data-control protocol, which the compositor seems to withhold from sandboxed clients, so it falls back to X11 and fails. `useCopyToClipboard` only sets `isCopied` when `writeText` succeeds, so the failure is invisible. That's especially bad for seed words, where users assume the copy worked.\n\nSeen on Pop!_OS COSMIC (Wayland) with runtime `org.gnome.Platform//50`. Not yet checked on GNOME or KDE.\n\n### Acceptance Criteria\n\n- [ ] In the Flatpak under a Wayland session, all copy actions put the expected text on the clipboard: Copy Address (Receive, wallet details, settings), Copy raw transaction details, seed words, logs/app-data paths, L2 wallet address, and the MCP token/agent config\n- [ ] Copy still works on Windows, macOS, Linux .deb/AppImage, and Flatpak under X11\n- [ ] The sandbox is **not** widened with `--socket=x11` or similar. Writing from the webview (`navigator.clipboard.writeText`, which uses WebKitGTK's GTK clipboard) or another approach that doesn't widen the sandbox is preferred\n- [ ] If a copy fails, the user sees an error (e.g. a toast) instead of nothing happening\n- [ ] The direct `writeText` imports in `AgentConfig.tsx` and `TokenDisplay.tsx` go through the same shared path as `useCopyToClipboard`\n- [ ] The PR includes proof from a real Flatpak build under Wayland (a screen recording or screenshot of pasted output) on at least two desktops, e.g. GNOME plus COSMIC or KDE\n\n### Context\n\n- Hook: `src/hooks/helpers/useCopyToClipboard.ts`\n- Direct plugin users: `src/containers/floating/Settings/sections/mcp/AgentConfig.tsx`, `TokenDisplay.tsx`\n- `ClipboardViewer.tsx` *reads* the clipboard and may have the same problem. It's worth checking, but not required\n- Manifest: `flatpak/com.tari.universe.yml`\n- Repro from the webview console: `window.__TAURI_INTERNALS__.invoke('plugin:clipboard-manager|write_text', { text: 'probe' })`\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3489`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -973,71 +942,6 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 3492,
-    "title": "MCP server: no error shown when the configured port is already in use",
-    "url": "https://github.com/tari-project/universe/issues/3492",
-    "state": "open",
-    "labels": [
-      "bug",
-      "bounty",
-      "bounty-S"
-    ],
-    "comment_count": 12,
-    "open_pr_count": 1,
-    "repository": "tari-project/universe",
-    "created_at": "2026-11-05T11:02:34Z",
-    "updated_at": "2026-11-10T18:34:31Z",
-    "author": "brianp",
-    "body": "## Bounty: MCP server gives no error when the configured port is already in use\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIf you set the MCP server port (Settings → MCP Server → Advanced) to a port another process is already using, the server correctly refuses to start, but the panel just shows **Stopped**. The panel says nothing about the port, and the log only has `MCP server stopped` / `MCP server shut down cleanly`. To the user it looks like the server died for no reason.\n\nThe backend already builds a clear error. `McpServerManager::start` in `src-tauri/src/mcp/server.rs` (around line 126) fails with \"MCP server failed to bind to configured port …\", and `set_mcp_port` in `src-tauri/src/mcp/commands.rs` returns it to the frontend. But `commitPort` in `src/containers/floating/Settings/sections/mcp/AdvancedSettings.tsx` only calls `console.error` and quietly puts the old port value back in the field.\n\nA smaller related problem: the port input ignores invalid values (non-numeric, below 1024 or above 65535) without telling the user. Typing into the field without clearing it first gave `193334444`, which was rejected silently.\n\n### Acceptance Criteria\n\n- [ ] When the chosen port is already in use, the MCP settings panel shows a clear, translatable message such as \"Port 4444 is already in use. Choose another port.\"\n- [ ] The bind failure is logged at `warn` or `error` level with the port number and the OS error\n- [ ] After the failure, the panel shows the server's real state and which port is configured. It's clear what to do next (pick another port), and the user doesn't have to guess by toggling the server\n- [ ] The same message appears when you enable the server and its saved port is taken (the `McpServerManager::start()` path in `commands.rs`), not only when you change the port\n- [ ] When an out-of-range or non-numeric port is entered, the user gets inline feedback (e.g. \"Port must be between 1024 and 65535\") instead of the value being silently reset\n- [ ] The security behaviour stays the same: the server must not fall back to a random port\n- [ ] Tests cover the error display (extend `AdvancedSettings.test.tsx`)\n- [ ] New strings are added to the `en` locale only. Other locales are filled in by the translation process\n\n### Context\n\n- Bind: `src-tauri/src/mcp/server.rs` `McpServerManager::start` / `restart`\n- Commands: `src-tauri/src/mcp/commands.rs` (`set_mcp_port`, enable path)\n- UI: `src/containers/floating/Settings/sections/mcp/AdvancedSettings.tsx` (`commitPort`)\n- Repro: enable the MCP server, then run something on port 4444 (e.g. `nc -l 4444`), set the port to 4444 and press Enter\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3492`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 45,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 61,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 3489,
-    "title": "Linux Flatpak: copy to clipboard silently fails under Wayland (no X11 in sandbox)",
-    "url": "https://github.com/tari-project/universe/issues/3489",
-    "state": "open",
-    "labels": [
-      "bug",
-      "enhancement",
-      "bounty",
-      "bounty-S"
-    ],
-    "comment_count": 9,
-    "open_pr_count": 1,
-    "repository": "tari-project/universe",
-    "created_at": "2026-11-05T10:19:13Z",
-    "updated_at": "2026-11-10T15:16:11Z",
-    "author": "brianp",
-    "body": "## Bounty: Linux Flatpak copy to clipboard fails silently under Wayland\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIn the Linux Flatpak under a Wayland session, every copy button does nothing. Copy Address never switches to its copied state and nothing reaches the clipboard. The clipboard plugin returns:\n\n```\nUnknown error while interacting with the clipboard: X11 server connection timed out because it was unreachable\n```\n\nThe Flatpak manifest (`flatpak/com.tari.universe.yml`) uses `--socket=wayland` plus `--socket=fallback-x11`, so on Wayland the sandbox gets no `DISPLAY`. `arboard`'s Wayland path (`wl-clipboard-rs`) needs the privileged data-control protocol, which the compositor seems to withhold from sandboxed clients, so it falls back to X11 and fails. `useCopyToClipboard` only sets `isCopied` when `writeText` succeeds, so the failure is invisible. That's especially bad for seed words, where users assume the copy worked.\n\nSeen on Pop!_OS COSMIC (Wayland) with runtime `org.gnome.Platform//50`. Not yet checked on GNOME or KDE.\n\n### Acceptance Criteria\n\n- [ ] In the Flatpak under a Wayland session, all copy actions put the expected text on the clipboard: Copy Address (Receive, wallet details, settings), Copy raw transaction details, seed words, logs/app-data paths, L2 wallet address, and the MCP token/agent config\n- [ ] Copy still works on Windows, macOS, Linux .deb/AppImage, and Flatpak under X11\n- [ ] The sandbox is **not** widened with `--socket=x11` or similar. Writing from the webview (`navigator.clipboard.writeText`, which uses WebKitGTK's GTK clipboard) or another approach that doesn't widen the sandbox is preferred\n- [ ] If a copy fails, the user sees an error (e.g. a toast) instead of nothing happening\n- [ ] The direct `writeText` imports in `AgentConfig.tsx` and `TokenDisplay.tsx` go through the same shared path as `useCopyToClipboard`\n- [ ] The PR includes proof from a real Flatpak build under Wayland (a screen recording or screenshot of pasted output) on at least two desktops, e.g. GNOME plus COSMIC or KDE\n\n### Context\n\n- Hook: `src/hooks/helpers/useCopyToClipboard.ts`\n- Direct plugin users: `src/containers/floating/Settings/sections/mcp/AgentConfig.tsx`, `TokenDisplay.tsx`\n- `ClipboardViewer.tsx` *reads* the clipboard and may have the same problem. It's worth checking, but not required\n- Manifest: `flatpak/com.tari.universe.yml`\n- Repro from the webview console: `window.__TAURI_INTERNALS__.invoke('plugin:clipboard-manager|write_text', { text: 'probe' })`\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3489`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 46,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 67,
         "freshness": 100
       }
     }
@@ -1138,9 +1042,9 @@
     }
   },
   {
-    "number": 602,
-    "title": "Contribution: fix(transaction_manifest): enforce intent cap, variable resolution, and literal bounds (tari-project/tari-ootle#3462)",
-    "url": "https://github.com/tari-project/special_contributions/issues/602",
+    "number": 613,
+    "title": "Contribution: fix(engine_types): canonicalize decoded FeeBreakdown and reject duplicate method access rules (tari-project/tari-ootle#3684)",
+    "url": "https://github.com/tari-project/special_contributions/issues/613",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -1149,10 +1053,10 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T12:37:45Z",
-    "updated_at": "2026-11-10T12:37:47Z",
+    "created_at": "2026-11-11T09:21:22Z",
+    "updated_at": "2026-11-11T09:21:24Z",
     "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3462](https://github.com/tari-project/tari-ootle/pull/3462): fix(transaction_manifest): enforce intent cap, variable resolution, and literal bounds.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #602` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #602`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3462\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3684](https://github.com/tari-project/tari-ootle/pull/3684): fix(engine_types): canonicalize decoded FeeBreakdown and reject duplicate method access rules.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #613` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #613`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3684\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1169,9 +1073,9 @@
     }
   },
   {
-    "number": 601,
-    "title": "Contribution: fix(engine): enforce CallScope and template access rule checks in runtime (tari-project/tari-ootle#3658)",
-    "url": "https://github.com/tari-project/special_contributions/issues/601",
+    "number": 611,
+    "title": "Contribution: fix(engine): accept direct ResourceAddress on workspace in resolve_resource_address_ref (tari-project/tari-ootle#3674)",
+    "url": "https://github.com/tari-project/special_contributions/issues/611",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -1180,10 +1084,134 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T12:36:15Z",
-    "updated_at": "2026-11-10T12:36:16Z",
+    "created_at": "2026-11-11T08:45:41Z",
+    "updated_at": "2026-11-11T08:45:43Z",
     "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3658](https://github.com/tari-project/tari-ootle/pull/3658): fix(engine): enforce CallScope and template access rule checks in runtime.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #601` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #601`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3658\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "body": "Bounty for @tapirro for contributing [tari-project/tari-ootle#3674](https://github.com/tari-project/tari-ootle/pull/3674): fix(engine): accept direct ResourceAddress on workspace in resolve_resource_address_ref.\n\n**No further code work is required here.**\n\n## Done when\n\n@tapirro opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #611` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #611`, naming this issue\n- [ ] It is opened by @tapirro, the author of tari-project/tari-ootle#3674\n- [ ] It changes only `YYYY/MM/tapirro_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 610,
+    "title": "Contribution: fix(engine): bound confidential withdraw inputs at decode and admit before auth (tari-project/tari-ootle#3683)",
+    "url": "https://github.com/tari-project/special_contributions/issues/610",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-11T08:34:55Z",
+    "updated_at": "2026-11-11T08:34:57Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3683](https://github.com/tari-project/tari-ootle/pull/3683): fix(engine): bound confidential withdraw inputs at decode and admit before auth.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #610` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #610`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3683\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 609,
+    "title": "Contribution: fix(template_abi): panic on truncated length prefix in next_arg and check overflow in encode_v1_packed_size (tari-project/tari-ootle#3689)",
+    "url": "https://github.com/tari-project/special_contributions/issues/609",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-11T08:01:04Z",
+    "updated_at": "2026-11-11T08:01:06Z",
+    "author": "sdbondi",
+    "body": "Bounty for @frds3445 for contributing [tari-project/tari-ootle#3689](https://github.com/tari-project/tari-ootle/pull/3689): fix(template_abi): panic on truncated length prefix in next_arg and check overflow in encode_v1_packed_size.\n\n**No further code work is required here.**\n\n## Done when\n\n@frds3445 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #609` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #609`, naming this issue\n- [ ] It is opened by @frds3445, the author of tari-project/tari-ootle#3689\n- [ ] It changes only `YYYY/MM/frds3445_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 608,
+    "title": "Contribution: fix(engine_types): enforce commitment uniqueness across confidential and stealth statements and withdraws (tari-project/tari-ootle#3646)",
+    "url": "https://github.com/tari-project/special_contributions/issues/608",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-11T07:59:22Z",
+    "updated_at": "2026-11-11T07:59:23Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3646](https://github.com/tari-project/tari-ootle/pull/3646): fix(engine_types): enforce commitment uniqueness across confidential and stealth statements and withdraws.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #608` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #608`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3646\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 606,
+    "title": "Contribution: fix(template_lib): fix VaultFreezeFlags iterator, ProofAccess drop safety, and address allocations (tari-project/tari-ootle#3533)",
+    "url": "https://github.com/tari-project/special_contributions/issues/606",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-11T06:16:52Z",
+    "updated_at": "2026-11-11T07:11:01Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3533](https://github.com/tari-project/tari-ootle/pull/3533): fix(template_lib): fix VaultFreezeFlags iterator, ProofAccess drop safety, and address allocations.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #606` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #606`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3533\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1226,7 +1254,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1257,7 +1285,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1288,7 +1316,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1319,7 +1347,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1350,38 +1378,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 591,
-    "title": "Contribution: fix(template_lib_types): enforce NonFungibleId::String non-empty decode invariant and NonFungibleAddress error variants (tari-project/tari-ootle#3558)",
-    "url": "https://github.com/tari-project/special_contributions/issues/591",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T08:16:44Z",
-    "updated_at": "2026-11-10T08:16:45Z",
-    "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3558](https://github.com/tari-project/tari-ootle/pull/3558): fix(template_lib_types): enforce NonFungibleId::String non-empty decode invariant and NonFungibleAddress error variants.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #591` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #591`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3558\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1412,38 +1409,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 589,
-    "title": "Contribution: fix(sidechain): validate QC epoch/height in commit proofs (tari-project/tari-ootle#3525)",
-    "url": "https://github.com/tari-project/special_contributions/issues/589",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T07:53:21Z",
-    "updated_at": "2026-11-10T07:53:22Z",
-    "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3525](https://github.com/tari-project/tari-ootle/pull/3525): fix(sidechain): validate QC epoch/height in commit proofs.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #589` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #589`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3525\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1474,7 +1440,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1505,7 +1471,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1536,38 +1502,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 584,
-    "title": "Contribution: fix(consensus_types): timeout certificates never justify the zero block (tari-project/tari-ootle#3534)",
-    "url": "https://github.com/tari-project/special_contributions/issues/584",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T06:25:23Z",
-    "updated_at": "2026-11-10T06:25:24Z",
-    "author": "sdbondi",
-    "body": "Bounty for @pa-khan for contributing [tari-project/tari-ootle#3534](https://github.com/tari-project/tari-ootle/pull/3534): fix(consensus_types): timeout certificates never justify the zero block.\n\n**No further code work is required here.**\n\n## Done when\n\n@pa-khan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #584` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #584`, naming this issue\n- [ ] It is opened by @pa-khan, the author of tari-project/tari-ootle#3534\n- [ ] It changes only `YYYY/MM/pa-khan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1696,37 +1631,6 @@
     }
   },
   {
-    "number": 541,
-    "title": "Bug report: tari-ootle resource Auth Hook (`invoke_resource_access_hook`) Serializes Full Caller `component_state` into `arg_scope` Causing `RootSubstateNotFound` Asset Lock on Spent UTXOs and Holds Caller Component `Write` Lock Across Hook Invocation (`crates/engine/src/runtime/impl.rs`, `processor.rs`) (GHSA-mqgw-67fj-29w6)",
-    "url": "https://github.com/tari-project/special_contributions/issues/541",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T07:23:01Z",
-    "updated_at": "2026-11-09T07:23:02Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @sonson0910 for reporting a bug in `tari-ootle` through GitHub Security Advisories: [GHSA-mqgw-67fj-29w6](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-mqgw-67fj-29w6).\n\nThe report showed that resource Auth Hook (`invoke_resource_access_hook`) Serializes Full Caller `component_state` into `arg_scope` Causing `RootSubstateNotFound` Asset Lock on Spent UTXOs and Holds Caller Component `Write` Lock Across Hook Invocation (`crates/engine/src/runtime/impl.rs`, `processor.rs`). The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3616. **No code work is required here.**\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #541` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #541`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
     "number": 528,
     "title": "Contribution: fix(wallet): pass multiple lock IDs through transaction submission (tari-project/tari-ootle#3218)",
     "url": "https://github.com/tari-project/special_contributions/issues/528",
@@ -1784,7 +1688,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1815,7 +1719,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1939,7 +1843,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1970,7 +1874,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2001,7 +1905,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2032,7 +1936,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2063,7 +1967,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2311,7 +2215,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2342,7 +2246,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2373,7 +2277,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2404,7 +2308,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2435,7 +2339,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2466,7 +2370,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2497,7 +2401,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2528,7 +2432,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2559,7 +2463,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2590,7 +2494,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2621,7 +2525,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2714,7 +2618,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -2745,7 +2649,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
@@ -2781,6 +2685,37 @@
     }
   },
   {
+    "number": 607,
+    "title": "Contribution: fix(engine): meter workspace args, bound return value item scans, and encode CallInfo in one pass (tari-project/tari-ootle#3661)",
+    "url": "https://github.com/tari-project/special_contributions/issues/607",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-M"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-11T07:08:53Z",
+    "updated_at": "2026-11-11T07:08:54Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3661](https://github.com/tari-project/tari-ootle/pull/3661): fix(engine): meter workspace args, bound return value item scans, and encode CallInfo in one pass.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #607` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #607`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3661\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 521,
     "title": "Security report: tari-ootle a validator that does not vote on a finalizing block reports the previous life cycle's decision (GHSA-9f9q-g46r-7rrc)",
     "url": "https://github.com/tari-project/special_contributions/issues/521",
@@ -2807,7 +2742,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -2869,7 +2804,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2993,7 +2928,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -3117,7 +3052,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -3148,7 +3083,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -3272,7 +3207,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -3363,7 +3298,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 12
+        "freshness": 11
       }
     }
   },
@@ -3458,7 +3393,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3524,7 +3459,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 67
+        "freshness": 66
       }
     }
   },
@@ -3585,12 +3520,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 40,
+      "bounty_score": 39,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 40,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3848,12 +3783,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 47,
+      "bounty_score": 46,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
