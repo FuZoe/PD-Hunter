@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 188,
+    "comment_count": 190,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-10T21:15:15Z",
+    "updated_at": "2026-11-11T21:03:07Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -147,12 +147,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 41,
+      "bounty_score": 40,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 61,
-        "freshness": 72
+        "freshness": 71
       }
     }
   },
@@ -213,7 +213,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 59,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -244,7 +244,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 52
+        "freshness": 51
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -283,7 +283,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -471,11 +471,11 @@
     "labels": [
       "💎 Bounty"
     ],
-    "comment_count": 84,
+    "comment_count": 83,
     "open_pr_count": 1,
     "repository": "tscircuit/pcb-viewer",
     "created_at": "2025-02-15T18:11:19Z",
-    "updated_at": "2026-11-07T07:09:13Z",
+    "updated_at": "2026-11-11T20:30:52Z",
     "author": "seveibar",
     "body": "/bounty $3",
     "hunter_intelligence": {
@@ -484,12 +484,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 3,
       "is_hidden_gem": false,
-      "bounty_score": 29,
+      "bounty_score": 30,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 98
+        "freshness": 100
       }
     }
   },
@@ -914,39 +914,6 @@
     }
   },
   {
-    "number": 3489,
-    "title": "Linux Flatpak: copy to clipboard silently fails under Wayland (no X11 in sandbox)",
-    "url": "https://github.com/tari-project/universe/issues/3489",
-    "state": "open",
-    "labels": [
-      "bug",
-      "enhancement",
-      "bounty",
-      "bounty-S"
-    ],
-    "comment_count": 8,
-    "open_pr_count": 1,
-    "repository": "tari-project/universe",
-    "created_at": "2026-11-05T10:19:13Z",
-    "updated_at": "2026-11-11T12:14:54Z",
-    "author": "brianp",
-    "body": "## Bounty: Linux Flatpak copy to clipboard fails silently under Wayland\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nIn the Linux Flatpak under a Wayland session, every copy button does nothing. Copy Address never switches to its copied state and nothing reaches the clipboard. The clipboard plugin returns:\n\n```\nUnknown error while interacting with the clipboard: X11 server connection timed out because it was unreachable\n```\n\nThe Flatpak manifest (`flatpak/com.tari.universe.yml`) uses `--socket=wayland` plus `--socket=fallback-x11`, so on Wayland the sandbox gets no `DISPLAY`. `arboard`'s Wayland path (`wl-clipboard-rs`) needs the privileged data-control protocol, which the compositor seems to withhold from sandboxed clients, so it falls back to X11 and fails. `useCopyToClipboard` only sets `isCopied` when `writeText` succeeds, so the failure is invisible. That's especially bad for seed words, where users assume the copy worked.\n\nSeen on Pop!_OS COSMIC (Wayland) with runtime `org.gnome.Platform//50`. Not yet checked on GNOME or KDE.\n\n### Acceptance Criteria\n\n- [ ] In the Flatpak under a Wayland session, all copy actions put the expected text on the clipboard: Copy Address (Receive, wallet details, settings), Copy raw transaction details, seed words, logs/app-data paths, L2 wallet address, and the MCP token/agent config\n- [ ] Copy still works on Windows, macOS, Linux .deb/AppImage, and Flatpak under X11\n- [ ] The sandbox is **not** widened with `--socket=x11` or similar. Writing from the webview (`navigator.clipboard.writeText`, which uses WebKitGTK's GTK clipboard) or another approach that doesn't widen the sandbox is preferred\n- [ ] If a copy fails, the user sees an error (e.g. a toast) instead of nothing happening\n- [ ] The direct `writeText` imports in `AgentConfig.tsx` and `TokenDisplay.tsx` go through the same shared path as `useCopyToClipboard`\n- [ ] The PR includes proof from a real Flatpak build under Wayland (a screen recording or screenshot of pasted output) on at least two desktops, e.g. GNOME plus COSMIC or KDE\n\n### Context\n\n- Hook: `src/hooks/helpers/useCopyToClipboard.ts`\n- Direct plugin users: `src/containers/floating/Settings/sections/mcp/AgentConfig.tsx`, `TokenDisplay.tsx`\n- `ClipboardViewer.tsx` *reads* the clipboard and may have the same problem. It's worth checking, but not required\n- Manifest: `flatpak/com.tari.universe.yml`\n- Repro from the webview console: `window.__TAURI_INTERNALS__.invoke('plugin:clipboard-manager|write_text', { text: 'probe' })`\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3489`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 47,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 69,
-        "freshness": 100
-      }
-    }
-  },
-  {
     "number": 3299,
     "title": "CPU mining capped at 64 threads on Windows machines with 64+ logical cores",
     "url": "https://github.com/tari-project/universe/issues/3299",
@@ -957,11 +924,11 @@
       "bounty",
       "bounty-M"
     ],
-    "comment_count": 8,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-06-29T11:54:21Z",
-    "updated_at": "2026-10-11T18:48:10Z",
+    "updated_at": "2026-11-11T20:55:02Z",
     "author": "brianp",
     "body": "## Bounty: Fix CPU mining 64-thread cap on Windows (64+ logical cores)\n\n**Tier:** M — 60,000 XTM\n\n### Description\n\nCPU mining tops out at 64 threads on Windows machines that have more than 64 logical cores. A user with 128 threads reported that only 64 were ever used, no matter what thread count they selected. The goal of this bounty is simple to state and hard to prove: **make Tari Universe actually use more than 64 threads on a Windows machine that has more than 64 logical cores.**\n\nWindows splits machines with more than 64 logical processors into \"processor groups\" of at most 64 each, and a process that isn't group-aware only gets scheduled onto one group. On top of that, Rust's `std::thread::available_parallelism()` (which we use to count cores) undercounts past 64 on Windows for the same reason. The correct fix must count cores across all processor groups **and** ensure the miner threads actually run across them — however that is best achieved.\n\n### Acceptance Criteria\n\n- [ ] On a Windows machine with **more than 64 logical cores**, CPU mining uses **more than 64 threads** — up to the count the user selects, bounded by the machine's real logical core count\n- [ ] Core count is determined accurately across all processor groups (not capped at 64 the way `available_parallelism()` is)\n- [ ] No regression on machines with ≤64 cores, and no regression on macOS or Linux\n- [ ] **The PR includes proof of a working result on real hardware:**\n  - [ ] A screenshot proving the test machine's spec (Task Manager → Performance, or CPU-Z) showing **more than 64 logical cores**\n  - [ ] Screenshots and/or xmrig log excerpts showing **more than 64 threads in active use** after the fix, on that machine\n\n### Development Requirements\n\nThis bounty **cannot be developed or verified blind.** You must have access to a Windows machine with more than 64 logical cores to work on it. A fix that \"looks correct\" but is not demonstrated to work on qualifying hardware will **not** be accepted — the hardware proof above is mandatory, not optional. A VM/emulated core count that does not reproduce real processor-group behavior does not qualify. If you do not have such a machine, this is not the right bounty for you.\n\n### Context\n\n- Relevant code:\n  - `src-tauri/src/mining/cpu/manager.rs` — `determine_number_of_cores_to_use()` uses `thread::available_parallelism()`, which undercounts past 64 on Windows\n  - `src-tauri/src/mining/cpu/miners/xmrig.rs` — passes the count through as `--threads={cpu_threads}`\n  - xmrig is pinned to `6.25.0` in `src-tauri/binaries-versions/binaries_versions_*.json`\n- **Open question (see the analysis in the comment below):** it is not yet confirmed whether xmrig 6.25.0 spreads threads across processor groups on its own. The comment below is a *lead/hypothesis*, not a confirmed ceiling — do not treat it as ruling out an app-side fix. The bounty is open to any approach that demonstrably works: an accurate all-groups core count, adjusting how xmrig is launched (e.g. affinity handling on Win11/Server 2022), or a launcher strategy. What matters is the proven result on real hardware, not the mechanism.\n- Reference on the 64-core threshold and Windows processor groups: https://bitsum.com/general/the-64-core-threshold-processor-groups-and-windows/\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3299`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
     "hunter_intelligence": {
@@ -970,12 +937,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 45,
+      "bounty_score": 46,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 69,
-        "freshness": 85
+        "competition": 67,
+        "freshness": 100
       }
     }
   },
@@ -1006,7 +973,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 19,
-        "freshness": 76
+        "freshness": 75
       }
     }
   },
@@ -2556,7 +2523,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -2768,7 +2735,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2959,7 +2926,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -2990,7 +2957,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -3021,7 +2988,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -3330,7 +3297,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -3362,7 +3329,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 31,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -3425,7 +3392,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -3493,7 +3460,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 40,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -3623,7 +3590,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 26
+        "freshness": 25
       }
     }
   },
@@ -3689,7 +3656,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 37,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -3887,7 +3854,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 26
+        "freshness": 25
       }
     }
   },
@@ -3982,7 +3949,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 52,
-        "freshness": 26
+        "freshness": 25
       }
     }
   }
