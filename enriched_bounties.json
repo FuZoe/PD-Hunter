@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 191,
+    "comment_count": 193,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-12T03:11:40Z",
+    "updated_at": "2026-11-12T14:04:12Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -59,7 +59,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -375,7 +375,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 22,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -403,7 +403,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -431,7 +431,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -459,7 +459,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1004,14 +1004,14 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 27,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
   {
-    "number": 613,
-    "title": "Contribution: fix(engine_types): canonicalize decoded FeeBreakdown and reject duplicate method access rules (tari-project/tari-ootle#3684)",
-    "url": "https://github.com/tari-project/special_contributions/issues/613",
+    "number": 629,
+    "title": "Contribution: fix(state_store_rocksdb): account for full u64 SubstateVersion in VersionedSubstateIdRef encode_len (tari-project/tari-ootle#3750)",
+    "url": "https://github.com/tari-project/special_contributions/issues/629",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -1020,10 +1020,289 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-11T09:21:22Z",
-    "updated_at": "2026-11-11T09:21:24Z",
+    "created_at": "2026-11-12T12:56:34Z",
+    "updated_at": "2026-11-12T12:56:35Z",
     "author": "sdbondi",
-    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3684](https://github.com/tari-project/tari-ootle/pull/3684): fix(engine_types): canonicalize decoded FeeBreakdown and reject duplicate method access rules.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #613` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #613`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3684\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3750](https://github.com/tari-project/tari-ootle/pull/3750): fix(state_store_rocksdb): account for full u64 SubstateVersion in VersionedSubstateIdRef encode_len.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #629` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #629`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3750\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 628,
+    "title": "Contribution: fix(ootle_sdk_core): settle main_signer before auth signing and deduplicate vault refs (tari-project/tari-ootle#3738)",
+    "url": "https://github.com/tari-project/special_contributions/issues/628",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T12:10:26Z",
+    "updated_at": "2026-11-12T12:10:27Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3738](https://github.com/tari-project/tari-ootle/pull/3738): fix(ootle_sdk_core): settle main_signer before auth signing and deduplicate vault refs.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #628` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #628`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3738\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 627,
+    "title": "Contribution: fix(epoch_manager): preserve assigned committee counts and sync activation state (tari-project/tari-ootle#3459)",
+    "url": "https://github.com/tari-project/special_contributions/issues/627",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T11:47:22Z",
+    "updated_at": "2026-11-12T11:47:23Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3459](https://github.com/tari-project/tari-ootle/pull/3459): fix(epoch_manager): preserve assigned committee counts and sync activation state.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #627` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #627`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3459\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 626,
+    "title": "Contribution: fix(state_store_rocksdb): pin pending state generation on first writer read (tari-project/tari-ootle#3734)",
+    "url": "https://github.com/tari-project/special_contributions/issues/626",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T10:43:44Z",
+    "updated_at": "2026-11-12T10:43:45Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3734](https://github.com/tari-project/tari-ootle/pull/3734): fix(state_store_rocksdb): pin pending state generation on first writer read.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #626` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #626`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3734\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 623,
+    "title": "Contribution: fix(consensus): preserve forced beats and guard pacemaker and view transitions (tari-project/tari-ootle#3727)",
+    "url": "https://github.com/tari-project/special_contributions/issues/623",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T09:57:44Z",
+    "updated_at": "2026-11-12T09:57:44Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3727](https://github.com/tari-project/tari-ootle/pull/3727): fix(consensus): preserve forced beats and guard pacemaker and view transitions.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #623` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #623`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3727\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 622,
+    "title": "Contribution: fix(tari_bor): enforce max decode depth and sentinel map bounds in serde deserializer (tari-project/tari-ootle#3707)",
+    "url": "https://github.com/tari-project/special_contributions/issues/622",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T09:28:55Z",
+    "updated_at": "2026-11-12T09:28:56Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3707](https://github.com/tari-project/tari-ootle/pull/3707): fix(tari_bor): enforce max decode depth and sentinel map bounds in serde deserializer.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #622` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #622`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3707\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 621,
+    "title": "Contribution: fix(walletd): harden session management auth, expiry reporting, and WebRTC delegation (tari-project/tari-ootle#3651)",
+    "url": "https://github.com/tari-project/special_contributions/issues/621",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T09:24:02Z",
+    "updated_at": "2026-11-12T09:24:03Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3651](https://github.com/tari-project/tari-ootle/pull/3651): fix(walletd): harden session management auth, expiry reporting, and WebRTC delegation.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #621` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #621`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3651\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 620,
+    "title": "Contribution: fix(engine): enforce CallScope check in ComponentAction::GetTemplateAddress (tari-project/tari-ootle#3701)",
+    "url": "https://github.com/tari-project/special_contributions/issues/620",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T08:57:06Z",
+    "updated_at": "2026-11-12T08:57:06Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3701](https://github.com/tari-project/tari-ootle/pull/3701): fix(engine): enforce CallScope check in ComponentAction::GetTemplateAddress.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #620` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #620`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3701\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 619,
+    "title": "Contribution: fix(consensus): enforce transaction min_epoch at sequencing and foreign pinning (tari-project/tari-ootle#3704)",
+    "url": "https://github.com/tari-project/special_contributions/issues/619",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T08:06:30Z",
+    "updated_at": "2026-11-12T08:06:30Z",
+    "author": "sdbondi",
+    "body": "Bounty for @tapirro for contributing [tari-project/tari-ootle#3704](https://github.com/tari-project/tari-ootle/pull/3704): fix(consensus): enforce transaction min_epoch at sequencing and foreign pinning.\n\n**No further code work is required here.**\n\n## Done when\n\n@tapirro opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #619` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #619`, naming this issue\n- [ ] It is opened by @tapirro, the author of tari-project/tari-ootle#3704\n- [ ] It changes only `YYYY/MM/tapirro_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 618,
+    "title": "Contribution: fix(transaction_validation,consensus): run validity window check before epoch range and resequence against block epoch (tari-project/tari-ootle#3667)",
+    "url": "https://github.com/tari-project/special_contributions/issues/618",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-12T08:02:30Z",
+    "updated_at": "2026-11-12T08:02:31Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3667](https://github.com/tari-project/tari-ootle/pull/3667): fix(transaction_validation,consensus): run validity window check before epoch range and resequence against block epoch.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #618` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #618`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3667\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1055,223 +1334,6 @@
     "updated_at": "2026-11-11T08:45:43Z",
     "author": "sdbondi",
     "body": "Bounty for @tapirro for contributing [tari-project/tari-ootle#3674](https://github.com/tari-project/tari-ootle/pull/3674): fix(engine): accept direct ResourceAddress on workspace in resolve_resource_address_ref.\n\n**No further code work is required here.**\n\n## Done when\n\n@tapirro opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #611` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #611`, naming this issue\n- [ ] It is opened by @tapirro, the author of tari-project/tari-ootle#3674\n- [ ] It changes only `YYYY/MM/tapirro_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 610,
-    "title": "Contribution: fix(engine): bound confidential withdraw inputs at decode and admit before auth (tari-project/tari-ootle#3683)",
-    "url": "https://github.com/tari-project/special_contributions/issues/610",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-11T08:34:55Z",
-    "updated_at": "2026-11-11T08:34:57Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3683](https://github.com/tari-project/tari-ootle/pull/3683): fix(engine): bound confidential withdraw inputs at decode and admit before auth.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #610` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #610`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3683\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 609,
-    "title": "Contribution: fix(template_abi): panic on truncated length prefix in next_arg and check overflow in encode_v1_packed_size (tari-project/tari-ootle#3689)",
-    "url": "https://github.com/tari-project/special_contributions/issues/609",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-11T08:01:04Z",
-    "updated_at": "2026-11-11T08:01:06Z",
-    "author": "sdbondi",
-    "body": "Bounty for @frds3445 for contributing [tari-project/tari-ootle#3689](https://github.com/tari-project/tari-ootle/pull/3689): fix(template_abi): panic on truncated length prefix in next_arg and check overflow in encode_v1_packed_size.\n\n**No further code work is required here.**\n\n## Done when\n\n@frds3445 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #609` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #609`, naming this issue\n- [ ] It is opened by @frds3445, the author of tari-project/tari-ootle#3689\n- [ ] It changes only `YYYY/MM/frds3445_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 608,
-    "title": "Contribution: fix(engine_types): enforce commitment uniqueness across confidential and stealth statements and withdraws (tari-project/tari-ootle#3646)",
-    "url": "https://github.com/tari-project/special_contributions/issues/608",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-11T07:59:22Z",
-    "updated_at": "2026-11-11T07:59:23Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3646](https://github.com/tari-project/tari-ootle/pull/3646): fix(engine_types): enforce commitment uniqueness across confidential and stealth statements and withdraws.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #608` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #608`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3646\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 606,
-    "title": "Contribution: fix(template_lib): fix VaultFreezeFlags iterator, ProofAccess drop safety, and address allocations (tari-project/tari-ootle#3533)",
-    "url": "https://github.com/tari-project/special_contributions/issues/606",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-11T06:16:52Z",
-    "updated_at": "2026-11-11T07:11:01Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3533](https://github.com/tari-project/tari-ootle/pull/3533): fix(template_lib): fix VaultFreezeFlags iterator, ProofAccess drop safety, and address allocations.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #606` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #606`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3533\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 600,
-    "title": "Contribution: fix(engine): remove dropped proofs from workspace, preserve allocation order, and report commit_fees shortfall (tari-project/tari-ootle#3514)",
-    "url": "https://github.com/tari-project/special_contributions/issues/600",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T12:35:35Z",
-    "updated_at": "2026-11-10T12:35:36Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3514](https://github.com/tari-project/tari-ootle/pull/3514): fix(engine): remove dropped proofs from workspace, preserve allocation order, and report commit_fees shortfall.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #600` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #600`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3514\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 598,
-    "title": "Contribution: fix(template_abi,ootle_sdk_ffi_c): guard u32 length overflow in TemplateDef and reject uppercase receiver hex (tari-project/tari-ootle#3485)",
-    "url": "https://github.com/tari-project/special_contributions/issues/598",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T10:59:09Z",
-    "updated_at": "2026-11-10T10:59:09Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3485](https://github.com/tari-project/tari-ootle/pull/3485): fix(template_abi,ootle_sdk_ffi_c): guard u32 length overflow in TemplateDef and reject uppercase receiver hex.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #598` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #598`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3485\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 597,
-    "title": "Contribution: fix(walletd,wallet_sdk): verify epoch and checkpoint layout via ValidatorSetApi at sign-act points (tari-project/tari-ootle#3229)",
-    "url": "https://github.com/tari-project/special_contributions/issues/597",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T10:08:22Z",
-    "updated_at": "2026-11-10T10:08:23Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3229](https://github.com/tari-project/tari-ootle/pull/3229): fix(walletd,wallet_sdk): verify epoch and checkpoint layout via ValidatorSetApi at sign-act points.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #597` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #597`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3229\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1319,378 +1381,6 @@
     }
   },
   {
-    "number": 594,
-    "title": "Contribution: fix(wallet): enforce stealth lock spendability, NonFungible substate filter, and vault version encoding (tari-project/tari-ootle#3645)",
-    "url": "https://github.com/tari-project/special_contributions/issues/594",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T10:04:48Z",
-    "updated_at": "2026-11-10T10:04:49Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3645](https://github.com/tari-project/tari-ootle/pull/3645): fix(wallet): enforce stealth lock spendability, NonFungible substate filter, and vault version encoding.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #594` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #594`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3645\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 590,
-    "title": "Contribution: fix(tari_bor): enforce exact decode, support indefinite strings/bytes, and reject dup IndexMap keys (tari-project/tari-ootle#3480)",
-    "url": "https://github.com/tari-project/special_contributions/issues/590",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T08:09:36Z",
-    "updated_at": "2026-11-10T08:09:37Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3480](https://github.com/tari-project/tari-ootle/pull/3480): fix(tari_bor): enforce exact decode, support indefinite strings/bytes, and reject dup IndexMap keys.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #590` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #590`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3480\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 588,
-    "title": "Contribution: fix: decode cbor bignum amounts and enforce canonical substate address prefixes (tari-project/tari-ootle#3521)",
-    "url": "https://github.com/tari-project/special_contributions/issues/588",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T07:50:57Z",
-    "updated_at": "2026-11-10T07:50:58Z",
-    "author": "sdbondi",
-    "body": "Bounty for @karavel-dev for contributing [tari-project/tari-ootle#3521](https://github.com/tari-project/tari-ootle/pull/3521): fix: decode cbor bignum amounts and enforce canonical substate address prefixes.\n\n**No further code work is required here.**\n\n## Done when\n\n@karavel-dev opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #588` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #588`, naming this issue\n- [ ] It is opened by @karavel-dev, the author of tari-project/tari-ootle#3521\n- [ ] It changes only `YYYY/MM/karavel-dev_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 587,
-    "title": "Contribution: fix(engine): reject zero-amount fee payments and enforce intrinsic argument arity (tari-project/tari-ootle#3543)",
-    "url": "https://github.com/tari-project/special_contributions/issues/587",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T07:44:46Z",
-    "updated_at": "2026-11-10T07:44:47Z",
-    "author": "sdbondi",
-    "body": "Bounty for @LBCron for contributing [tari-project/tari-ootle#3543](https://github.com/tari-project/tari-ootle/pull/3543): fix(engine): reject zero-amount fee payments and enforce intrinsic argument arity.\n\n**No further code work is required here.**\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #587` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #587`, naming this issue\n- [ ] It is opened by @LBCron, the author of tari-project/tari-ootle#3543\n- [ ] It changes only `YYYY/MM/LBCron_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 585,
-    "title": "Contribution: fix(p2p): cap QcSignatures, TcSignatures, and shard_groups on decode and reject trailing bytes (tari-project/tari-ootle#3471)",
-    "url": "https://github.com/tari-project/special_contributions/issues/585",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-10T06:58:30Z",
-    "updated_at": "2026-11-10T06:58:32Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3471](https://github.com/tari-project/tari-ootle/pull/3471): fix(p2p): cap QcSignatures, TcSignatures, and shard_groups on decode and reject trailing bytes.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #585` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #585`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3471\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 577,
-    "title": "Security report: tari-ootle unseparated UtxoAddress(TARI_TOKEN, commitment) Namespace Between claim_burn and execute_stealth_transfer Allows L1 Burner to Pre-Create and Spend the Burn Commitment UTXO v0, Permanently Blocking the Recipient's ClaimBurn (GHSA-8mh4-mhrw-5j87)",
-    "url": "https://github.com/tari-project/special_contributions/issues/577",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T12:57:54Z",
-    "updated_at": "2026-11-09T12:57:55Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-8mh4-mhrw-5j87](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-8mh4-mhrw-5j87).\n\nThe report showed that unseparated UtxoAddress(TARI_TOKEN, commitment) Namespace Between claim_burn and execute_stealth_transfer Allows L1 Burner to Pre-Create and Spend the Burn Commitment UTXO v0, Permanently Blocking the Recipient's ClaimBurn. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3633. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #577` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #577`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 572,
-    "title": "Contribution: fix(consensus): reject invalid, shard-group-mismatched and empty foreign proposal atoms when voting (tari-project/tari-ootle#3220)",
-    "url": "https://github.com/tari-project/special_contributions/issues/572",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T11:16:33Z",
-    "updated_at": "2026-11-09T11:16:34Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3220](https://github.com/tari-project/tari-ootle/pull/3220): fix(consensus): reject invalid, shard-group-mismatched and empty foreign proposal atoms when voting.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #572` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #572`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3220\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 568,
-    "title": "mempool harding cve",
-    "url": "https://github.com/tari-project/special_contributions/issues/568",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T10:57:26Z",
-    "updated_at": "2026-11-09T10:57:26Z",
-    "author": "SWvheerden",
-    "body": "CVE for mempool hardening ",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 555,
-    "title": "Contribution: perf(consensus): let later local-only claims lock a ValidatorFeePool while an earlier withdrawal is pending (tari-project/tari-ootle#3226)",
-    "url": "https://github.com/tari-project/special_contributions/issues/555",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T08:19:29Z",
-    "updated_at": "2026-11-09T08:19:30Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3226](https://github.com/tari-project/tari-ootle/pull/3226): perf(consensus): let later local-only claims lock a ValidatorFeePool while an earlier withdrawal is pending.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #555` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #555`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3226\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 528,
-    "title": "Contribution: fix(wallet): pass multiple lock IDs through transaction submission (tari-project/tari-ootle#3218)",
-    "url": "https://github.com/tari-project/special_contributions/issues/528",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-09T03:24:14Z",
-    "updated_at": "2026-11-09T03:24:15Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3218](https://github.com/tari-project/tari-ootle/pull/3218): fix(wallet): pass multiple lock IDs through transaction submission.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #528` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #528`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3218\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 98
-      }
-    }
-  },
-  {
-    "number": 479,
-    "title": "Contribution: fix(engine): reject transient handles in spend-script bound args (tari-project/tari-ootle#3219)",
-    "url": "https://github.com/tari-project/special_contributions/issues/479",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-06T07:30:57Z",
-    "updated_at": "2026-11-06T07:30:58Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3219](https://github.com/tari-project/tari-ootle/pull/3219): fix(engine): reject transient handles in spend-script bound args.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #479` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #479`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3219\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 471,
-    "title": "Contribution: fix(transaction_validation): enforce permitted fee instructions and fee-payment presence (tari-project/tari-ootle#3228)",
-    "url": "https://github.com/tari-project/special_contributions/issues/471",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-06T04:44:26Z",
-    "updated_at": "2026-11-06T04:44:27Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3228](https://github.com/tari-project/tari-ootle/pull/3228): fix(transaction_validation): enforce permitted fee instructions and fee-payment presence.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #471` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #471`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3228\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
     "number": 449,
     "title": "Bug report: tari-ootle validator state sync: a partially completed first sync is reported up to date after a committee layout change (GHSA-533f-pgxr-73c4)",
     "url": "https://github.com/tari-project/special_contributions/issues/449",
@@ -1706,68 +1396,6 @@
     "updated_at": "2026-11-05T06:47:38Z",
     "author": "sdbondi",
     "body": "Retro bounty for @m4r1m0 for reporting a bug in `tari-ootle` through GitHub Security Advisories: [GHSA-533f-pgxr-73c4](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-533f-pgxr-73c4).\n\nThe report showed that validator state sync: a partially completed first sync is reported up to date after a committee layout change. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @Ninkuki in tari-project/tari-ootle#3312. **No code work is required here.**\n\n## Done when\n\n@m4r1m0 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #449` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #449`, naming this issue\n- [ ] It is opened by @m4r1m0, the credited reporter\n- [ ] It changes only `YYYY/MM/m4r1m0_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 444,
-    "title": "Security report: tari-ootle walletd / wallet_sdk: Lock Ownership Bypass in submit/submit_dry_run & Permanent Fund Freezing on Multi-Lock Transactions (GHSA-344f-v89p-jw54)",
-    "url": "https://github.com/tari-project/special_contributions/issues/444",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-05T05:39:27Z",
-    "updated_at": "2026-11-05T05:39:27Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @ket4min-susan for reporting a security weakness in `tari-ootle` through GitHub Security Advisories: [GHSA-344f-v89p-jw54](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-344f-v89p-jw54).\n\nThe report showed that walletd / wallet_sdk: Lock Ownership Bypass in submit/submit_dry_run & Permanent Fund Freezing on Multi-Lock Transactions. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @ket4min-susan in tari-project/tari-ootle#3225. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #444` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #444`, naming this issue\n- [ ] It is opened by @ket4min-susan, the credited reporter\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 443,
-    "title": "Contribution: fix(walletd,wallet_sdk): enforce lock ownership on submit and reject nonexistent imported keys (tari-project/tari-ootle#3225)",
-    "url": "https://github.com/tari-project/special_contributions/issues/443",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-05T05:39:01Z",
-    "updated_at": "2026-11-05T05:39:02Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3225](https://github.com/tari-project/tari-ootle/pull/3225): fix(walletd,wallet_sdk): enforce lock ownership on submit and reject nonexistent imported keys.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #443` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #443`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3225\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1815,161 +1443,6 @@
     }
   },
   {
-    "number": 435,
-    "title": "Security report: tari-ootle a vault can be seated in two components: `validate_component_state` only rejects duplicates within one component's state (GHSA-cx7p-5g7q-pcm2)",
-    "url": "https://github.com/tari-project/special_contributions/issues/435",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-04T06:46:24Z",
-    "updated_at": "2026-11-04T06:46:25Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @jiggy-cadence for reporting a security weakness in `tari-ootle` through GitHub Security Advisories: [GHSA-cx7p-5g7q-pcm2](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-cx7p-5g7q-pcm2).\n\nThe report showed that a vault can be seated in two components: `validate_component_state` only rejects duplicates within one component's state. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3262. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@jiggy-cadence opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #435` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #435`, naming this issue\n- [ ] It is opened by @jiggy-cadence, the credited reporter\n- [ ] It changes only `YYYY/MM/jiggy-cadence_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 434,
-    "title": "Contribution: fix(libp2p-messaging): fix sink cycling, connection-close events, and stream queueing (tari-project/tari-ootle#3238)",
-    "url": "https://github.com/tari-project/special_contributions/issues/434",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-04T06:05:53Z",
-    "updated_at": "2026-11-04T06:05:54Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3238](https://github.com/tari-project/tari-ootle/pull/3238): fix(libp2p-messaging): fix sink cycling, connection-close events, and stream queueing.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #434` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #434`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3238\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 433,
-    "title": "Contribution: fix(validator_node_client): handle null JSON-RPC error, HTTP status errors, and response Deserialize impls (tari-project/tari-ootle#3243)",
-    "url": "https://github.com/tari-project/special_contributions/issues/433",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-04T06:02:17Z",
-    "updated_at": "2026-11-04T06:02:18Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3243](https://github.com/tari-project/tari-ootle/pull/3243): fix(validator_node_client): handle null JSON-RPC error, HTTP status errors, and response Deserialize impls.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #433` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #433`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3243\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 432,
-    "title": "Security report: tari-ootle componentAddressAllocation cross-template deterministic public-key address hijacking and unscoped child-frame AuthHook bypass (GHSA-j2cg-mjxf-qjvr)",
-    "url": "https://github.com/tari-project/special_contributions/issues/432",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-04T05:56:12Z",
-    "updated_at": "2026-11-04T05:56:13Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @ket4min-susan for reporting a security weakness in `tari-ootle` through GitHub Security Advisories: [GHSA-j2cg-mjxf-qjvr](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-j2cg-mjxf-qjvr).\n\nThe report showed that componentAddressAllocation cross-template deterministic public-key address hijacking and unscoped child-frame AuthHook bypass. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @ket4min-susan in tari-project/tari-ootle#3221. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #432` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #432`, naming this issue\n- [ ] It is opened by @ket4min-susan, the credited reporter\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 428,
-    "title": "Contribution: fix(engine): charge execution fees at on_fee_checkpoint and before required_fee_payment (tari-project/tari-ootle#3224)",
-    "url": "https://github.com/tari-project/special_contributions/issues/428",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-03T12:28:26Z",
-    "updated_at": "2026-11-03T12:28:27Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3224](https://github.com/tari-project/tari-ootle/pull/3224): fix(engine): charge execution fees at on_fee_checkpoint and before required_fee_payment.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #428` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #428`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3224\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
     "number": 427,
     "title": "Bug report: tari-ootle feeModule::on_fee_checkpoint Omits WasmExecution and NativeExecution Charges, Allowing Unpaid Main-Intent Execution (Reject Instead of AcceptFeeRejectRest) (GHSA-j53w-fcwx-66xx)",
     "url": "https://github.com/tari-project/special_contributions/issues/427",
@@ -1996,69 +1469,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 425,
-    "title": "Contribution: fix(peersync): fix want-list completion check, semaphore release, and duplicate/stale records (tari-project/tari-ootle#3236)",
-    "url": "https://github.com/tari-project/special_contributions/issues/425",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-03T11:47:31Z",
-    "updated_at": "2026-11-03T11:47:32Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3236](https://github.com/tari-project/tari-ootle/pull/3236): fix(peersync): fix want-list completion check, semaphore release, and duplicate/stale records.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #425` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #425`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3236\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 421,
-    "title": "Contribution: fix(transaction_manifest): validate call/arg paths, local call args, and duplicate bindings (tari-project/tari-ootle#3234)",
-    "url": "https://github.com/tari-project/special_contributions/issues/421",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-03T10:21:23Z",
-    "updated_at": "2026-11-03T10:21:24Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3234](https://github.com/tari-project/tari-ootle/pull/3234): fix(transaction_manifest): validate call/arg paths, local call args, and duplicate bindings.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #421` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #421`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3234\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2089,69 +1500,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 415,
-    "title": "Contribution: fix(engine): reject returned buckets and address allocations the frame does not hold (tari-project/tari-ootle#3231)",
-    "url": "https://github.com/tari-project/special_contributions/issues/415",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-03T07:18:43Z",
-    "updated_at": "2026-11-03T07:18:44Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3231](https://github.com/tari-project/tari-ootle/pull/3231): fix(engine): reject returned buckets and address allocations the frame does not hold.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #415` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #415`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3231\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 414,
-    "title": "Contribution: fix(engine): enforce template binding and CallScope ownership on ComponentAddressAllocation (tari-project/tari-ootle#3221)",
-    "url": "https://github.com/tari-project/special_contributions/issues/414",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-03T07:12:57Z",
-    "updated_at": "2026-11-03T07:12:58Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3221](https://github.com/tari-project/tari-ootle/pull/3221): fix(engine): enforce template binding and CallScope ownership on ComponentAddressAllocation.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #414` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #414`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3221\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2182,37 +1531,6 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 409,
-    "title": "Contribution: fix(ootle_serde): fix binary option serialization in hex/duration and support visit_seq in BytesVisitor (tari-project/tari-ootle#3247)",
-    "url": "https://github.com/tari-project/special_contributions/issues/409",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T10:12:18Z",
-    "updated_at": "2026-11-02T11:44:59Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3247](https://github.com/tari-project/tari-ootle/pull/3247): fix(ootle_serde): fix binary option serialization in hex/duration and support visit_seq in BytesVisitor.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #409` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #409`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3247\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
         "freshness": 95
       }
     }
@@ -2249,68 +1567,6 @@
     }
   },
   {
-    "number": 407,
-    "title": "Contribution: fix(libp2p-substream): drain behaviour events in poll and fix connection-close handling (tari-project/tari-ootle#3239)",
-    "url": "https://github.com/tari-project/special_contributions/issues/407",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T08:51:42Z",
-    "updated_at": "2026-11-02T08:51:43Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3239](https://github.com/tari-project/tari-ootle/pull/3239): fix(libp2p-substream): drain behaviour events in poll and fix connection-close handling.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #407` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #407`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3239\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 406,
-    "title": "Contribution: fix(template_build): support stateless template docs, extra_entry merge, and source_path errors (tari-project/tari-ootle#3241)",
-    "url": "https://github.com/tari-project/special_contributions/issues/406",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T08:28:56Z",
-    "updated_at": "2026-11-02T08:28:57Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3241](https://github.com/tari-project/tari-ootle/pull/3241): fix(template_build): support stateless template docs, extra_entry merge, and source_path errors.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #406` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #406`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3241\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
     "number": 405,
     "title": "Security report: tari-ootle first-arrived remote abort reason wins in the transaction pool, so nodes permanently disagree on multi-shard transaction decisions (GHSA-82mc-m2cc-fg23)",
     "url": "https://github.com/tari-project/special_contributions/issues/405",
@@ -2326,161 +1582,6 @@
     "updated_at": "2026-11-02T08:12:56Z",
     "author": "sdbondi",
     "body": "Retro bounty for @fandiyana for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-82mc-m2cc-fg23](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-82mc-m2cc-fg23).\n\nThe report showed that first-arrived remote abort reason wins in the transaction pool, so nodes permanently disagree on multi-shard transaction decisions. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3254. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@fandiyana opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #405` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #405`, naming this issue\n- [ ] It is opened by @fandiyana, the credited reporter\n- [ ] It changes only `YYYY/MM/fandiyana_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 403,
-    "title": "Contribution: fix(swarm_daemon): fix duplicate L1 watch paths, registration count, and reply handling (tari-project/tari-ootle#3240)",
-    "url": "https://github.com/tari-project/special_contributions/issues/403",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T07:27:13Z",
-    "updated_at": "2026-11-02T07:27:14Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3240](https://github.com/tari-project/tari-ootle/pull/3240): fix(swarm_daemon): fix duplicate L1 watch paths, registration count, and reply handling.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #403` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #403`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3240\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 399,
-    "title": "Contribution: fix(indexer_lib): bound batch cache writes, fix unsettled fallback, and deduplicate component refs (tari-project/tari-ootle#3249)",
-    "url": "https://github.com/tari-project/special_contributions/issues/399",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T06:51:47Z",
-    "updated_at": "2026-11-02T06:51:48Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3249](https://github.com/tari-project/tari-ootle/pull/3249): fix(indexer_lib): bound batch cache writes, fix unsettled fallback, and deduplicate component refs.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #399` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #399`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3249\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 398,
-    "title": "Contribution: fix(common_types): fix committee max_node_failures formula, ShardStateVersions CBOR prealloc, and ShardGroup::from_str (tari-project/tari-ootle#3244)",
-    "url": "https://github.com/tari-project/special_contributions/issues/398",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T06:40:27Z",
-    "updated_at": "2026-11-02T06:40:28Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3244](https://github.com/tari-project/tari-ootle/pull/3244): fix(common_types): fix committee max_node_failures formula, ShardStateVersions CBOR prealloc, and ShardGroup::from_str.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #398` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #398`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3244\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 397,
-    "title": "Contribution: fix(swarm): fix 0.x/0.0.x semantic_version_eq, protocol parsing, and message ID hashing (tari-project/tari-ootle#3242)",
-    "url": "https://github.com/tari-project/special_contributions/issues/397",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T05:56:26Z",
-    "updated_at": "2026-11-02T05:56:28Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3242](https://github.com/tari-project/tari-ootle/pull/3242): fix(swarm): fix 0.x/0.0.x semantic_version_eq, protocol parsing, and message ID hashing.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #397` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #397`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3242\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 95
-      }
-    }
-  },
-  {
-    "number": 396,
-    "title": "Contribution: fix(networking): fix IPv6 global scope check, bootstrap completion, and topic peers (tari-project/tari-ootle#3237)",
-    "url": "https://github.com/tari-project/special_contributions/issues/396",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-02T05:36:25Z",
-    "updated_at": "2026-11-02T05:36:26Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ket4min-susan for contributing [tari-project/tari-ootle#3237](https://github.com/tari-project/tari-ootle/pull/3237): fix(networking): fix IPv6 global scope check, bootstrap completion, and topic peers.\n\n**No further code work is required here.**\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #396` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #396`, naming this issue\n- [ ] It is opened by @ket4min-susan, the author of tari-project/tari-ootle#3237\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -2549,12 +1650,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -2630,7 +1731,7 @@
       "bounty-S"
     ],
     "comment_count": 0,
-    "open_pr_count": 2,
+    "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-10-02T06:47:35Z",
     "updated_at": "2026-10-02T06:47:37Z",
@@ -2642,43 +1743,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 44,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 70,
-        "freshness": 80
-      }
-    }
-  },
-  {
-    "number": 607,
-    "title": "Contribution: fix(engine): meter workspace args, bound return value item scans, and encode CallInfo in one pass (tari-project/tari-ootle#3661)",
-    "url": "https://github.com/tari-project/special_contributions/issues/607",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-M"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-11T07:08:53Z",
-    "updated_at": "2026-11-11T07:08:54Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3661](https://github.com/tari-project/tari-ootle/pull/3661): fix(engine): meter workspace args, bound return value item scans, and encode CallInfo in one pass.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #607` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #607`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3661\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 79
       }
     }
   },
@@ -2704,7 +1774,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2802,7 +1872,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2833,38 +1903,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
-      }
-    }
-  },
-  {
-    "number": 419,
-    "title": "Security report: tari-ootle consensus: multishard output-lock abort drops foreign output shard groups from Evidence, retains partial locks, and bypasses LocalAccept command validation (permanent cross-shard deadlock) (GHSA-fqc5-7vfv-r2q6)",
-    "url": "https://github.com/tari-project/special_contributions/issues/419",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-M"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-03T10:05:36Z",
-    "updated_at": "2026-11-03T10:05:37Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @ket4min-susan for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-fqc5-7vfv-r2q6](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-fqc5-7vfv-r2q6).\n\nThe report showed that consensus: multishard output-lock abort drops foreign output shard groups from Evidence, retains partial locks, and bypasses LocalAccept command validation (permanent cross-shard deadlock). The reporter did not touch any shared network.\n\nThe fix was implemented separately by @ket4min-susan in tari-project/tari-ootle#3227. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@ket4min-susan opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #419` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #419`, naming this issue\n- [ ] It is opened by @ket4min-susan, the credited reporter\n- [ ] It changes only `YYYY/MM/ket4min-susan_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -3112,7 +2151,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -3143,7 +2182,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -3205,7 +2244,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -3704,11 +2743,11 @@
       "input",
       "bounty"
     ],
-    "comment_count": 4,
+    "comment_count": 5,
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2022-01-03T06:20:14Z",
-    "updated_at": "2026-11-12T03:37:40Z",
+    "updated_at": "2026-11-12T12:11:38Z",
     "author": "DreadKnight",
     "body": "When targeting an ability, the target hexagons should be using an overlapped non-spinning cursor type of hexagon on top of the filled outline hexagon. Also, if the ability only affects a hexagon of an unit, the other hexagons should be displayed as player color coded filled outline hexagons. This way we'll better indicate the range of some abilities or area effect, while also being able to click anywhere on the base of the target unit in order to select the corresponding path. Relies on #2003 to be implemented first ideally.",
     "hunter_intelligence": {
@@ -3721,7 +2760,7 @@
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 62,
+        "competition": 60,
         "freshness": 100
       }
     }
@@ -3916,7 +2955,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
