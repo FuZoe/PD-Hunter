@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 193,
+    "comment_count": 194,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-12T14:04:12Z",
+    "updated_at": "2026-11-12T17:48:01Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -121,7 +121,7 @@
         "amount": 100,
         "feasibility": 60,
         "competition": 77,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
@@ -195,11 +195,11 @@
       "enhancement",
       "bounty"
     ],
-    "comment_count": 13,
+    "comment_count": 14,
     "open_pr_count": 1,
     "repository": "commaai/openpilot",
     "created_at": "2024-05-14T03:49:08Z",
-    "updated_at": "2026-11-06T20:00:57Z",
+    "updated_at": "2026-11-12T17:46:37Z",
     "author": "sshane",
     "body": "Currently we compare the car states from panda and openpilot to ensure that both parse CAN messages with the same 1) validity checks and 2) correctness/no bugs. That let us fix quite a few mismatches in behavior between the two: https://github.com/commaai/openpilot/pull/30443\r\n\r\nNow we want to fuzz the tx messages as well, to discover bugs related to controlsAllowed in panda, and general tx safety. Here is one such mismatch that we should aim to catch: https://github.com/commaai/panda/pull/1948\r\n\r\nSee the first PR linked above for rx to know where to start. Bounty is for a merged PR that adds fuzz testing for sent openpilot messages that\r\n1) detects mismatches in tx (sent messages) logic between openpilot and panda,\r\n1) extensible (generic, and easy to expand with more state),\r\n2) as performant as our current fuzzy testing, and\r\n3) covers as many cases as possible (catches a few bugs along the way, if there are any).",
     "hunter_intelligence": {
@@ -212,8 +212,8 @@
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 59,
-        "freshness": 97
+        "competition": 57,
+        "freshness": 100
       }
     }
   },
@@ -318,6 +318,37 @@
     }
   },
   {
+    "number": 65437,
+    "title": "[Bounty $2,000] Restore OpenVLA execution and action correctness",
+    "url": "https://github.com/tenstorrent/tt-metal/issues/65437",
+    "state": "open",
+    "labels": [
+      "bounty",
+      "bounty_difficulty/medium"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 1,
+    "repository": "tenstorrent/tt-metal",
+    "created_at": "2026-11-12T22:43:59Z",
+    "updated_at": "2026-11-12T23:03:49Z",
+    "author": "jberkowitzTT",
+    "body": "# 📝 Background\n\nOpenVLA (openvla/openvla-7b) in models/experimental/openvla has reported runtime failures on a single Wormhole N150 and produces robot actions that do not align with the Hugging Face reference. The report attributes the output errors to three issues: missing SigLIP positional embeddings, missing Q/K weight permutation, and an off-by-one error when assembling the action-token sequence.\n\nThe submitted fixes were tested on N150. This bounty is for a working, tested OpenVLA path—not a performance optimization or a real-robot benchmark.\n\n# 🎯 What Success Looks Like\n\nSubmit one PR that satisfies all criteria below:\n- OpenVLA initializes and runs end-to-end inference on a single Wormhole N150 using the repository’s supported environment, without manual runtime patches.\n- SigLIP patch embeddings include the checkpoint’s positional embeddings, and a deterministic regression test compares the resulting features with the Hugging Face reference.\n- Q/K weights are mapped into the layout expected by the OpenVLA attention/RoPE path. A regression test compares intermediate language-model outputs with the Hugging Face reference.\n- predict_action returns the action tokens in the correct sequence, including the first action token produced during prefill; it does not shift action dimensions or use the EOS token as an action dimension.\n- Automated regression coverage checks SigLIP features, early-layer logits or hidden states, and decoded actions against a fixed reference checkpoint and fixed inputs. Document the reference environment and the numerical tolerances; agree those tolerances with the OpenVLA owner before final review. Include at least one stable case that checks token ordering explicitly.\n- The N150 end-to-end test and relevant existing OpenVLA tests pass. Provide the exact commands and test results in the PR.\n- No unrelated model behavior or test failures are introduced. Performance optimization, N300/T3K/Blackhole validation, and a LIBERO/Bridge or other robot benchmark are out of scope.\n\n# 💡 Problem to Solve\n\nThe report identifies three correctness defects:\n\n- The SigLIP path applies patch embeddings without adding the checkpoint’s pos_embed before the encoder.\n- OpenVLA’s Hugging Face-to-Meta key mapping renames weights but does not apply the Q/K permutation used by the TT-Transformers loader for the configured RoPE layout.\n- The action decoder keeps the prefill-produced first action token separately, then returns later decode tokens as the action sequence, shifting the action dimensions and allowing EOS to be interpreted as the gripper action.\n- It also reports seven N150 runtime blockers on the reported baseline (07fac6de536):\n- Transformers accesses language_model before initialization in _supports_sdpa.\n- post_init calls tie_weights with an unsupported argument.\n- generate passes a cache object that fails an assertion.\n- OpenVLA passes the string \"prefill\" where the TT-Transformers API expects Mode.PREFILL.\n- Prefill RoPE uses the row-major cosine matrix instead of the prefill-specific slice.\n- The timm version check rejects a version allowed by the declared dependency range.\n- The test requests FABRIC_1D on a one-chip mesh, which is rejected by current fabric initialization.\n- Before opening the bounty, confirm which reported runtime failures still reproduce on current main; remove any already-resolved items from the final scope. The reported pre-existing test_siglip_intermediate failure is not part of this bounty unless the owner confirms it is required to validate these fixes.\n\n\nOriginal model integration: [PR #34985](https://github.com/tenstorrent/tt-metal/pull/34985).\n\n\nThis bounty is subject to the [Tenstorrent Bounty Program Terms & Conditions](https://docs.tenstorrent.com/bounty_terms.html).",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "S-Tier",
+      "bounty_amount": 2000,
+      "is_hidden_gem": true,
+      "bounty_score": 64,
+      "score_breakdown": {
+        "amount": 40,
+        "feasibility": 60,
+        "competition": 81,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 64647,
     "title": "[Bounty $750] Fix remaining sharded scale_mask_softmax mask handling issues",
     "url": "https://github.com/tenstorrent/tt-metal/issues/64647",
@@ -344,7 +375,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 35,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -484,12 +515,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 3,
       "is_hidden_gem": false,
-      "bounty_score": 30,
+      "bounty_score": 29,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -942,7 +973,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 67,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1810,7 +1841,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2826,7 +2857,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 79,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
