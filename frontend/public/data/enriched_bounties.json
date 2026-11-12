@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 190,
+    "comment_count": 191,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-11T21:03:07Z",
+    "updated_at": "2026-11-12T03:11:40Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -1624,7 +1624,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1748,7 +1748,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1779,7 +1779,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -3076,12 +3076,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 49,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 85
+        "freshness": 84
       }
     }
   },
@@ -3442,11 +3442,11 @@
       "input",
       "bounty"
     ],
-    "comment_count": 15,
+    "comment_count": 16,
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2024-02-11T04:40:54Z",
-    "updated_at": "2026-11-08T19:05:15Z",
+    "updated_at": "2026-11-12T00:19:46Z",
     "author": "DreadKnight",
     "body": "When targeting an ability, the ability's icon should be showcased above the hexagon hovered (along with its frame).\n\nShould be temporary (like the yellow text tooltip is basically); he cancel one should show icon as well, the cancel.svg\n\nRelies on #1584 probably, so we can load svg files as textures, based on that, icons could be added on the fly #678",
     "hunter_intelligence": {
@@ -3459,8 +3459,8 @@
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 40,
-        "freshness": 98
+        "competition": 38,
+        "freshness": 100
       }
     }
   },
@@ -3704,11 +3704,11 @@
       "input",
       "bounty"
     ],
-    "comment_count": 3,
+    "comment_count": 4,
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2022-01-03T06:20:14Z",
-    "updated_at": "2026-03-27T15:02:59Z",
+    "updated_at": "2026-11-12T03:37:40Z",
     "author": "DreadKnight",
     "body": "When targeting an ability, the target hexagons should be using an overlapped non-spinning cursor type of hexagon on top of the filled outline hexagon. Also, if the ability only affects a hexagon of an unit, the other hexagons should be displayed as player color coded filled outline hexagons. This way we'll better indicate the range of some abilities or area effect, while also being able to click anywhere on the base of the target unit in order to select the corresponding path. Relies on #2003 to be implemented first ideally.",
     "hunter_intelligence": {
@@ -3717,12 +3717,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 31,
+      "bounty_score": 45,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 64,
-        "freshness": 0
+        "competition": 62,
+        "freshness": 100
       }
     }
   },
