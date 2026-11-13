@@ -179,11 +179,11 @@
       "bounty",
       "bounty_difficulty/medium"
     ],
-    "comment_count": 2,
+    "comment_count": 4,
     "open_pr_count": 1,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-12T22:43:59Z",
-    "updated_at": "2026-11-12T23:03:49Z",
+    "updated_at": "2026-11-13T10:50:02Z",
     "author": "jberkowitzTT",
     "body": "# 📝 Background\n\nOpenVLA (openvla/openvla-7b) in models/experimental/openvla has reported runtime failures on a single Wormhole N150 and produces robot actions that do not align with the Hugging Face reference. The report attributes the output errors to three issues: missing SigLIP positional embeddings, missing Q/K weight permutation, and an off-by-one error when assembling the action-token sequence.\n\nThe submitted fixes were tested on N150. This bounty is for a working, tested OpenVLA path—not a performance optimization or a real-robot benchmark.\n\n# 🎯 What Success Looks Like\n\nSubmit one PR that satisfies all criteria below:\n- OpenVLA initializes and runs end-to-end inference on a single Wormhole N150 using the repository’s supported environment, without manual runtime patches.\n- SigLIP patch embeddings include the checkpoint’s positional embeddings, and a deterministic regression test compares the resulting features with the Hugging Face reference.\n- Q/K weights are mapped into the layout expected by the OpenVLA attention/RoPE path. A regression test compares intermediate language-model outputs with the Hugging Face reference.\n- predict_action returns the action tokens in the correct sequence, including the first action token produced during prefill; it does not shift action dimensions or use the EOS token as an action dimension.\n- Automated regression coverage checks SigLIP features, early-layer logits or hidden states, and decoded actions against a fixed reference checkpoint and fixed inputs. Document the reference environment and the numerical tolerances; agree those tolerances with the OpenVLA owner before final review. Include at least one stable case that checks token ordering explicitly.\n- The N150 end-to-end test and relevant existing OpenVLA tests pass. Provide the exact commands and test results in the PR.\n- No unrelated model behavior or test failures are introduced. Performance optimization, N300/T3K/Blackhole validation, and a LIBERO/Bridge or other robot benchmark are out of scope.\n\n# 💡 Problem to Solve\n\nThe report identifies three correctness defects:\n\n- The SigLIP path applies patch embeddings without adding the checkpoint’s pos_embed before the encoder.\n- OpenVLA’s Hugging Face-to-Meta key mapping renames weights but does not apply the Q/K permutation used by the TT-Transformers loader for the configured RoPE layout.\n- The action decoder keeps the prefill-produced first action token separately, then returns later decode tokens as the action sequence, shifting the action dimensions and allowing EOS to be interpreted as the gripper action.\n- It also reports seven N150 runtime blockers on the reported baseline (07fac6de536):\n- Transformers accesses language_model before initialization in _supports_sdpa.\n- post_init calls tie_weights with an unsupported argument.\n- generate passes a cache object that fails an assertion.\n- OpenVLA passes the string \"prefill\" where the TT-Transformers API expects Mode.PREFILL.\n- Prefill RoPE uses the row-major cosine matrix instead of the prefill-specific slice.\n- The timm version check rejects a version allowed by the declared dependency range.\n- The test requests FABRIC_1D on a one-chip mesh, which is rejected by current fabric initialization.\n- Before opening the bounty, confirm which reported runtime failures still reproduce on current main; remove any already-resolved items from the final scope. The reported pre-existing test_siglip_intermediate failure is not part of this bounty unless the owner confirms it is required to validate these fixes.\n\n\nOriginal model integration: [PR #34985](https://github.com/tenstorrent/tt-metal/pull/34985).\n\n\nThis bounty is subject to the [Tenstorrent Bounty Program Terms \u0026 Conditions](https://docs.tenstorrent.com/bounty_terms.html)."
   },
@@ -220,6 +220,20 @@
     "updated_at": "2026-11-09T12:36:13Z",
     "author": "jberkowitzTT",
     "body": "## 📝 Background\n\nttnn.softmax_in_place and ttnn.scale_mask_softmax_in_place can silently return incorrect results for height-sharded inputs when used with SoftmaxShardedMultiCoreProgramConfig and the shard grid does not begin at core (0, 0). On affected offset grids, some shards are softmaxed while others are left unchanged with their input logits. The same failure pattern is reproducible on Wormhole and Blackhole in ttsim.\n\nThis is a correctness issue: the operation returns without an error, but the output can be substantially wrong. Sharded layer_norm and rms_norm on comparable offset grids are correct.\n## 🎯 What Success Looks Like\n\n    Fix both softmax_in_place and scale_mask_softmax_in_place for supported height-sharded inputs whose shard grid is offset from (0, 0).\n\n    Fix both softmax_in_place and scale_mask_softmax_in_place for supported height-sharded inputs whose shard grid is offset from (0, 0).\n    Add regression coverage for height-sharded inputs on grids at (0, 0), (1, 0), and (0, 1), covering both ROW_MAJOR and COL_MAJOR orientations, with and without a mask.\n\n    Add regression coverage for height-sharded inputs on grids at (0, 0), (1, 0), and (0, 1), covering both ROW_MAJOR and COL_MAJOR orientations, with and without a mask.\n    Compare the output shard by shard against the corresponding PyTorch softmax result (including the masked result for scale_mask_softmax_in_place) using the repository's established correctness tolerances. Verify that every shard is updated and correct, not merely that the operation returns successfully.\n\n    Compare the output shard by shard against the corresponding PyTorch softmax result (including the masked result for scale_mask_softmax_in_place) using the repository's established correctness tolerances. Verify that every shard is updated and correct, not merely that the operation returns successfully.\n    Preserve correct behavior for origin-based shard grids and the existing supported configurations.\n\n    Preserve correct behavior for origin-based shard grids and the existing supported configurations.\n    The focused regression tests pass on the applicable TT hardware/simulator test target, and the PR passes required CI. Document any unrelated known simulator failures separately rather than expanding this bounty to cover them.\n\n    The focused regression tests pass on the applicable TT hardware/simulator test target, and the PR passes required CI. Document any unrelated known simulator failures separately rather than expanding this bounty to cover them.\n    The change is reviewed and approved by the relevant engineering team before merge.\n\n    The change is reviewed and approved by the relevant engineering team before merge.\n\n## 💡 Problem to Solve\n\nThe shared validate_sharded_input validation accepts an offset shard grid after comparing its bounding-box dimensions against compute_with_storage_grid_size. The sharded softmax factory, however, currently constructs its work range from (0, 0) and enumerates per-core runtime arguments from the origin. This can launch work on cores outside the input shard grid while leaving actual shards on offset cores untouched.\n\nUpdate the host-side sharded softmax program setup so its work units and per-core runtime arguments correspond to the input tensor's shard grid and its orientation. Add focused tests that reproduce and prevent the incorrect results for both unmasked and masked softmax. No kernel changes are expected unless investigation shows they are necessary.\n\n\nNOTE THAT THIS BOUNTY IS SUBJECT TO THE [TENSTORRENT BOUNTY PROGRAM TERMS \u0026 CONDITIONS](https://docs.tenstorrent.com/bounty_terms.html)."
+  },
+  {
+    "number": 65472,
+    "title": "[Bounty Proposal] Fix missing output_mem_config propagation and unpinned intermediate allocations in ttnn.binary_backward",
+    "url": "https://github.com/tenstorrent/tt-metal/issues/65472",
+    "state": "open",
+    "labels": [],
+    "comment_count": 2,
+    "open_pr_count": 2,
+    "repository": "tenstorrent/tt-metal",
+    "created_at": "2026-11-13T09:59:07Z",
+    "updated_at": "2026-11-13T12:22:42Z",
+    "author": "meanusarcanus",
+    "body": "## 📝 Background\n\nIn `ttnn/cpp/ttnn/operations/eltwise/binary_backward/binary_backward.cpp`, multiple autograd backward operations accept an explicit `const std::optional\u003cMemoryConfig\u003e\u0026 output_mem_config` parameter, but drop it when allocating intermediate tensors or dispatching inner operation primitives.\n\nWhen callers supply an explicit memory configuration (such as `DRAM_MEMORY_CONFIG`, `L1_MEMORY_CONFIG`, or a specific sharded layout), these operations instantiate intermediate buffers under default/unpinned memory configurations. This causes silent placement divergence, unnecessary L1/DRAM transfers, and layout assertion failures in sharded backward graphs.\n\nThis is the binary backward counterpart to the recent memory config fixes in `unary_backward.cpp` (#64898, #64901).\n\n---\n\n## 💡 Affected Functions \u0026 Defect Analysis\n\n### 1. `squared_difference_bw` (lines 636–646)\nIn `squared_difference_bw`, the forward difference tensor is computed without forwarding `output_mem_config`:\n```cpp\n// Current (line 639):\nTensor difference = ttnn::subtract(input_a, other); // Drops output_mem_config\n```\nBecause `ttnn::subtract` defaults to interleaved placement, `difference` ignores the caller's explicit memory config, which is then multiplied with `grad_tensor` under `output_mem_config`.\n\n**Remediation:**\n```cpp\nTensor difference = ttnn::subtract(input_a, other, std::nullopt, output_mem_config);\n```\n\n---\n\n### 2. `bias_gelu_bw` (both overloads, lines 838–860)\nIn both the tensor-bias and scalar-bias overloads of `bias_gelu_bw`, the input sum is allocated without `output_mem_config`:\n```cpp\n// Overload 1 (line 840):\nTensor input = ttnn::add(input_a, input_b); // Drops output_mem_config\n\n// Overload 2 (line 855):\nTensor input = ttnn::add(input_tensor, bias); // Drops output_mem_config\n```\nThe subsequent `gelu_bw` call accepts `output_mem_config`, but receives an `input` tensor placed in default memory.\n\n**Remediation:**\n```cpp\n// Overload 1:\nTensor input = ttnn::add(input_a, input_b, std::nullopt, output_mem_config);\n\n// Overload 2:\nTensor input = ttnn::add(input_tensor, bias, std::nullopt, output_mem_config);\n```\n\n---\n\n### 3. `floor_mod_bw` and `fmod_bw` (lines 600–630)\nIn both `floor_mod_bw` and `fmod_bw`, the negation of `grad_tensor` drops `output_mem_config`:\n```cpp\n// floor_mod_bw (line 605):\nTensor grad_b = ttnn::multiply(ttnn::neg(grad_tensor), result_div, std::nullopt, output_mem_config);\n\n// fmod_bw (line 628):\nTensor grad_b = ttnn::multiply(ttnn::neg(grad_tensor), result_div, std::nullopt, output_mem_config);\n```\n`ttnn::neg(grad_tensor)` creates an unpinned intermediate buffer that does not honor `output_mem_config`.\n\n**Remediation:**\n```cpp\nTensor grad_b = ttnn::multiply(ttnn::neg(grad_tensor, output_mem_config), result_div, std::nullopt, output_mem_config);\n```\n\n---\n\n### 4. `atan2_bw` (lines 123–145)\nIn `atan2_bw`:\n1. `ttnn::neg(input_a)` on line 140 omits `output_mem_config`.\n2. The zero-denominator condition mask on line 137 omits `output_mem_config`:\n```cpp\n// Current (line 137):\nTensor cond = ttnn::logical_and(ttnn::eqz(input_a, output_mem_config), ttnn::eqz(other, output_mem_config));\n\n// Current (line 140):\nTensor grad_b = ttnn::multiply(ttnn::neg(input_a), recip_mul, std::nullopt, output_mem_config);\n```\n\n**Remediation:**\n```cpp\nTensor cond = ttnn::logical_and(\n    ttnn::eqz(input_a, output_mem_config),\n    ttnn::eqz(other, output_mem_config),\n    std::nullopt,\n    output_mem_config);\nTensor grad_b = ttnn::multiply(ttnn::neg(input_a, output_mem_config), recip_mul, std::nullopt, output_mem_config);\n```\n\n---\n\n### 5. `logaddexp_bw` (lines 525–553)\nUnlike `logaddexp2_bw` (line 566), which resolves:\n```cpp\nauto output_memory_config = output_mem_config.value_or(input_a.memory_config());\n```\nand passes `output_memory_config` consistently across all internal operations, `logaddexp_bw` passes the raw optional parameter directly without fallback resolution.\n\n---\n\n## 🎯 What Success Looks Like\n\n1. Every intermediate tensor created in `squared_difference_bw`, `bias_gelu_bw`, `floor_mod_bw`, `fmod_bw`, and `atan2_bw` explicitly forwards `output_mem_config`.\n2. Explicit memory placement (e.g. `ttnn.DRAM_MEMORY_CONFIG` or `ttnn.L1_MEMORY_CONFIG`) is preserved across all returned and intermediate buffers without unexpected default fallback.\n3. Focused regression tests added to `tests/ttnn/unit_tests/operations/eltwise/test_binary_backward.py` verifying that passing an explicit `memory_config` produces gradient tensors matching that configuration.\n4. Existing binary backward test suites continue to pass with zero regressions.\n\n---\n\n## 🛠️ Proposed Bounty Assignment\n\nI would like to propose this as a community-suggested bounty ($750) and take on the implementation and test coverage. I have the C++ patch and regression test suite ready.\n\nCould `@jberkowitzTT` please review and assign this bounty to `@meanusarcanus`?\n"
   },
   {
     "number": 64960,
@@ -555,6 +569,193 @@
     "updated_at": "2026-11-05T13:02:12Z",
     "author": "0xskr33p",
     "body": "## Bounty: Mitigate Next.js CVE Risk by Pinning Version\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nThe `wxtm-bridge-frontend` currently depends on `\"next\": \"^16.1.1\"`, which allows npm/yarn to resolve any semver-compatible version in the 16.x range, including versions with known CVEs. Pin Next.js to exactly `16.1.7` (the latest patched release) and remove the `^` caret to prevent unintended resolution to vulnerable versions. Update `eslint-config-next` to match.\n\n### Acceptance Criteria\n\n- [ ] `package.json` specifies `\"next\": \"16.1.7\"` (exact, no caret)\n- [ ] `eslint-config-next` version is updated to `\"16.1.7\"` (exact, no caret) to match\n- [ ] `package-lock.json` / `yarn.lock` is regenerated with the pinned versions\n- [ ] The app builds successfully (`npm run build` or `yarn build` passes with no new errors)\n- [ ] Wrap/unwrap flow verified working end-to-end via TU with the updated bridge frontend (screenshot or recording)\n\n### Context\n\n- Original issue: https://github.com/tari-project/wxtm-bridge-frontend/issues/103\n- Current versions: `\"next\": \"^16.1.1\"`, `\"eslint-config-next\": \"^16.1.1\"`\n- Next.js changelog: https://github.com/vercel/next.js/releases\n- The frontend depends on private `@aspect` npm packages (api \u0026 contracts). To test locally you either need an npm token for the private registry, or build the public `api` and `contracts` repos locally and link them as dependencies\n- Full integration testing requires running the bridge frontend as a tapplet inside Tari Universe (TU)\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #103`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord"
+  },
+  {
+    "number": 646,
+    "title": "Contribution: fix(walletd): enforce session token, bound listen address, and peer-close cleanup in WebRTC (tari-project/tari-ootle#3763)",
+    "url": "https://github.com/tari-project/special_contributions/issues/646",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T10:24:01Z",
+    "updated_at": "2026-11-13T10:24:03Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3763](https://github.com/tari-project/tari-ootle/pull/3763): fix(walletd): enforce session token, bound listen address, and peer-close cleanup in WebRTC.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #646` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #646`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3763\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 644,
+    "title": "Contribution: fix(walletd): enforce account scopes in validator handlers and validate nft transfer list (tari-project/tari-ootle#3297)",
+    "url": "https://github.com/tari-project/special_contributions/issues/644",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T08:15:37Z",
+    "updated_at": "2026-11-13T08:15:38Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3297](https://github.com/tari-project/tari-ootle/pull/3297): fix(walletd): enforce account scopes in validator handlers and validate nft transfer list.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #644` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #644`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3297\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 643,
+    "title": "Contribution: fix(validator_node,app_utilities,swarm_daemon): harden identity keypair persistence and claim key settings (tari-project/tari-ootle#3565)",
+    "url": "https://github.com/tari-project/special_contributions/issues/643",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T07:48:53Z",
+    "updated_at": "2026-11-13T07:48:54Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3565](https://github.com/tari-project/tari-ootle/pull/3565): fix(validator_node,app_utilities,swarm_daemon): harden identity keypair persistence and claim key settings.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #643` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #643`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3565\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 642,
+    "title": "Contribution: fix: serve unverified substate cache and clear reorged epoch state (tari-project/tari-ootle#3522)",
+    "url": "https://github.com/tari-project/special_contributions/issues/642",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T07:42:37Z",
+    "updated_at": "2026-11-13T07:42:38Z",
+    "author": "sdbondi",
+    "body": "Bounty for @karavel-dev for contributing [tari-project/tari-ootle#3522](https://github.com/tari-project/tari-ootle/pull/3522): fix: serve unverified substate cache and clear reorged epoch state.\n\n**No further code work is required here.**\n\n## Done when\n\n@karavel-dev opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #642` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #642`, naming this issue\n- [ ] It is opened by @karavel-dev, the author of tari-project/tari-ootle#3522\n- [ ] It changes only `YYYY/MM/karavel-dev_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 641,
+    "title": "Contribution: fix(wallet_sdk): release pre-locked inputs on merged-fee fallback and declare required account substates (tari-project/tari-ootle#3296)",
+    "url": "https://github.com/tari-project/special_contributions/issues/641",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T07:07:40Z",
+    "updated_at": "2026-11-13T07:07:41Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3296](https://github.com/tari-project/tari-ootle/pull/3296): fix(wallet_sdk): release pre-locked inputs on merged-fee fallback and declare required account substates.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #641` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #641`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3296\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 640,
+    "title": "Contribution: fix(consensus): track next_epoch target on rotation and ignore stale EpochChanged events (tari-project/tari-ootle#3675)",
+    "url": "https://github.com/tari-project/special_contributions/issues/640",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T06:42:55Z",
+    "updated_at": "2026-11-13T06:42:55Z",
+    "author": "sdbondi",
+    "body": "Bounty for @tapirro for contributing [tari-project/tari-ootle#3675](https://github.com/tari-project/tari-ootle/pull/3675): fix(consensus): track next_epoch target on rotation and ignore stale EpochChanged events.\n\n**No further code work is required here.**\n\n## Done when\n\n@tapirro opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #640` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #640`, naming this issue\n- [ ] It is opened by @tapirro, the author of tari-project/tari-ootle#3675\n- [ ] It changes only `YYYY/MM/tapirro_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 639,
+    "title": "Contribution: fix(validator_node): bound get_committed_block_proof RPC by state_sync_reads and response budget (tari-project/tari-ootle#3668)",
+    "url": "https://github.com/tari-project/special_contributions/issues/639",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T06:38:17Z",
+    "updated_at": "2026-11-13T06:38:18Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3668](https://github.com/tari-project/tari-ootle/pull/3668): fix(validator_node): bound get_committed_block_proof RPC by state_sync_reads and response budget.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #639` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #639`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3668\n- [ ] It changes only `YYYY/MM/e5ash_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 638,
+    "title": "Contribution: fix(engine)!: hold minted non-fungibles to the max_substate_outputs limit (tari-project/tari-ootle#3767)",
+    "url": "https://github.com/tari-project/special_contributions/issues/638",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T06:27:06Z",
+    "updated_at": "2026-11-13T06:27:06Z",
+    "author": "sdbondi",
+    "body": "Bounty for @kah-ja for contributing [tari-project/tari-ootle#3767](https://github.com/tari-project/tari-ootle/pull/3767): fix(engine)!: hold minted non-fungibles to the max_substate_outputs limit.\n\n**No further code work is required here.**\n\n## Done when\n\n@kah-ja opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #638` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #638`, naming this issue\n- [ ] It is opened by @kah-ja, the author of tari-project/tari-ootle#3767\n- [ ] It changes only `YYYY/MM/kah-ja_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 636,
+    "title": "Contribution: fix(consensus): preserve view votes after quorum and enforce collectible vote window (tari-project/tari-ootle#3706)",
+    "url": "https://github.com/tari-project/special_contributions/issues/636",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T06:24:29Z",
+    "updated_at": "2026-11-13T06:24:30Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3706](https://github.com/tari-project/tari-ootle/pull/3706): fix(consensus): preserve view votes after quorum and enforce collectible vote window.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #636` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #636`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3706\n- [ ] It changes only `YYYY/MM/Burapa-J_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 635,
+    "title": "Contribution: fix(epoch_oracles): defer ConfiguredCurrentEpoch persistence, reject global/max-epoch validators, and avoid duplicate HybridEpochOracle transition (tari-project/tari-ootle#3548)",
+    "url": "https://github.com/tari-project/special_contributions/issues/635",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T05:51:39Z",
+    "updated_at": "2026-11-13T05:51:40Z",
+    "author": "sdbondi",
+    "body": "Bounty for @LBCron for contributing [tari-project/tari-ootle#3548](https://github.com/tari-project/tari-ootle/pull/3548): fix(epoch_oracles): defer ConfiguredCurrentEpoch persistence, reject global/max-epoch validators, and avoid duplicate HybridEpochOracle transition.\n\n**No further code work is required here.**\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #635` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #635`, naming this issue\n- [ ] It is opened by @LBCron, the author of tari-project/tari-ootle#3548\n- [ ] It changes only `YYYY/MM/LBCron_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 634,
+    "title": "Contribution: fix(indexer_lib): harden substate batch and template result validation (tari-project/tari-ootle#3456)",
+    "url": "https://github.com/tari-project/special_contributions/issues/634",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-13T05:35:22Z",
+    "updated_at": "2026-11-13T05:35:22Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3456](https://github.com/tari-project/tari-ootle/pull/3456): fix(indexer_lib): harden substate batch and template result validation.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #634` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #634`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3456\n- [ ] It changes only `YYYY/MM/e5ash_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 631,
