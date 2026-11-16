@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 202,
+    "comment_count": 203,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-16T02:14:56Z",
+    "updated_at": "2026-11-16T08:14:59Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -68,23 +68,6 @@
     "updated_at": "2026-11-15T09:46:31Z",
     "author": "adeebshihadeh",
     "body": "Let's get the new F-150s supported! Any [TRON platform](https://bluepilot.dev/2025/08/13/confirmed-tron-status-list/) car model is also eligible for this bounty.\n\nRequires a harness design (schematic), a high quality lateral port, and at least a proof-of-concept for longitudinal support.\n\nThe full $10k is for a normal openpilot experience: user is ready to go after installing compatible hardware and openpilot. $2k for support similar to the 2021 Toyota Rav4 Prime, where it works if the user manually configures extra parameters.\n\n\u003cimg width=\"1200\" height=\"800\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/51df485b-8762-4325-8bb8-8be3d4d56ff1\" /\u003e"
-  },
-  {
-    "number": 2557,
-    "title": "Enable 100% branch coverage check",
-    "url": "https://github.com/commaai/opendbc/issues/2557",
-    "state": "open",
-    "labels": [
-      "CI / testing",
-      "bounty"
-    ],
-    "comment_count": 12,
-    "open_pr_count": 1,
-    "repository": "commaai/opendbc",
-    "created_at": "2025-07-25T16:20:20Z",
-    "updated_at": "2026-09-15T23:22:18Z",
-    "author": "adeebshihadeh",
-    "body": "Your goal is to [enable](https://github.com/commaai/opendbc/pull/2555) the branch coverage check and carefully fix all the violations.\n\nFor each violation:\n1. can we remove this branch?\n2. can we rewrite this branch?\n3. add test coverage\n\nOur test coverage should be fairly complete, so this should mostly be removing and rewriting.\n\nHere's where we're at now:\n\u003cimg width=\"2016\" height=\"932\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/d507c6e3-bc5b-415c-ab6a-4054b60be69b\" /\u003e"
   },
   {
     "number": 128,
@@ -327,11 +310,11 @@
     "labels": [
       "💎 Bounty"
     ],
-    "comment_count": 83,
+    "comment_count": 84,
     "open_pr_count": 1,
     "repository": "tscircuit/pcb-viewer",
     "created_at": "2025-02-15T18:11:19Z",
-    "updated_at": "2026-11-11T20:30:52Z",
+    "updated_at": "2026-11-16T05:40:07Z",
     "author": "seveibar",
     "body": "/bounty $3"
   },
@@ -579,23 +562,6 @@
     "body": "## Bounty: Fix CPU mining 64-thread cap on Windows (64+ logical cores)\n\n**Tier:** M — 60,000 XTM\n\n### Description\n\nCPU mining tops out at 64 threads on Windows machines that have more than 64 logical cores. A user with 128 threads reported that only 64 were ever used, no matter what thread count they selected. The goal of this bounty is simple to state and hard to prove: **make Tari Universe actually use more than 64 threads on a Windows machine that has more than 64 logical cores.**\n\nWindows splits machines with more than 64 logical processors into \"processor groups\" of at most 64 each, and a process that isn't group-aware only gets scheduled onto one group. On top of that, Rust's `std::thread::available_parallelism()` (which we use to count cores) undercounts past 64 on Windows for the same reason. The correct fix must count cores across all processor groups **and** ensure the miner threads actually run across them — however that is best achieved.\n\n### Acceptance Criteria\n\n- [ ] On a Windows machine with **more than 64 logical cores**, CPU mining uses **more than 64 threads** — up to the count the user selects, bounded by the machine's real logical core count\n- [ ] Core count is determined accurately across all processor groups (not capped at 64 the way `available_parallelism()` is)\n- [ ] No regression on machines with ≤64 cores, and no regression on macOS or Linux\n- [ ] **The PR includes proof of a working result on real hardware:**\n  - [ ] A screenshot proving the test machine's spec (Task Manager → Performance, or CPU-Z) showing **more than 64 logical cores**\n  - [ ] Screenshots and/or xmrig log excerpts showing **more than 64 threads in active use** after the fix, on that machine\n\n### Development Requirements\n\nThis bounty **cannot be developed or verified blind.** You must have access to a Windows machine with more than 64 logical cores to work on it. A fix that \"looks correct\" but is not demonstrated to work on qualifying hardware will **not** be accepted — the hardware proof above is mandatory, not optional. A VM/emulated core count that does not reproduce real processor-group behavior does not qualify. If you do not have such a machine, this is not the right bounty for you.\n\n### Context\n\n- Relevant code:\n  - `src-tauri/src/mining/cpu/manager.rs` — `determine_number_of_cores_to_use()` uses `thread::available_parallelism()`, which undercounts past 64 on Windows\n  - `src-tauri/src/mining/cpu/miners/xmrig.rs` — passes the count through as `--threads={cpu_threads}`\n  - xmrig is pinned to `6.25.0` in `src-tauri/binaries-versions/binaries_versions_*.json`\n- **Open question (see the analysis in the comment below):** it is not yet confirmed whether xmrig 6.25.0 spreads threads across processor groups on its own. The comment below is a *lead/hypothesis*, not a confirmed ceiling — do not treat it as ruling out an app-side fix. The bounty is open to any approach that demonstrably works: an accurate all-groups core count, adjusting how xmrig is launched (e.g. affinity handling on Win11/Server 2022), or a launcher strategy. What matters is the proven result on real hardware, not the mechanism.\n- Reference on the 64-core threshold and Windows processor groups: https://bitsum.com/general/the-64-core-threshold-processor-groups-and-windows/\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3299`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n"
   },
   {
-    "number": 1,
-    "title": "Create wallet benchmarks",
-    "url": "https://github.com/tari-project/wallet-benchmarks/issues/1",
-    "state": "open",
-    "labels": [
-      "bounty",
-      "bounty-L"
-    ],
-    "comment_count": 43,
-    "open_pr_count": 1,
-    "repository": "tari-project/wallet-benchmarks",
-    "created_at": "2026-05-18T14:17:48Z",
-    "updated_at": "2026-11-15T21:22:43Z",
-    "author": "SWvheerden",
-    "body": "# Bounty: Reproducible Wallet Performance Test Harness\n\n**Tier:** L — 150,000 XTM\n\n## Description\n\nBuild a reproducible test harness that measures `minotari-cli` wallet performance across three modes: old wallet (`minotari_console_wallet` via gRPC), new wallet (`minotari-cli` library with offline signing), and payment processor (batch 1-to-many transactions via `minotari-cli`).\n\nImplementation approach is up to you — Rust, Python, shell scripts, or any combination — as long as the results are reproducible and verifiable by a third party running the same harness against the same network.\n\n## Deliverables\n\n1. **Harness source code** in a new repo, buildable and runnable by anyone with access to a funded wallet on Esmeralda testnet.\n2. **Run instructions** — complete, step-by-step, no implicit knowledge.\n3. **Baseline result profile** — a structured report generated by running the harness, committed alongside the code, serving as proof the harness works and as a reference point for future comparisons.\n\n## Wallet Modes\n\n1. **Old Wallet (`minotari_console_wallet`)** — harness manages the wallet process lifecycle (spawn, wait for ready, run tests, tear down) and interacts via gRPC.\n2. **New Wallet (`minotari-cli` library)** — uses the `minotari` crate directly: local UTXO selection, `sign_locked_transaction`, broadcast via HTTP RPC to a base node. No external wallet process.\n3. **Payment Processor** — uses the new wallet's batch transaction capability to send 1-to-many transactions.\n\n## Configuration Parameters\n\nThe harness MUST expose (and the result profile MUST record) the following parameters. Values below are the reference defaults for the baseline result profile.\n\n| Parameter | Default | Notes |\n|---|---|---|\n| `A_fund` | 10,000 tXTM | Single funding UTXO per mode. ~71% of one Esmeralda block reward. |\n| `C_min` | 3 | Confirmation depth before a UTXO is treated as spendable. |\n| `volume_target` | 512 UTXOs | Target UTXO count after S1. |\n| `doubling_rounds` | 6 | Take 1 → 64 UTXOs. |\n| `fanout_outputs_per_tx` | 8 | Take 64 → 512 UTXOs in one round of 64 txs. |\n| `concurrent_batches` | 8, 16, 32, 64, 128 | Ramp for S4. |\n| `S4_T_budget` | 15 min | Stop condition per batch in S4. |\n| `S5_M` | 100 | Total recipients paid in S5. |\n| `S5_K` | 10 | Outputs per batch tx in S5 (→ 10 batch txs vs. 100 individual txs). |\n| `fee_rate` | pinned | Explicit fee rate passed to all modes. Record the value used. |\n| Wallet binary versions | pinned | Exact commit/tag of `minotari_console_wallet`, `minotari-cli`, base node. |\n\n**Seed strategy:** fresh seed per wallet mode. Funding the next mode's seed can come from anywhere (faucet, prior mode sweep-back, miner wallet) — the funding step is not part of the measurement.\n\n## Test Protocol\n\nNine scenarios run per wallet mode, in the order below. Every scan scenario starts with a wiped wallet data dir. Every scenario records: wall-clock duration, fees paid, success/failure counts with reasons, and final balance delta vs. expected.\nWhen you need to rescan from genesis, use the api to change the seed words so that the encoded birthday reflects 0.\n\n### B0 — Baseline Scan (empty wallet)\n\nFloor cost of block-walk + view-key check with nothing to store.\n\n- **Preconditions:** fresh seed, never funded. Base node synced to tip. Birthday = 0.\n- **Steps:** launch scan from genesis → wait for wallet height == tip.\n- **Verification:** 0 UTXOs, 0 balance, 0 outputs found.\n- **Metrics:** `T_scan`, `blocks_per_sec`, `H_tip_start`, `H_tip_end`, peak RSS, peak CPU%.\n\n### S0 — Funding Baseline\n\nIdentical starting state for all downstream scenarios.\n\n- **Preconditions:** fresh seed, fresh wallet data dir. Base node synced.\n- **Steps:** init wallet → record birthday `H_birth` → receive 1 UTXO of `A_fund` → wait for confirmation at depth ≥ `C_min`.\n- **Verification:** exactly 1 spendable UTXO; balance == `A_fund`.\n- **Metrics:** broadcast→mempool time; broadcast→confirmed-at-depth time; `H_birth`, tip height.\n\n### S1 — UTXO Build-up (doubling + fan-out → 512)\n\nProduces on-chain history for scan scenarios AND measures per-tx cost.\n\n**Doubling phase (6 rounds):**\n\n| Round | Txs (serial) | Inputs/tx | Outputs/tx | UTXOs after |\n|---|---|---|---|---|\n| 1 | 1 | 1 | 2 | 2 |\n| 2 | 2 | 1 | 2 | 4 |\n| 3 | 4 | 1 | 2 | 8 |\n| 4 | 8 | 1 | 2 | 16 |\n| 5 | 16 | 1 | 2 | 32 |\n| 6 | 32 | 1 | 2 | 64 |\n\n**Fan-out phase (1 round):** 64 txs, each 1 input → 8 outputs → 512 UTXOs.\n\n**Per-round procedure:**\n1. Snapshot balance and UTXO set.\n2. Construct + broadcast all round txs serially.\n3. Wait until all round txs reach depth ≥ `C_min`.\n4. Refresh wallet state (tip refresh, not full scan).\n5. Verify UTXO count matches target; verify `balance_after == balance_before − Σ round_fees`.\n\n**Failure halts the scenario** — doubling cannot continue if a round's txs don't all land.\n\n**Metrics (per tx):** construction time, broadcast→mempool time, broadcast→confirmed time, fee paid, outcome. **Per round:** wall-clock, total fees, failures. **Scenario total:** cumulative fees, cumulative wall-clock, balance reconciliation delta.\n\n### S2 — Scan from Genesis (checkpoint 1)\n\n- **Preconditions:** S1 complete; wipe wallet data dir; birthday = 0.\n- **Steps:** launch scan from genesis → wait for height == tip.\n- **Verification:** 512 spendable UTXOs rediscovered; balance matches post-S1; all S1 txs in history.\n- **Metrics:** same as B0, plus outputs-found count.\n- **Delta:** `T_scan(S2) − T_scan(B0)` ≈ cost of discovering/storing 512 UTXOs and their spent-input matches.\n\n### S3 — Scan from Birthday (checkpoint 1)\n\nIdentical to S2 except **birthday = `H_birth`**. `blocks_scanned = H_tip_end − H_birth`.\n\n### S4 — Concurrent Construction\n\nMeasures what each wallet mode does under concurrent load. Locking, serialization, selection contention, and stalls are the signal — NOT failures to engineer around.\n\n- **Preconditions:** S1 complete.\n- **Steps:** for each `N_concurrent` ∈ {8, 16, 32, 64, 128}:\n  1. Pick `N_concurrent` distinct recipient addresses (self-sends OK).\n  2. Fire all construction+broadcast calls in parallel (harness-level threads/async).\n  3. Record per-tx: submit time, construction-complete time, broadcast outcome, confirmation time, error string.\n  4. Wait for all terminal states OR `T_budget` elapsed (then record partial results and continue).\n- **No retry. No backoff. No UTXO pre-partitioning.**\n- **Metrics:** per-tx durations; batch wall-clock; success rate; max observed serialization gap between consecutive construction-complete events (exposes internal serialization); any double-selection rejections.\n\n### S5 — Payment Processor Throughput\n\nHeadline comparison: batch 1-to-N vs. individual 1-to-1 sends paying the **same `M` recipients**.\n\n- **Preconditions:** S4 complete. Record and disclose current UTXO count / balance (post-S4 state; do not normalize).\n- **Recipient set:** fixed list of `M = 100` addresses, used by both arms.\n\n**Arm A — Batch:**\n- Submit `M/K = 10` batch txs (1 input → `K = 10` outputs), back-to-back.\n- Wait for all confirmed at depth ≥ `C_min`.\n- Record `T_batch`.\n\n**Arm B — Individual:**\n- Submit `M = 100` single-output txs, back-to-back.\n- Wait for all confirmed at depth ≥ `C_min`.\n- Record `T_individual`.\n\n**Metrics:**\n- `T_batch`, `T_individual`\n- **Throughput multiplier = `T_individual / T_batch`** (headline)\n- Total fees per arm; fee-per-recipient per arm\n- Blocks consumed per arm\n- Per-tx success/failure counts\n\n**Runs per mode:** batch arm for payment processor; individual arm for new wallet and old wallet (for context).\n\n### S6 — Scan from Genesis (checkpoint 2)\n\nSame shape as S2 but after S5. Expected history ≈ 127 txs (S1) + S4 txs + 110 txs (S5) ≈ 250+ txs, several hundred UTXOs to rediscover.\n\n**Delta signals:** `T_scan(S6) − T_scan(S2)` = cost of scanning S4+S5 history. `T_scan(S6) / T_scan(B0)` = scan slowdown factor vs. empty baseline.\n\n### S7 — Scan from Birthday (checkpoint 2)\n\nSame shape as S3 but after S5.\n\n## Cross-cutting Metrics\n\nCaptured in every scenario:\n- **Fees paid** — per tx, per round, per scenario total.\n- **Error rate** — success / rejection / stall / timeout, with error strings.\n- **Balance reconciliation** — `expected_balance − observed_balance` after every scenario. Flag any non-zero delta.\n- **Chain tip heights** — at scenario start and end (for drift disclosure across modes).\n\n## Result Profile (output format)\n\nStructured output (JSON preferred, CSV acceptable), committed alongside the harness code as proof-of-run and reference baseline.\n\n**Must include:**\n- Hardware / environment disclosure: CPU model, RAM, disk type, OS, network path to base node (local vs. remote).\n- Pinned versions: `minotari_console_wallet`, `minotari-cli`, base node — commit hash or release tag.\n- All configuration parameter values used for the run.\n- Per-scenario, per-mode block of metrics as described above.\n- Computed deltas (e.g., `T_scan(S2) − T_scan(B0)`, S5 throughput multiplier).\n\n## Acceptance Criteria\n\n- Harness runs against Esmeralda testnet with no manual intervention beyond initial wallet funding.\n- All three modes implemented; all nine scenarios (B0, S0–S7) produce results per mode.\n- All configuration parameters exposed and recorded in the output.\n- A third party can clone the repo, build the harness, fund the wallets, and reproduce the test — instructions are clear and complete.\n- A baseline result profile is committed alongside the harness code.\n- Results are output in a structured format suitable for automated comparison.\n- **Harness does not hide wallet pain** (see principle below).\n\n## Principle — Harness Measures, Does Not Engineer Around Wallet Pain\n\nUTXO locking, selection contention, stalls, and failed tx construction under concurrency are **part of what the harness measures**. Do not add harness-level retries, backoff, UTXO pre-partitioning, throttling, or serialization that hides how a wallet mode actually behaves under load.\n\nIf a wallet stalls for 10 minutes on a locked store, that stall is the result. If a wallet mode cannot complete a scenario, that is a reportable result — not a reason to tune the harness until it does. Timeouts should be generous (so stalled-but-progressing wallets get credit for completing), but the observed behavior must show up in the metrics.\n\n## How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #1`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)"
-  },
-  {
     "number": 103,
     "title": "Mitigate risks due to \"next\" known CVEs version and current versions range",
     "url": "https://github.com/tari-project/wxtm-bridge-frontend/issues/103",
@@ -613,9 +579,9 @@
     "body": "## Bounty: Mitigate Next.js CVE Risk by Pinning Version\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nThe `wxtm-bridge-frontend` currently depends on `\"next\": \"^16.1.1\"`, which allows npm/yarn to resolve any semver-compatible version in the 16.x range, including versions with known CVEs. Pin Next.js to exactly `16.1.7` (the latest patched release) and remove the `^` caret to prevent unintended resolution to vulnerable versions. Update `eslint-config-next` to match.\n\n### Acceptance Criteria\n\n- [ ] `package.json` specifies `\"next\": \"16.1.7\"` (exact, no caret)\n- [ ] `eslint-config-next` version is updated to `\"16.1.7\"` (exact, no caret) to match\n- [ ] `package-lock.json` / `yarn.lock` is regenerated with the pinned versions\n- [ ] The app builds successfully (`npm run build` or `yarn build` passes with no new errors)\n- [ ] Wrap/unwrap flow verified working end-to-end via TU with the updated bridge frontend (screenshot or recording)\n\n### Context\n\n- Original issue: https://github.com/tari-project/wxtm-bridge-frontend/issues/103\n- Current versions: `\"next\": \"^16.1.1\"`, `\"eslint-config-next\": \"^16.1.1\"`\n- Next.js changelog: https://github.com/vercel/next.js/releases\n- The frontend depends on private `@aspect` npm packages (api \u0026 contracts). To test locally you either need an npm token for the private registry, or build the public `api` and `contracts` repos locally and link them as dependencies\n- Full integration testing requires running the bridge frontend as a tapplet inside Tari Universe (TU)\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #103`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord"
   },
   {
-    "number": 646,
-    "title": "Contribution: fix(walletd): enforce session token, bound listen address, and peer-close cleanup in WebRTC (tari-project/tari-ootle#3763)",
-    "url": "https://github.com/tari-project/special_contributions/issues/646",
+    "number": 653,
+    "title": "Contribution: fix(engine): reject guest exports carrying reserved __tari_global_ prefix (tari-project/tari-ootle#3702)",
+    "url": "https://github.com/tari-project/special_contributions/issues/653",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -624,10 +590,44 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T10:24:01Z",
-    "updated_at": "2026-11-13T10:24:03Z",
+    "created_at": "2026-11-16T12:01:40Z",
+    "updated_at": "2026-11-16T12:01:41Z",
     "author": "sdbondi",
-    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3763](https://github.com/tari-project/tari-ootle/pull/3763): fix(walletd): enforce session token, bound listen address, and peer-close cleanup in WebRTC.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #646` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #646`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3763\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3702](https://github.com/tari-project/tari-ootle/pull/3702): fix(engine): reject guest exports carrying reserved __tari_global_ prefix.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #653` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #653`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3702\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 652,
+    "title": "Contribution: fix(consensus): harden catch-up voting guards and fork batch pagination (tari-project/tari-ootle#3660)",
+    "url": "https://github.com/tari-project/special_contributions/issues/652",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-16T10:18:43Z",
+    "updated_at": "2026-11-16T10:18:44Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3660](https://github.com/tari-project/tari-ootle/pull/3660): fix(consensus): harden catch-up voting guards and fork batch pagination.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #652` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #652`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3660\n- [ ] It changes only `YYYY/MM/e5ash_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
+    "number": 651,
+    "title": "Contribution: fix(consensus): multishard dynamic-output abort evidence and fee-intent propagation (tari-project/tari-ootle#3662)",
+    "url": "https://github.com/tari-project/special_contributions/issues/651",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-16T09:20:53Z",
+    "updated_at": "2026-11-16T09:20:54Z",
+    "author": "sdbondi",
+    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3662](https://github.com/tari-project/tari-ootle/pull/3662): fix(consensus): multishard dynamic-output abort evidence and fee-intent propagation.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #651` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #651`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3662\n- [ ] It changes only `YYYY/MM/e5ash_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 644,
@@ -664,23 +664,6 @@
     "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3565](https://github.com/tari-project/tari-ootle/pull/3565): fix(validator_node,app_utilities,swarm_daemon): harden identity keypair persistence and claim key settings.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #643` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #643`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3565\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
-    "number": 642,
-    "title": "Contribution: fix: serve unverified substate cache and clear reorged epoch state (tari-project/tari-ootle#3522)",
-    "url": "https://github.com/tari-project/special_contributions/issues/642",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T07:42:37Z",
-    "updated_at": "2026-11-13T07:42:38Z",
-    "author": "sdbondi",
-    "body": "Bounty for @karavel-dev for contributing [tari-project/tari-ootle#3522](https://github.com/tari-project/tari-ootle/pull/3522): fix: serve unverified substate cache and clear reorged epoch state.\n\n**No further code work is required here.**\n\n## Done when\n\n@karavel-dev opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #642` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #642`, naming this issue\n- [ ] It is opened by @karavel-dev, the author of tari-project/tari-ootle#3522\n- [ ] It changes only `YYYY/MM/karavel-dev_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
     "number": 641,
     "title": "Contribution: fix(wallet_sdk): release pre-locked inputs on merged-fee fallback and declare required account substates (tari-project/tari-ootle#3296)",
     "url": "https://github.com/tari-project/special_contributions/issues/641",
@@ -696,23 +679,6 @@
     "updated_at": "2026-11-13T07:07:41Z",
     "author": "sdbondi",
     "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3296](https://github.com/tari-project/tari-ootle/pull/3296): fix(wallet_sdk): release pre-locked inputs on merged-fee fallback and declare required account substates.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #641` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #641`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3296\n- [ ] It changes only `YYYY/MM/Ninkuki_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 640,
-    "title": "Contribution: fix(consensus): track next_epoch target on rotation and ignore stale EpochChanged events (tari-project/tari-ootle#3675)",
-    "url": "https://github.com/tari-project/special_contributions/issues/640",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T06:42:55Z",
-    "updated_at": "2026-11-13T06:42:55Z",
-    "author": "sdbondi",
-    "body": "Bounty for @tapirro for contributing [tari-project/tari-ootle#3675](https://github.com/tari-project/tari-ootle/pull/3675): fix(consensus): track next_epoch target on rotation and ignore stale EpochChanged events.\n\n**No further code work is required here.**\n\n## Done when\n\n@tapirro opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #640` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #640`, naming this issue\n- [ ] It is opened by @tapirro, the author of tari-project/tari-ootle#3675\n- [ ] It changes only `YYYY/MM/tapirro_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 639,
@@ -732,23 +698,6 @@
     "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3668](https://github.com/tari-project/tari-ootle/pull/3668): fix(validator_node): bound get_committed_block_proof RPC by state_sync_reads and response budget.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #639` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #639`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3668\n- [ ] It changes only `YYYY/MM/e5ash_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
-    "number": 638,
-    "title": "Contribution: fix(engine)!: hold minted non-fungibles to the max_substate_outputs limit (tari-project/tari-ootle#3767)",
-    "url": "https://github.com/tari-project/special_contributions/issues/638",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T06:27:06Z",
-    "updated_at": "2026-11-13T06:27:06Z",
-    "author": "sdbondi",
-    "body": "Bounty for @kah-ja for contributing [tari-project/tari-ootle#3767](https://github.com/tari-project/tari-ootle/pull/3767): fix(engine)!: hold minted non-fungibles to the max_substate_outputs limit.\n\n**No further code work is required here.**\n\n## Done when\n\n@kah-ja opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #638` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #638`, naming this issue\n- [ ] It is opened by @kah-ja, the author of tari-project/tari-ootle#3767\n- [ ] It changes only `YYYY/MM/kah-ja_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
     "number": 636,
     "title": "Contribution: fix(consensus): preserve view votes after quorum and enforce collectible vote window (tari-project/tari-ootle#3706)",
     "url": "https://github.com/tari-project/special_contributions/issues/636",
@@ -766,23 +715,6 @@
     "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3706](https://github.com/tari-project/tari-ootle/pull/3706): fix(consensus): preserve view votes after quorum and enforce collectible vote window.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #636` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #636`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3706\n- [ ] It changes only `YYYY/MM/Burapa-J_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
-    "number": 635,
-    "title": "Contribution: fix(epoch_oracles): defer ConfiguredCurrentEpoch persistence, reject global/max-epoch validators, and avoid duplicate HybridEpochOracle transition (tari-project/tari-ootle#3548)",
-    "url": "https://github.com/tari-project/special_contributions/issues/635",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T05:51:39Z",
-    "updated_at": "2026-11-13T05:51:40Z",
-    "author": "sdbondi",
-    "body": "Bounty for @LBCron for contributing [tari-project/tari-ootle#3548](https://github.com/tari-project/tari-ootle/pull/3548): fix(epoch_oracles): defer ConfiguredCurrentEpoch persistence, reject global/max-epoch validators, and avoid duplicate HybridEpochOracle transition.\n\n**No further code work is required here.**\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #635` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #635`, naming this issue\n- [ ] It is opened by @LBCron, the author of tari-project/tari-ootle#3548\n- [ ] It changes only `YYYY/MM/LBCron_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
     "number": 634,
     "title": "Contribution: fix(indexer_lib): harden substate batch and template result validation (tari-project/tari-ootle#3456)",
     "url": "https://github.com/tari-project/special_contributions/issues/634",
@@ -798,23 +730,6 @@
     "updated_at": "2026-11-13T05:35:22Z",
     "author": "sdbondi",
     "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3456](https://github.com/tari-project/tari-ootle/pull/3456): fix(indexer_lib): harden substate batch and template result validation.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #634` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #634`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3456\n- [ ] It changes only `YYYY/MM/e5ash_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
-  },
-  {
-    "number": 631,
-    "title": "Contribution: fix(tari_bor): fix CBOR enum/type deserialization and JSON number parsing (tari-project/tari-ootle#3761)",
-    "url": "https://github.com/tari-project/special_contributions/issues/631",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T04:20:18Z",
-    "updated_at": "2026-11-13T04:20:19Z",
-    "author": "sdbondi",
-    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3761](https://github.com/tari-project/tari-ootle/pull/3761): fix(tari_bor): fix CBOR enum/type deserialization and JSON number parsing.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #631` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #631`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3761\n- [ ] It changes only `YYYY/MM/aswadi_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 629,
@@ -1155,23 +1070,6 @@
     "updated_at": "2026-10-02T06:47:37Z",
     "author": "sdbondi",
     "body": "Retro bounty for @JustAResearcher for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-m493-gggq-hvvw](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-m493-gggq-hvvw).\n\nThe report showed that a foreign proposal's commit proof was verified against the proposer's committee rather than the committee of the shard group the proposal names, so a quorum of one shard group could sign for another. It included a code-path analysis, a reproduction plan for an isolated network and a suggested fix. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#2737. **No code work is required here.**\n\n## Done when\n\n@JustAResearcher opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #45` in the description and their XTM payout address on its own line.\n"
-  },
-  {
-    "number": 632,
-    "title": "Contribution: fix(consensus): reject foreign evidence naming substates outside the foreign shard group (tari-project/tari-ootle#3764)",
-    "url": "https://github.com/tari-project/special_contributions/issues/632",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-M"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T04:25:40Z",
-    "updated_at": "2026-11-13T04:25:41Z",
-    "author": "sdbondi",
-    "body": "Bounty for @kah-ja for contributing [tari-project/tari-ootle#3764](https://github.com/tari-project/tari-ootle/pull/3764): fix(consensus): reject foreign evidence naming substates outside the foreign shard group.\n\n**No further code work is required here.**\n\n## Done when\n\n@kah-ja opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #632` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #632`, naming this issue\n- [ ] It is opened by @kah-ja, the author of tari-project/tari-ootle#3764\n- [ ] It changes only `YYYY/MM/kah-ja_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
   },
   {
     "number": 521,
