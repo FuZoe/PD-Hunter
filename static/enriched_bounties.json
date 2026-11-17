@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 203,
+    "comment_count": 199,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-16T08:14:59Z",
+    "updated_at": "2026-11-17T13:46:38Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -89,7 +89,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -151,7 +151,7 @@
         "amount": 2,
         "feasibility": 60,
         "competition": 65,
-        "freshness": 6
+        "freshness": 5
       }
     }
   },
@@ -380,30 +380,30 @@
     }
   },
   {
-    "number": 65472,
-    "title": "[Bounty Proposal] Fix missing output_mem_config propagation and unpinned intermediate allocations in ttnn.binary_backward",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/65472",
+    "number": 66079,
+    "title": "[Bounty Proposal] ttnn.sampling: temperature applied before max-subtraction makes sampled probabilities depend on logit magnitude",
+    "url": "https://github.com/tenstorrent/tt-metal/issues/66079",
     "state": "open",
     "labels": [],
-    "comment_count": 3,
-    "open_pr_count": 2,
+    "comment_count": 1,
+    "open_pr_count": 1,
     "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-13T09:59:07Z",
-    "updated_at": "2026-11-15T09:20:06Z",
-    "author": "meanusarcanus",
-    "body": "## 📝 Background\n\nIn `ttnn/cpp/ttnn/operations/eltwise/binary_backward/binary_backward.cpp`, multiple autograd backward operations accept an explicit `const std::optional<MemoryConfig>& output_mem_config` parameter, but drop it when allocating intermediate tensors or dispatching inner operation primitives.\n\nWhen callers supply an explicit memory configuration (such as `DRAM_MEMORY_CONFIG`, `L1_MEMORY_CONFIG`, or a specific sharded layout), these operations instantiate intermediate buffers under default/unpinned memory configurations. This causes silent placement divergence, unnecessary L1/DRAM transfers, and layout assertion failures in sharded backward graphs.\n\nThis is the binary backward counterpart to the recent memory config fixes in `unary_backward.cpp` (#64898, #64901).\n\n---\n\n## 💡 Affected Functions & Defect Analysis\n\n### 1. `squared_difference_bw` (lines 636–646)\nIn `squared_difference_bw`, the forward difference tensor is computed without forwarding `output_mem_config`:\n```cpp\n// Current (line 639):\nTensor difference = ttnn::subtract(input_a, other); // Drops output_mem_config\n```\nBecause `ttnn::subtract` defaults to interleaved placement, `difference` ignores the caller's explicit memory config, which is then multiplied with `grad_tensor` under `output_mem_config`.\n\n**Remediation:**\n```cpp\nTensor difference = ttnn::subtract(input_a, other, std::nullopt, output_mem_config);\n```\n\n---\n\n### 2. `bias_gelu_bw` (both overloads, lines 838–860)\nIn both the tensor-bias and scalar-bias overloads of `bias_gelu_bw`, the input sum is allocated without `output_mem_config`:\n```cpp\n// Overload 1 (line 840):\nTensor input = ttnn::add(input_a, input_b); // Drops output_mem_config\n\n// Overload 2 (line 855):\nTensor input = ttnn::add(input_tensor, bias); // Drops output_mem_config\n```\nThe subsequent `gelu_bw` call accepts `output_mem_config`, but receives an `input` tensor placed in default memory.\n\n**Remediation:**\n```cpp\n// Overload 1:\nTensor input = ttnn::add(input_a, input_b, std::nullopt, output_mem_config);\n\n// Overload 2:\nTensor input = ttnn::add(input_tensor, bias, std::nullopt, output_mem_config);\n```\n\n---\n\n### 3. `floor_mod_bw` and `fmod_bw` (lines 600–630)\nIn both `floor_mod_bw` and `fmod_bw`, the negation of `grad_tensor` drops `output_mem_config`:\n```cpp\n// floor_mod_bw (line 605):\nTensor grad_b = ttnn::multiply(ttnn::neg(grad_tensor), result_div, std::nullopt, output_mem_config);\n\n// fmod_bw (line 628):\nTensor grad_b = ttnn::multiply(ttnn::neg(grad_tensor), result_div, std::nullopt, output_mem_config);\n```\n`ttnn::neg(grad_tensor)` creates an unpinned intermediate buffer that does not honor `output_mem_config`.\n\n**Remediation:**\n```cpp\nTensor grad_b = ttnn::multiply(ttnn::neg(grad_tensor, output_mem_config), result_div, std::nullopt, output_mem_config);\n```\n\n---\n\n### 4. `atan2_bw` (lines 123–145)\nIn `atan2_bw`:\n1. `ttnn::neg(input_a)` on line 140 omits `output_mem_config`.\n2. The zero-denominator condition mask on line 137 omits `output_mem_config`:\n```cpp\n// Current (line 137):\nTensor cond = ttnn::logical_and(ttnn::eqz(input_a, output_mem_config), ttnn::eqz(other, output_mem_config));\n\n// Current (line 140):\nTensor grad_b = ttnn::multiply(ttnn::neg(input_a), recip_mul, std::nullopt, output_mem_config);\n```\n\n**Remediation:**\n```cpp\nTensor cond = ttnn::logical_and(\n    ttnn::eqz(input_a, output_mem_config),\n    ttnn::eqz(other, output_mem_config),\n    std::nullopt,\n    output_mem_config);\nTensor grad_b = ttnn::multiply(ttnn::neg(input_a, output_mem_config), recip_mul, std::nullopt, output_mem_config);\n```\n\n---\n\n### 5. `logaddexp_bw` (lines 525–553)\nUnlike `logaddexp2_bw` (line 566), which resolves:\n```cpp\nauto output_memory_config = output_mem_config.value_or(input_a.memory_config());\n```\nand passes `output_memory_config` consistently across all internal operations, `logaddexp_bw` passes the raw optional parameter directly without fallback resolution.\n\n---\n\n## 🎯 What Success Looks Like\n\n1. Every intermediate tensor created in `squared_difference_bw`, `bias_gelu_bw`, `floor_mod_bw`, `fmod_bw`, and `atan2_bw` explicitly forwards `output_mem_config`.\n2. Explicit memory placement (e.g. `ttnn.DRAM_MEMORY_CONFIG` or `ttnn.L1_MEMORY_CONFIG`) is preserved across all returned and intermediate buffers without unexpected default fallback.\n3. Focused regression tests added to `tests/ttnn/unit_tests/operations/eltwise/test_binary_backward.py` verifying that passing an explicit `memory_config` produces gradient tensors matching that configuration.\n4. Existing binary backward test suites continue to pass with zero regressions.\n\n---\n\n## 🛠️ Proposed Bounty Assignment\n\nI would like to propose this as a community-suggested bounty ($750) and take on the implementation and test coverage. I have the C++ patch and regression test suite ready.\n\nCould `@jberkowitzTT` please review and assign this bounty to `@meanusarcanus`?\n",
+    "created_at": "2026-11-17T15:07:35Z",
+    "updated_at": "2026-11-17T15:08:25Z",
+    "author": "Aqil-Ahmad",
+    "body": "**Description:**\n\nWith temperature != 1, `ttnn.sampling` doesn’t sample from `softmax(logits / T)` when the logits are large. Shifting all logits by a constant changes the output distribution, sometimes by a lot.\n\nIn `sampling.cpp`, the kernel multiplies the raw values by `1/T` (`mul_block_bcast_scalar_inplace`) and packs the result back to bf16. Only after that does it reduce the max and do `sub_exp`. At magnitudes like 100–200, the bf16 grid is coarse (0.5–1.0), so the scaled logits get rounded before the max is subtracted, and the gaps between candidates come out wrong. At T = 1, the multiply is exact, so the problem doesn’t show up.\n\n#### Repro\n\nTwo candidates per user with a logit gap of 1.0, `k=2`, `p=1.0`, 32 users × 3000 calls. Every row should give the same P(second) regardless of the offset. Run on ttsim v1.16.0 (Wormhole, `TT_METAL_DISABLE_SFPLOADMACRO=1`):\n\n| Logits | T = 0.7 (expected 0.1933) | T = 0.6 (expected 0.1589) |\n|---|---:|---:|\n| (1, 0) | 0.1952 | 0.1670 |\n| (40, 39) | 0.1820 | – |\n| (70, 69) | 0.1915 | 0.1242 |\n| (100, 99) | 0.2823 | 0.1206 |\n| (130, 129) | 0.1208 | 0.2738 |\n| (200, 199) | 0.5013 | 0.1227 |\n\nThe large-offset rows are 13–100+ sigma off. As a control, the same setup at T = 1.0 stays within ~5% of the expected value at every offset, which is the usual approx-exp error.\n\nFor logits under ~40, the effect is small (a few percent). It gets bad above that, and worse as the temperature goes down.\n\nThe existing distribution tests in `test_sampling_distribution.py` all use `temp = 1`, which is probably why this hasn’t been caught.",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 45,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 64,
-        "freshness": 99
+        "competition": 83,
+        "freshness": 100
       }
     }
   },
@@ -596,12 +596,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 3,
       "is_hidden_gem": false,
-      "bounty_score": 30,
+      "bounty_score": 29,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1036,11 +1036,11 @@
       "bounty",
       "bounty-M"
     ],
-    "comment_count": 9,
+    "comment_count": 11,
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-06-29T11:54:21Z",
-    "updated_at": "2026-11-11T20:55:02Z",
+    "updated_at": "2026-11-17T03:13:07Z",
     "author": "brianp",
     "body": "## Bounty: Fix CPU mining 64-thread cap on Windows (64+ logical cores)\n\n**Tier:** M — 60,000 XTM\n\n### Description\n\nCPU mining tops out at 64 threads on Windows machines that have more than 64 logical cores. A user with 128 threads reported that only 64 were ever used, no matter what thread count they selected. The goal of this bounty is simple to state and hard to prove: **make Tari Universe actually use more than 64 threads on a Windows machine that has more than 64 logical cores.**\n\nWindows splits machines with more than 64 logical processors into \"processor groups\" of at most 64 each, and a process that isn't group-aware only gets scheduled onto one group. On top of that, Rust's `std::thread::available_parallelism()` (which we use to count cores) undercounts past 64 on Windows for the same reason. The correct fix must count cores across all processor groups **and** ensure the miner threads actually run across them — however that is best achieved.\n\n### Acceptance Criteria\n\n- [ ] On a Windows machine with **more than 64 logical cores**, CPU mining uses **more than 64 threads** — up to the count the user selects, bounded by the machine's real logical core count\n- [ ] Core count is determined accurately across all processor groups (not capped at 64 the way `available_parallelism()` is)\n- [ ] No regression on machines with ≤64 cores, and no regression on macOS or Linux\n- [ ] **The PR includes proof of a working result on real hardware:**\n  - [ ] A screenshot proving the test machine's spec (Task Manager → Performance, or CPU-Z) showing **more than 64 logical cores**\n  - [ ] Screenshots and/or xmrig log excerpts showing **more than 64 threads in active use** after the fix, on that machine\n\n### Development Requirements\n\nThis bounty **cannot be developed or verified blind.** You must have access to a Windows machine with more than 64 logical cores to work on it. A fix that \"looks correct\" but is not demonstrated to work on qualifying hardware will **not** be accepted — the hardware proof above is mandatory, not optional. A VM/emulated core count that does not reproduce real processor-group behavior does not qualify. If you do not have such a machine, this is not the right bounty for you.\n\n### Context\n\n- Relevant code:\n  - `src-tauri/src/mining/cpu/manager.rs` — `determine_number_of_cores_to_use()` uses `thread::available_parallelism()`, which undercounts past 64 on Windows\n  - `src-tauri/src/mining/cpu/miners/xmrig.rs` — passes the count through as `--threads={cpu_threads}`\n  - xmrig is pinned to `6.25.0` in `src-tauri/binaries-versions/binaries_versions_*.json`\n- **Open question (see the analysis in the comment below):** it is not yet confirmed whether xmrig 6.25.0 spreads threads across processor groups on its own. The comment below is a *lead/hypothesis*, not a confirmed ceiling — do not treat it as ruling out an app-side fix. The bounty is open to any approach that demonstrably works: an accurate all-groups core count, adjusting how xmrig is launched (e.g. affinity handling on Win11/Server 2022), or a launcher strategy. What matters is the proven result on real hardware, not the mechanism.\n- Reference on the 64-core threshold and Windows processor groups: https://bitsum.com/general/the-64-core-threshold-processor-groups-and-windows/\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3299`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
     "hunter_intelligence": {
@@ -1048,13 +1048,13 @@
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 46,
+      "is_hidden_gem": false,
+      "bounty_score": 45,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 67,
-        "freshness": 97
+        "competition": 63,
+        "freshness": 100
       }
     }
   },
@@ -1090,6 +1090,99 @@
     }
   },
   {
+    "number": 661,
+    "title": "Contribution: fix(consensus): preserve Output lock on fee-pool withdrawals and defer versioned lock conflicts (tari-project/tari-ootle#3632)",
+    "url": "https://github.com/tari-project/special_contributions/issues/661",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-17T11:39:23Z",
+    "updated_at": "2026-11-17T11:39:24Z",
+    "author": "sdbondi",
+    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3632](https://github.com/tari-project/tari-ootle/pull/3632): fix(consensus): preserve Output lock on fee-pool withdrawals and defer versioned lock conflicts.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #661` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #661`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3632\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 660,
+    "title": "Contribution: fix(consensus): reject foreign proposals naming the local shard group (tari-project/tari-ootle#3779)",
+    "url": "https://github.com/tari-project/special_contributions/issues/660",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-17T10:31:08Z",
+    "updated_at": "2026-11-17T10:31:09Z",
+    "author": "sdbondi",
+    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3779](https://github.com/tari-project/tari-ootle/pull/3779): fix(consensus): reject foreign proposals naming the local shard group.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #660` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #660`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3779\n- [ ] It changes only `YYYY/MM/aswadi_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 659,
+    "title": "Report: tari-ootle min_epoch validation ordering and missing consensus window check allow gossipsub sender-fault bypass, premature execution before min_epoch, and parked-proposal stalls (GHSA-2cvw-5986-qgcc)",
+    "url": "https://github.com/tari-project/special_contributions/issues/659",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-17T09:57:41Z",
+    "updated_at": "2026-11-17T09:57:42Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @e5ash for reporting an issue in `tari-ootle` through GitHub Security Advisories: [GHSA-2cvw-5986-qgcc](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-2cvw-5986-qgcc).\n\nThe report showed that min_epoch validation ordering and missing consensus window check allow gossipsub sender-fault bypass, premature execution before min_epoch, and parked-proposal stalls. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @e5ash in tari-project/tari-ootle#3667. **No code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #659` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #659`, naming this issue\n- [ ] It is opened by @e5ash, the credited reporter\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 653,
     "title": "Contribution: fix(engine): reject guest exports carrying reserved __tari_global_ prefix (tari-project/tari-ootle#3702)",
     "url": "https://github.com/tari-project/special_contributions/issues/653",
@@ -1116,7 +1209,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1129,11 +1222,11 @@
       "retro-bounty",
       "bounty-S"
     ],
-    "comment_count": 0,
+    "comment_count": 1,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-11-16T10:18:43Z",
-    "updated_at": "2026-11-16T10:18:44Z",
+    "updated_at": "2026-11-17T07:33:11Z",
     "author": "sdbondi",
     "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3660](https://github.com/tari-project/tari-ootle/pull/3660): fix(consensus): harden catch-up voting guards and fork batch pagination.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #652` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #652`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3660\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
@@ -1142,11 +1235,11 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 85,
+        "competition": 83,
         "freshness": 100
       }
     }
@@ -1160,11 +1253,11 @@
       "retro-bounty",
       "bounty-S"
     ],
-    "comment_count": 0,
+    "comment_count": 1,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-11-16T09:20:53Z",
-    "updated_at": "2026-11-16T09:20:54Z",
+    "updated_at": "2026-11-17T07:33:09Z",
     "author": "sdbondi",
     "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3662](https://github.com/tari-project/tari-ootle/pull/3662): fix(consensus): multishard dynamic-output abort evidence and fee-intent propagation.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #651` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #651`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3662\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
@@ -1173,11 +1266,11 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 85,
+        "competition": 83,
         "freshness": 100
       }
     }
@@ -1204,7 +1297,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1235,7 +1328,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1266,7 +1359,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1297,7 +1390,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1328,7 +1421,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1359,7 +1452,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1395,7 +1488,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1426,7 +1519,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1457,7 +1550,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1488,7 +1581,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1519,7 +1612,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1550,7 +1643,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1563,11 +1656,11 @@
       "retro-bounty",
       "bounty-S"
     ],
-    "comment_count": 0,
+    "comment_count": 1,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-11-12T08:02:30Z",
-    "updated_at": "2026-11-12T08:02:31Z",
+    "updated_at": "2026-11-17T07:33:07Z",
     "author": "sdbondi",
     "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3667](https://github.com/tari-project/tari-ootle/pull/3667): fix(transaction_validation,consensus): run validity window check before epoch range and resequence against block epoch.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #618` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #618`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3667\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
@@ -1580,8 +1673,8 @@
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 85,
-        "freshness": 98
+        "competition": 83,
+        "freshness": 100
       }
     }
   },
@@ -1612,7 +1705,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1674,7 +1767,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -1767,7 +1860,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1798,7 +1891,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1829,7 +1922,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1922,7 +2015,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 84
+        "freshness": 83
       }
     }
   },
@@ -1953,7 +2046,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -2015,7 +2108,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2077,7 +2170,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2170,7 +2263,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -2289,12 +2382,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 49,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 85
+        "freshness": 84
       }
     }
   },
@@ -2325,7 +2418,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
@@ -2392,6 +2485,37 @@
     }
   },
   {
+    "number": 657,
+    "title": "Security report: tari-ootle unauthenticated Target-Template Migration (Instruction::UpdateComponentTemplate) Allows Arbitrary Component State & Template-Scoped Access-Rule Forgery Across Any Template (GHSA-8cwh-mrp7-8v24)",
+    "url": "https://github.com/tari-project/special_contributions/issues/657",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-L"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-17T09:42:25Z",
+    "updated_at": "2026-11-17T09:42:26Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @LBCron for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-8cwh-mrp7-8v24](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-8cwh-mrp7-8v24).\n\nThe report showed that unauthenticated Target-Template Migration (Instruction::UpdateComponentTemplate) Allows Arbitrary Component State & Template-Scoped Access-Rule Forgery Across Any Template. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3824. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #657` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #657`, naming this issue\n- [ ] It is opened by @LBCron, the credited reporter\n- [ ] It changes only `YYYY/MM/LBCron_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 426,
     "title": "Security report: tari-ootle `CallFunction` executes `&self` methods as static functions: component access rules are bypassed and the method acts with the template's resource authority (GHSA-gf2x-v6mp-cc46)",
     "url": "https://github.com/tari-project/special_contributions/issues/426",
@@ -2449,7 +2573,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -2503,12 +2627,43 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 35,
+      "bounty_score": 34,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 55,
-        "freshness": 42
+        "freshness": 41
+      }
+    }
+  },
+  {
+    "number": 3252,
+    "title": "OpenCollective banners eagerly loads redundant avatars on match start for hidden views [bounty: 40 XTR]",
+    "url": "https://github.com/FreezingMoon/AncientBeast/issues/3252",
+    "state": "open",
+    "labels": [
+      "coding",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 1,
+    "repository": "FreezingMoon/AncientBeast",
+    "created_at": "2026-11-17T12:35:20Z",
+    "updated_at": "2026-11-17T15:25:48Z",
+    "author": "vivek-kanugula",
+    "body": "**Describe the bug**\nOn match start, the game's UI constructor initializes three `OpenCollectiveBanner` instances (`dashOpenCollectiveBanner`, `scoreboardOpenCollectiveBanner`, and `musicPlayerOpenCollectiveBanner`). All three synchronously call `.init()`, which immediately renders all normalized contributors from `localStorage` into the DOM.\n\nWith current feed data (41 active contributors, 39 having images), this results in **117 image requests** (39 × 3) fired simultaneously with `loading: 'eager'`, despite all three host views being completely hidden (`.hide` on scoreboard & music player, `display: none` on dash).\n\nFurthermore, when a user eventually opens any of these views, `onViewOpen()` calls `renderContributors()` again from scratch, making the initial 117 image requests in `init()` completely redundant. If any avatar fails to load or returns a 404, the broken `<a>` element remains in the track, resulting in blank circular holes in the marquee.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Open https://beta.ancientbeast.com/ in Chrome with DevTools open (Network & Console tabs).\n2. Start any match so the UI constructor runs.\n3. Inspect Network requests: 117 image requests fire immediately to OpenCollective/AWS for contributor avatars.\n4. Inspect the DOM: all 3 banner elements (`#dash_open_collective_banner`, `#scoreboard_open_collective_banner`, `#music_player_open_collective_banner`) have populated `.opencollective_track` elements with 39 `<img>` tags each, while their parent containers remain hidden.\n5. If any avatar URLs fail, an empty circle remains in the marquee loop instead of being pruned.\n\n**Expected behavior**\n- `init()` should mount a lightweight CTA-only placeholder or defer avatar DOM rendering until `onViewOpen()` is called.\n- `fetchMembers()` should not re-render contributor DOM nodes if the banner's view is not currently open (`isViewOpen()`).\n- Contributor avatars should use `loading=\"lazy\"` and `decoding=\"async\"`.\n- If an avatar image triggers an `error` event, its parent anchor element should be pruned from the track so the marquee doesn't display empty circular slots.\n\n**Screenshots**\n\n<img width=\"1925\" height=\"912\" alt=\"clean_ingame_sponsor_banner\" src=\"https://github.com/user-attachments/assets/fbedc9e7-37ae-4828-80e1-cbb37108e559\" />\n\n<img width=\"600\" height=\"112\" alt=\"banner_empty_circle_highlighted\" src=\"https://github.com/user-attachments/assets/4e8fccc5-2081-488e-991c-5489ecb45b47\" />\n\n<img width=\"1920\" height=\"839\" alt=\"devtools_console_error\" src=\"https://github.com/user-attachments/assets/c66fe18c-85a5-4547-a204-51cbcf6df32f\" />\n\n**Desktop:**\n - OS: Windows 11\n - Browser: Chrome 131.0.6778.86\n\n**Additional context**\nRelevant file: `src/ui/open-collective-banner.ts` (`init()`, `fetchMembers()`, and `renderContributors()`). I have a tested patch ready that resolves all three points cleanly.\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 81,
+        "freshness": 100
       }
     }
   },
@@ -2540,7 +2695,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 9
+        "freshness": 8
       }
     }
   },
@@ -2635,7 +2790,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2662,12 +2817,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 31,
+      "bounty_score": 30,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -2701,7 +2856,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 64
+        "freshness": 63
       }
     }
   },
@@ -2767,7 +2922,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 40,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2926,12 +3081,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 38,
+      "bounty_score": 37,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 37,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -3030,7 +3185,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
