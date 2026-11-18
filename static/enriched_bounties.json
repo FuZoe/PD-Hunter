@@ -27,7 +27,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -59,7 +59,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -103,11 +103,11 @@
       "car port",
       "bounty"
     ],
-    "comment_count": 6,
+    "comment_count": 8,
     "open_pr_count": 1,
     "repository": "commaai/opendbc",
     "created_at": "2026-05-31T22:10:24Z",
-    "updated_at": "2026-11-15T09:46:31Z",
+    "updated_at": "2026-11-18T04:16:26Z",
     "author": "adeebshihadeh",
     "body": "Let's get the new F-150s supported! Any [TRON platform](https://bluepilot.dev/2025/08/13/confirmed-tron-status-list/) car model is also eligible for this bounty.\n\nRequires a harness design (schematic), a high quality lateral port, and at least a proof-of-concept for longitudinal support.\n\nThe full $10k is for a normal openpilot experience: user is ready to go after installing compatible hardware and openpilot. $2k for support similar to the 2021 Toyota Rav4 Prime, where it works if the user manually configures extra parameters.\n\n<img width=\"1200\" height=\"800\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/51df485b-8762-4325-8bb8-8be3d4d56ff1\" />",
     "hunter_intelligence": {
@@ -116,12 +116,12 @@
       "bounty_tier": "S-Tier",
       "bounty_amount": 10000,
       "is_hidden_gem": true,
-      "bounty_score": 83,
+      "bounty_score": 82,
       "score_breakdown": {
         "amount": 100,
         "feasibility": 60,
-        "competition": 73,
-        "freshness": 99
+        "competition": 69,
+        "freshness": 100
       }
     }
   },
@@ -431,7 +431,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -459,7 +459,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -515,7 +515,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -543,7 +543,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -571,7 +571,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1054,7 +1054,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1085,7 +1085,100 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 27,
-        "freshness": 94
+        "freshness": 93
+      }
+    }
+  },
+  {
+    "number": 670,
+    "title": "Contribution: fix(engine): reject duplicate function names and colliding dispatch identifiers in TemplateDef (tari-project/tari-ootle#3841)",
+    "url": "https://github.com/tari-project/special_contributions/issues/670",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-18T11:59:57Z",
+    "updated_at": "2026-11-18T11:59:58Z",
+    "author": "sdbondi",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3841](https://github.com/tari-project/tari-ootle/pull/3841): fix(engine): reject duplicate function names and colliding dispatch identifiers in TemplateDef.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #670` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #670`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3841\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 669,
+    "title": "Contribution: fix(wallet): resolve ValidatorFeePool token, unstored references, and versions in dependent substates (tari-project/tari-ootle#3634)",
+    "url": "https://github.com/tari-project/special_contributions/issues/669",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-18T08:06:18Z",
+    "updated_at": "2026-11-18T08:06:19Z",
+    "author": "sdbondi",
+    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3634](https://github.com/tari-project/tari-ootle/pull/3634): fix(wallet): resolve ValidatorFeePool token, unstored references, and versions in dependent substates.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #669` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #669`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3634\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 668,
+    "title": "Contribution: fix(consensus): pass HighPc height on pacemaker start and reset timers on view advance (tari-project/tari-ootle#3794)",
+    "url": "https://github.com/tari-project/special_contributions/issues/668",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-18T06:39:13Z",
+    "updated_at": "2026-11-18T06:39:14Z",
+    "author": "sdbondi",
+    "body": "Bounty for @CHEFDALORIAN for contributing [tari-project/tari-ootle#3794](https://github.com/tari-project/tari-ootle/pull/3794): fix(consensus): pass HighPc height on pacemaker start and reset timers on view advance.\n\n**No further code work is required here.**\n\n## Done when\n\n@CHEFDALORIAN opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #668` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #668`, naming this issue\n- [ ] It is opened by @CHEFDALORIAN, the author of tari-project/tari-ootle#3794\n- [ ] It changes only `YYYY/MM/CHEFDALORIAN_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
       }
     }
   },
@@ -1116,7 +1209,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1147,7 +1240,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1178,7 +1271,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1240,7 +1333,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1271,7 +1364,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1302,7 +1395,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1333,7 +1426,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1364,7 +1457,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1395,7 +1488,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1426,7 +1519,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1457,7 +1550,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1674,7 +1767,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1736,7 +1829,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -1798,7 +1891,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1829,7 +1922,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1984,7 +2077,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -2077,7 +2170,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -2201,7 +2294,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -2232,7 +2325,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -2449,7 +2542,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -2480,7 +2573,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -2511,7 +2604,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2542,7 +2635,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -2568,7 +2661,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2604,7 +2697,100 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 77
+        "freshness": 76
+      }
+    }
+  },
+  {
+    "number": 673,
+    "title": "Contest Winning: Ootle Bug Hunt 3rd Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/673",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-XTM-250000"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-18T14:04:13Z",
+    "updated_at": "2026-11-18T14:09:09Z",
+    "author": "Kelketek",
+    "body": "Place 3rd in the Ootle bug hunt",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 83,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 672,
+    "title": "Contest Winning: Ootle Bug Hunt 2nd Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/672",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-XTM-500000"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-18T14:03:04Z",
+    "updated_at": "2026-11-18T14:03:17Z",
+    "author": "Kelketek",
+    "body": "Get second place in the Ootle Bug hunt",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 671,
+    "title": "Contest Winning: Ootle Bug Hunt 1st Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/671",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-XTM-1000000"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-18T14:01:37Z",
+    "updated_at": "2026-11-18T14:01:37Z",
+    "author": "Kelketek",
+    "body": "Win the Ootle Bug Hunt, and take first place.",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
       }
     }
   },
@@ -2690,7 +2876,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 32,
+      "bounty_score": 31,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2904,11 +3090,11 @@
       "input",
       "bounty"
     ],
-    "comment_count": 15,
+    "comment_count": 17,
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2024-02-10T09:39:50Z",
-    "updated_at": "2026-11-10T10:09:04Z",
+    "updated_at": "2026-11-18T12:16:15Z",
     "author": "DreadKnight",
     "body": "The fullscreen button doesn't do anything at all on iOS/iPhone while using Chrome.",
     "hunter_intelligence": {
@@ -2921,8 +3107,8 @@
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 40,
-        "freshness": 96
+        "competition": 36,
+        "freshness": 100
       }
     }
   },
@@ -2988,7 +3174,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 61,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -3346,7 +3532,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
