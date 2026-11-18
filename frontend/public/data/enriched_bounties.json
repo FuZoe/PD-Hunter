@@ -182,7 +182,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -213,7 +213,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 49
+        "freshness": 48
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -252,7 +252,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 76
+        "freshness": 75
       }
     }
   },
@@ -313,7 +313,7 @@
         "amount": 40,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -375,7 +375,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 20,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -482,7 +482,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 49,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1953,7 +1953,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -2294,7 +2294,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -2325,7 +2325,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -2356,7 +2356,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -2727,7 +2727,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2759,7 +2759,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 27,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -3020,7 +3020,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 23
+        "freshness": 22
       }
     }
   },
@@ -3152,7 +3152,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 56,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -3284,7 +3284,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 23
+        "freshness": 22
       }
     }
   },
@@ -3379,7 +3379,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 52,
-        "freshness": 23
+        "freshness": 22
       }
     }
   }
