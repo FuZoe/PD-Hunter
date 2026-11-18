@@ -344,7 +344,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 35,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -403,7 +403,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -464,13 +464,41 @@
     }
   },
   {
+    "number": 66242,
+    "title": "[Bounty Proposal] moreh_softmax / moreh_logsoftmax: max shift masks padding to 0, returns 0 / +inf for negative rows on non-tile-aligned dims",
+    "url": "https://github.com/tenstorrent/tt-metal/issues/66242",
+    "state": "open",
+    "labels": [],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tenstorrent/tt-metal",
+    "created_at": "2026-11-18T15:55:07Z",
+    "updated_at": "2026-11-18T15:55:19Z",
+    "author": "Melchyore",
+    "body": "### Summary\n\nOn a reduce dim that is not a multiple of 32, the max-shift step of `ttnn.moreh_softmax` and `ttnn.moreh_logsoftmax` masks the padded lanes of the last tile to **0** before the `MAX` reduce. When every real value of a row is negative, the padding wins the max, so the shift is 0 instead of `max(x)`. For very negative rows (for example fully masked attention rows filled with -1e4), `exp(x - 0)` underflows to 0 and:\n- `moreh_softmax` returns **0** for the whole row (expected `1/W`),\n- `moreh_logsoftmax` returns **+inf** (expected `-log(W)`).\n\nThe same values on a tile-aligned dim give correct results. All four factories are affected (`SMALL_W`, `LARGE_W`, `SMALL_H`, `LARGE_H`).\n\n### Root cause\n\n`ttnn/cpp/ttnn/operations/moreh/moreh_softmax/device/kernels/moreh_softmax_{w,h,w_large,h_large}.cpp`, `find_shift()`, `!UseMinShift` branch: the last tile goes through `mask_tile_to_dfb` (`ttnn/cpp/ttnn/kernel/compute/moreh_common.hpp`), which writes 0 into masked lanes, and is then fed to `reduce<PoolType::MAX>`. The softmin branch of the same function already uses\n`mask_posinf_tile_to_dfb` for its `MIN` reduce, and the comment on that helper describes exactly this failure mode for MIN. The MAX branch never got the symmetric fix.\n\n### Minimal reproduction\n\n```python\nimport torch, ttnn\nfrom tests.ttnn.unit_tests.operations.test_utils import create_ttnn_tilized_tensor\n\nx = (torch.full((1, 1, 32, 74), -1e4) - torch.rand(1, 1, 32, 74)).to(torch.bfloat16)\ny = ttnn.moreh_softmax(create_ttnn_tilized_tensor(x, device, ttnn.bfloat16), 3)\nprint(ttnn.to_torch(y)[0, 0, 0, :4]) # tensor([0., 0., 0., 0.]) expected ~0.0135\ny = ttnn.moreh_logsoftmax(create_ttnn_tilized_tensor(x, device, ttnn.bfloat16), 3)\nprint(ttnn.to_torch(y)[0, 0, 0, :4]) # tensor([inf, inf, inf, inf]) expected ~-4.3\n```\n\nReproduced on ttsim 1.16.0 (Wormhole n150 and Quasar) at `main` `37178622`.\n\n### Proposed fix\n\nAdd `mask_neginf_tile_to_dfb` to `moreh_common.hpp`. There is no -inf mask LLK, so it negates, masks to +inf with the existing `MaskPosInf`, and negates back: real lanes are unchanged and padded lanes become -inf. This is the same trick the `MINUS_INF` path of the moreh_norm `ord_other` kernels uses. Use it in the ten `mask_tile_to_dfb` calls of the four MAX paths.\nThe exp-sum masks keep masking to 0, which is correct there.\n\n### What success looks like\n\n- New test `tests/ttnn/unit_tests/operations/moreh/test_moreh_softmax_negative_rows.py`: softmax and logsoftmax, all four factories, rows at -1e4 and -200, plus aligned controls.\n  Fails 16/20 before, passes 20/20 after (ttsim Wormhole).\n- Existing `test_moreh_softmax.py` (52) and nightly softmax / logsoftmax / softmin / ulp suites (569 passed, 48 skipped) still pass on ttsim Wormhole.\n\nRelated but independent: https://github.com/tenstorrent/tt-metal/pull/63746 adds validation of the preallocated output for the same ops; it does not touch the kernels or the max-shift mask.\n\nBranch with the fix and the regression test: https://github.com/Melchyore/tt-metal/compare/main...fix/moreh-softmax-neginf-max-shift",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 64933,
     "title": "[Bounty proposal] Fix ttnn.upsample BLOCK_SHARDED + COL_MAJOR core-coord swap, stick_nbytes divisor, and config shard orientation (re-enables #17795 tests)",
     "url": "https://github.com/tenstorrent/tt-metal/issues/64933",
     "state": "open",
     "labels": [],
     "comment_count": 4,
-    "open_pr_count": 1,
+    "open_pr_count": 2,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-09T04:01:51Z",
     "updated_at": "2026-11-13T17:01:14Z",
@@ -482,12 +510,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 45,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 77,
-        "freshness": 98
+        "competition": 62,
+        "freshness": 97
       }
     }
   },
@@ -2232,7 +2260,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2849,7 +2877,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 81,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3403,7 +3431,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 79,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -3437,7 +3465,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 67,
-        "freshness": 69
+        "freshness": 68
       }
     }
   },
