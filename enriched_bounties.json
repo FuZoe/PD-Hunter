@@ -576,34 +576,6 @@
     }
   },
   {
-    "number": 65680,
-    "title": "[Bounty Proposal] Fix 8 correctness, L1 OOB corruption, NOC alignment, Quasar DataflowBuffer drain deadlocks, and device-hang defects in TTNN MoE Routing (moe_routing_remap, moe_expert_token_remap, topk_router_gpt) and Gated Delta Attention",
-    "url": "https://github.com/tenstorrent/tt-metal/issues/65680",
-    "state": "open",
-    "labels": [],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tenstorrent/tt-metal",
-    "created_at": "2026-11-15T11:06:23Z",
-    "updated_at": "2026-11-17T01:02:14Z",
-    "author": "U-ITACHII",
-    "body": "## Summary & Impact\n\n`ttnn::moe_routing_remap` (`ttnn/cpp/ttnn/operations/data_movement/moe_routing_remap/`), `ttnn::moe_expert_token_remap` (`ttnn/cpp/ttnn/operations/data_movement/moe_expert_token_remap/`), `ttnn::experimental::topk_router_gpt` (`ttnn/cpp/ttnn/operations/experimental/topk_router_gpt/`), `ttnn::transformer::gated_delta_attn` (`ttnn/cpp/ttnn/operations/transformer/gated_delta_attn/`), and `ttnn::transformer::fused_recurrent_gated_delta_rule` (`ttnn/cpp/ttnn/operations/transformer/fused_recurrent_gated_delta_rule/`) form the core Mixture-of-Experts (MoE) routing/remapping and Gated Delta Rule linear attention paths in TTNN, and several were recently migrated to the Metal 2.0 `ProgramDescriptor` / `DataflowBuffer` API.\n\nHowever, **8 coupled defects** across their host program factories, validators, RISC-V dataflow kernels, and Tensix compute kernels cause **silent misclassification of IEEE-754 `-0.0` expert weights**, **up to 256 KB out-of-bounds L1 memory corruption**, **100% deterministic `~DataflowBuffer() -> finish_impl()` drain deadlocks on Quasar**, **unaligned 8-byte NOC `async_write` source addresses**, **wrong unpacker `reduce_uninit` CB restoration and missing `pack_init` retargeting**, and **permanent device hangs**:\n\n| # | Component | Defect | Impact |\n|---|---|---|---|\n| **1** | `moe_routing_remap` (`reader_moe_routing_remap.cpp:23, 46, 50-62`) | Casts `BFLOAT16`/`FLOAT32` routing weights to unsigned integer (`uint16_t`/`uint32_t`) and checks `if (val != 0)`. In IEEE-754, negative zero (`-0.0bf16 = 0x8000`, `-0.0f = 0x80000000`) has a non-zero bit pattern (`0x8000 != 0`) | **Silent MoE routing corruption**: `-0.0` inactive expert weights are misclassified as active non-zero experts, stealing `num_non_zero_per_device` slots, shifting `weight_offset_count` across cluster devices, and dropping real active experts |\n| **2** | `moe_routing_remap` (`reader_moe_routing_remap.cpp:49-64`, `writer_moe_routing_remap.cpp:36-64`) | (a) When a row has fewer than `non_zero_weight_size` non-zero weights (e.g., dropped tokens / zeroed gates), `local_weight_idx_ptr[device_weights_count .. num_non_zero_per_device - 1]` remains uninitialized in L1 (`c_1`), and `writer_moe_routing_remap.cpp:49-53` unconditionally loops `num_non_zero_per_device` times calling `tt_memmove` with uninitialized `uint16_t` indices; (b) `writer_moe_routing_remap.cpp` exits without calling `pop_front(1)` on `routing_weights_dfb`, `local_weights_idxs_dfb`, or `local_weights_dfb` | **Up to `65535 * datum_size` (128 KB–256 KB) out-of-bounds L1 memory corruption** and **100% deterministic `~DataflowBuffer() -> finish_impl()` drain deadlock on Quasar** |\n| **3** | `moe_expert_token_remap` (`moe_expert_token_remap_program_factory.cpp:49-50, 121-145`, `writer_moe_expert_token_remap.cpp:46, 110`, `moe_expert_token_remap_device_operation.cpp:15-105`) | (a) Unlike `c_0..c_3`, CBs `c_4` (`output_mapping_cb_id`) and `c_5` (`output_reduced_cb_id`) set `.total_size` and `.page_size` to raw unaligned `experts_per_device * 2` bytes; when `experts_per_device % 8 != 0` (e.g. 16 experts across 4 devices -> `4 * 2 = 8` bytes), `c_5` is placed at an 8-byte-aligned L1 address and `writer_moe_expert_token_remap.cpp` issues `noc.async_write` from non-16B-aligned L1 addresses; (b) `validate_on_program_cache_miss` never checks `experts % num_devices == 0`, `metadata_shape[2] == topk_shape[2]`, or preallocated output shapes/layouts | **Unaligned 8-byte NOC `async_write` L1 source address violation** and **silent integer truncation / OOB reads on mismatched shapes** |\n| **4** | `topk_router_gpt` (`topk_router_gpt_program_factory.cpp:91-106, 535, 563`) | `create_descriptor` allocates CBs/semaphores and launches `{DM0, DM1, COMPUTE}` on `all_cores` (`num_cores` DRAM bank worker cores) at line 535, but only populates runtime args for `required_cores` (`8` or `12`) cores at line 563 | **100% deterministic device hang** whenever `num_cores > required_cores` (extra cores run with zeroed runtime args `is_sender = 0`, enter the worker path, and block forever on `dfb_partial_recv.wait_front(num_senders)` and `partial_sem.wait(num_senders)`), or host `std::vector` OOB read if `num_cores < required_cores` |\n| **5** | `topk_router_gpt` (`compute.cpp:118-314`, `dm1.cpp:113-324`, `topk_router_gpt_device_operation.cpp:26`) | (a) `compute.cpp:252, 287` calls `reduce_uninit(dfb::reduce_scalar)` passing the **output** DFB (`ocb`) instead of the **input** DFB (`icb = dfb::softmax_tmp`) required by `reduce_uninit(std::uint32_t icb)`; (b) `compute.cpp` switches pack targets across 7 DFBs (`local_out`, `topk_val`, `intermed_val`, `intermed_ind`, `softmax_tmp`, `reduce_scalar`, `final_out`) without `#ifdef ARCH_QUASAR pack_init(...); #endif`; (c) `dm1.cpp:207, 236, 247, 268` reads and pops `dfb_index` without calling `dfb_index.wait_front(1)`, and calls `get_write_ptr()` on `dfb_partial_recv`, `dfb_gathered_val`, and `dfb_gathered_ind` before `reserve_back`; (d) `hidden_dim == 0` passes `hidden_dim % 32 == 0` validation | **Wrong unpacker state after `reduce_uninit`, pack target misrouting on Quasar (`#58488`), unbalanced DFB lifecycle on `dfb_index`, and invalid zero-dimension launch** |\n| **6** | `gated_delta_attn` (`gated_delta_attn_device_operation.cpp:15-74`, `writer_gated_delta_attn.cpp:41-69`, `compute/gated_delta_attn.cpp:105-204`) | `validate_on_program_cache_miss` never validates `BH = shape[0] >= 1` or `NC = shape[1] >= 1`. When `NC == 0`, `reader` pushes 16 `state_tiles` to `dfb_S0` and exits, `compute` pops `dfb_S0` and exits without pushing to `dfb_final_state`, and `writer_gated_delta_attn.cpp:58` (`dfb_final_state_o.wait_front(state_tiles)`) blocks forever | **Permanent device hang on `NC == 0`** and invalid empty `CoreRangeSet` on `BH == 0` |\n| **7** | `gated_delta_attn` (`gated_delta_attn_program_factory.cpp:318-323`, `gated_delta_attn_device_operation.cpp:15-74`) | (a) `GatedDeltaAttnSeqProgramFactory::create_program_artifacts` completely ignores `attrs.compute_kernel_config` (which is exposed in the public API and hashed in `operation_attributes_t`) and hardcodes `MathFidelity::HiFi2` and `fp32_dest_acc_en = true`; (b) `validate_tensor` checks `BufferType::DRAM` and `Layout::TILE` but omits `!t.is_sharded()`, cross-device check `t.device() == in.L_unit.device()`, and `attrs.output_mem_config` validation | **User-supplied `compute_kernel_config` (`HiFi4`/`LoFi`/`fp32_dest_acc_en`) is silently dropped** and sharded/cross-device tensors bypass validation |\n| **8** | `fused_recurrent_gated_delta_rule` (`compute/fused_recurrent_gated_delta_rule.cpp:180-226`) | In `for (uint32_t t = 0; t < T; ++t)`, each step pushes `kv` (`16`) updated state tiles into `nxt_S` (`cb_s2` or `cb_s3`) and leaves them unpopped for iteration `t + 1` to pop as `cur_S`. On the final token (`t == T - 1`), `nxt_S` is waited on and read by `mm(cb_q, nxt_S_id, cb_out, ...)` at lines 214–215 but is **never popped** before `kernel_main()` exits | **16 tiles stranded in `cb_s2`/`cb_s3` at kernel exit** and **100% deterministic `~DataflowBuffer() -> finish_impl()` drain deadlock on Quasar** |\n\n---\n\n## Detailed Root-Cause Analysis\n\n### 1. IEEE-754 `-0.0` Bit-Pattern Misclassification in `moe_routing_remap` (`reader_moe_routing_remap.cpp:23, 46, 50-62`)\n\nIn `ttnn/cpp/ttnn/operations/data_movement/moe_routing_remap/device/kernels/dataflow/reader_moe_routing_remap.cpp:23, 46, 50-62`, the reader kernel inspects floating-point routing weights (`BFLOAT16` or `FLOAT32`) by reinterpreting L1 memory as unsigned integers (`ByteSizeAddressType<weight_datum_size_bytes>::type`, i.e., `uint16_t` for 2-byte `bfloat16` or `uint32_t` for 4-byte `float32`):\n\n```cpp\nusing data_addr_type = ByteSizeAddressType<weight_datum_size_bytes>::type;\n...\nauto* routing_weights_ptr = reinterpret_cast<volatile tt_l1_ptr data_addr_type*>(routing_weights_l1_base_addr);\nuint32_t weight_offset_count = 0;\nuint32_t device_weights_count = 0;\nfor (uint32_t i = 0; i < total_Experts; ++i) {\n    data_addr_type val = routing_weights_ptr[i];\n    if (val != 0) {\n        if (weight_offset_count >= start_non_zero_weight_idx &&\n            device_weights_count < num_non_zero_per_device) {\n            device_weights_count++;\n            *(local_weight_idx_ptr++) = i;\n        }\n        weight_offset_count++;\n    }\n}\n```\n\nIn IEEE-754 floating point, negative zero (`-0.0`) has sign bit `1` and all exponent/mantissa bits `0`:\n- `bfloat16(-0.0)` = `0x8000` (`val != 0` is `true`)\n- `float32(-0.0)` = `0x80000000` (`val != 0` is `true`)\n\nWhenever an upstream gating, masking, or multiplication op produces `-0.0` for an unselected expert, `val != 0` evaluates to `true`. `reader_moe_routing_remap` records the `-0.0` expert index as an active non-zero expert, increments `weight_offset_count` and `device_weights_count`, and once `device_weights_count == num_non_zero_per_device`, **drops subsequent genuine non-zero experts** in the row (and shifts the partition boundary `weight_offset_count` for all downstream devices in the cluster).\n\n---\n\n### 2. Uninitialized L1 Index OOB `tt_memmove` & Unpopped `DataflowBuffer` Drain Deadlock in `moe_routing_remap` (`writer_moe_routing_remap.cpp:36-64`)\n\nIn `ttnn/cpp/ttnn/operations/data_movement/moe_routing_remap/device/kernels/dataflow/writer_moe_routing_remap.cpp:36-64`:\n\n```cpp\nlocal_weights_dfb.reserve_back(1);\nuint32_t local_weights_l1_addr = local_weights_dfb.get_write_ptr();\n...\nlocal_weights_dfb.push_back(1);\n\nrouting_weights_dfb.wait_front(1);\nuint32_t routing_weights_l1_addr = routing_weights_dfb.get_read_ptr();\n\nlocal_weights_idxs_dfb.wait_front(1);\nuint32_t local_weights_idxs_l1_addr = local_weights_idxs_dfb.get_read_ptr();\nauto* local_weights_idxs_ptr = reinterpret_cast<volatile tt_l1_ptr idx_addr_type*>(local_weights_idxs_l1_addr);\n\nfor (uint32_t i = 0; i < num_non_zero_per_device; ++i) {\n    tt_memmove<false, true, false, weight_datum_size_bytes>(\n        local_weights_l1_addr + local_weights_idxs_ptr[i] * weight_datum_size_bytes,\n        routing_weights_l1_addr + local_weights_idxs_ptr[i] * weight_datum_size_bytes,\n        weight_datum_size_bytes);\n}\n```\n\nTwo bugs occur here:\n1. **Out-of-bounds L1 corruption**: If the input routing weights contain fewer than `non_zero_weight_size` non-zero values (e.g., when tokens are dropped or router weights are zeroed), `reader_moe_routing_remap.cpp` writes only `device_weights_count < num_non_zero_per_device` entries into `local_weight_idx_ptr`. The remaining slots `local_weights_idxs_ptr[device_weights_count .. num_non_zero_per_device - 1]` contain uninitialized L1 garbage (`uint16_t` up to `65535`). The writer then executes `tt_memmove` to `local_weights_l1_addr + local_weights_idxs_ptr[i] * weight_datum_size_bytes`, corrupting arbitrary L1 memory up to **128 KB (`bfloat16`) or 256 KB (`float32`) past `local_weights_dfb`**.\n2. **Unpopped `DataflowBuffer` drain deadlock on Quasar**: `writer_moe_routing_remap.cpp` never calls `pop_front(1)` on `routing_weights_dfb`, `local_weights_idxs_dfb`, or `local_weights_dfb`. On Quasar, `DataflowBuffer::~DataflowBuffer()` invokes `finish_impl()`, which blocks waiting for the consumer to pop all pushed entries — causing a **100% deterministic kernel exit deadlock**.\n\n---\n\n### 3. Unaligned L1 CB Allocation (`c_4`, `c_5`) & Unaligned NOC `async_write` in `moe_expert_token_remap` (`moe_expert_token_remap_program_factory.cpp:49-50, 121-145`)\n\nIn `ttnn/cpp/ttnn/operations/data_movement/moe_expert_token_remap/device/moe_expert_token_remap_program_factory.cpp:49-50, 121-145`:\n- `c_0..c_3` explicitly align their page sizes to `l1_alignment` (`16` bytes) via `tt::align(..., l1_alignment)`.\n- However, `c_4` (`output_mapping_cb_id`) and `c_5` (`output_reduced_cb_id`) set `.total_size` and `.page_size` to raw unaligned `output_mapping_page_size_bytes = experts_per_device * mapping_datum_size_bytes` and `output_reduced_page_size_bytes = experts_per_device * 2`.\n- Whenever `experts_per_device * 2` is not a multiple of `16` bytes (for example, `16` total experts across `4` devices -> `experts_per_device = 4` -> `8` bytes per page, or `8` experts across `2` devices), `c_5` is allocated immediately after `c_4` at a **non-16-byte-aligned L1 address** (`addr % 16 == 8`), and `writer_moe_expert_token_remap.cpp:110`:\n  ```cpp\n  noc.async_write(\n      CoreLocalMem<uint32_t>(reduced_l1_addr),\n      output_reduced_tensor_Dram,\n      output_reduced_page_size_bytes,\n      {},\n      {.page_id = r});\n  ```\n  issues a NOC `async_write` from an 8-byte-aligned L1 source address `reduced_l1_addr`, violating the 16-byte NOC L1 alignment requirement.\n- Additionally, `MoEExpertTokenRemapDeviceOperation::validate_on_program_cache_miss` (`moe_expert_token_remap_device_operation.cpp:15-78`) never validates:\n  - `experts % num_devices == 0` (silently truncating `num_local_experts = experts / num_devices` in `compute_output_specs`),\n  - `metadata_shape[2] == topk_shape[2]`, or\n  - the shape, dtype, layout, and buffer type of `optional_output_mapping_tensor` and `optional_output_reduced_tensor`.\n\n---\n\n### 4. Unconfigured Extra DRAM Worker Cores Hang Device in `topk_router_gpt` (`topk_router_gpt_program_factory.cpp:91-106, 535, 563`)\n\nIn `ttnn/cpp/ttnn/operations/experimental/topk_router_gpt/device/topk_router_gpt_program_factory.cpp:91-106`:\n\n```cpp\nstd::vector<CoreCoord> dram_bank2core_coords =\n    device->get_optimal_dram_bank_to_logical_worker_assignment(tt::tt_metal::NOC::RISCV_0_default);\nconst uint32_t num_cores = static_cast<uint32_t>(dram_bank2core_coords.size());\nconst uint32_t required_cores = (num_cores == 8) ? 8 : 12;\nconst CoreRangeSet all_cores(dram_bank2core_coords);\n```\n\nAt line 535, `create_descriptor` creates `{DM0, DM1, COMPUTE}` on **`all_cores`** (`num_cores` cores), but at line 563 it only sets runtime arguments for `required_cores` (`8` or `12`) cores:\n\n```cpp\nfor (uint32_t ring_pos = 0; ring_pos < required_cores; ring_pos++) { ... }\n```\n\nOn any device/harvesting configuration where `num_cores > required_cores` (e.g., 9–11 DRAM banks or custom core grids), the remaining `num_cores - required_cores` cores execute `dm0.cpp`, `dm1.cpp`, and `compute.cpp` with default zero runtime arguments (`is_sender = 0, is_worker = 0, is_collector = 0`). In both `compute.cpp:111-127` and `dm1.cpp:115-196`, those unconfigured cores take the `!is_sender` branch and block forever on `dfb_partial_recv.wait_front(num_senders)` and `partial_sem.wait(num_senders)`, **hanging the device**.\n\n---\n\n### 5. Wrong CB ID in `reduce_uninit`, Missing `pack_init` on Quasar, Unbalanced `dfb_index` Pop, and `hidden_dim == 0` in `topk_router_gpt`\n\n1. **Wrong CB passed to `reduce_uninit` (`compute.cpp:252, 287`)**:\n   `reduce_uninit(std::uint32_t icb)` in `tt_metal/hw/inc/api/compute/reduce.h:102` takes the **input** CB (`icb`) to restore unpacker configuration. `topk_router_gpt/device/kernels/compute.cpp:252` and `:287` pass the **output** DFB `dfb::reduce_scalar` instead of `dfb::softmax_tmp`.\n2. **Missing `#ifdef ARCH_QUASAR pack_init(...); #endif` when switching pack targets (`compute.cpp:118-314`)**:\n   `compute.cpp` packs into 7 distinct DFBs (`dfb::local_out`, `dfb::topk_val`, `dfb::intermed_val`, `dfb::intermed_ind`, `dfb::softmax_tmp`, `dfb::reduce_scalar`, `dfb::final_out`) without re-targeting the packer via `pack_init`, causing all packed tiles after startup to route to the initial DFB on Quasar (`#58488`).\n3. **Missing `dfb_index.wait_front(1)` and unreserved `get_write_ptr()` in `dm1.cpp`**:\n   `dm1.cpp:207, 236, 247, 268` calls `dfb_index.get_read_ptr()` and `dfb_index.pop_front(1)` without ever calling `dfb_index.wait_front(1)` after `dfb_index.push_back(1)` at line 155, leaving the DFB read pointer / consumer state unbalanced. Additionally, `dm1.cpp:113, 210, 219` calls `get_write_ptr()` on `dfb_partial_recv`, `dfb_gathered_val`, and `dfb_gathered_ind` without `reserve_back`.\n4. **`hidden_dim == 0` passes validation (`topk_router_gpt_device_operation.cpp:26`)**:\n   `TT_FATAL(hidden_dim % 32 == 0, ...)` evaluates `0 % 32 == 0` as `true` without checking `hidden_dim > 0`.\n\n---\n\n### 6. Permanent Device Hang on `NC == 0` (`num_chunks == 0`) & Empty `CoreRangeSet` on `BH == 0` in `gated_delta_attn`\n\nIn `ttnn/cpp/ttnn/operations/transformer/gated_delta_attn/device/gated_delta_attn_device_operation.cpp:36-74`:\n- `validate_on_program_cache_miss` validates `shape[2] == CS` and `shape[3] == D` (`128`), but never validates `BH = shape[0] >= 1` or `NC = shape[1] >= 1`.\n- When `NC == 0`:\n  1. `reader_gated_delta_attn.cpp:146-157` reads the initial state (`16` tiles), calls `dfb_S0_o.push_back(state_tiles)`, skips the `for (uint32_t c = 0; c < NC; ++c)` loop, and exits.\n  2. `compute/gated_delta_attn.cpp:106-204` calls `dfb_S0_i.wait_front(state_tiles)`, skips the `c < NC` loop (inside which `dfb_final_state_o.push_back(state_tiles)` is gated on `if (c == NC - 1)` at line 183), pops `dfb_S0_i`, and exits **without pushing anything to `dfb_final_state`**.\n  3. `writer_gated_delta_attn.cpp:58` unconditionally executes `dfb_final_state_o.wait_front(state_tiles)` after the `c < NC` loop and **hangs the device forever**.\n\n---\n\n### 7. Ignored `compute_kernel_config` & Missing Sharding/Device Checks in `gated_delta_attn` (`gated_delta_attn_program_factory.cpp:318-323`)\n\n1. `gated_delta_attn_seq` accepts `std::optional<DeviceComputeKernelConfig> compute_kernel_config` and stores it in `operation_attributes_t` (where it affects the program cache key), but `GatedDeltaAttnSeqProgramFactory::create_program_artifacts` (`gated_delta_attn_program_factory.cpp:318-323`) completely ignores `attrs.compute_kernel_config` and hardcodes:\n   ```cpp\n   ComputeConfig{\n       .math_fidelity = tt::tt_metal::MathFidelity::HiFi2,\n       .fp32_dest_acc_en = true,\n       .math_approx_mode = false,\n       .compile_args = compute_ct_args,\n   }\n   ```\n2. `validate_tensor` in `gated_delta_attn_device_operation.cpp:15-26` checks `BufferType::DRAM` and `Layout::TILE` but never checks `!t.is_sharded()`, `t.device() == in.L_unit.device()`, or that `attrs.output_mem_config` is `INTERLEAVED` `DRAM`.\n\n---\n\n### 8. Unpopped `nxt_S` (`cb_s2` / `cb_s3`) on Final Token Step `t == T - 1` in `fused_recurrent_gated_delta_rule` (`compute/fused_recurrent_gated_delta_rule.cpp:180-226`)\n\nIn `ttnn/cpp/ttnn/operations/transformer/fused_recurrent_gated_delta_rule/device/kernels/compute/fused_recurrent_gated_delta_rule.cpp:180-226`:\n\n```cpp\nfor (uint32_t t = 0; t < T; ++t) {\n    ...\n    uint32_t cur_S_id = (t == 0) ? cb_s : ((t & 1) ? cb_s2 : cb_s3);\n    uint32_t nxt_S_id = (t & 1) ? cb_s3 : cb_s2;\n    auto& cur_S = (t == 0) ? dfb_s : ((t & 1) ? dfb_s2 : dfb_s3);\n    auto& nxt_S = (t & 1) ? dfb_s3 : dfb_s2;\n    ...\n    cur_S.pop_front(kv);\n\n    // 5. S_new = S_dec + d_upd -> nxt_S\n    add_tiles_bcast_SC(cb_s_dec, cb_d_upd, nxt_S_id, k_tiles, v_tiles);\n    // add_tiles_bcast_SC reserves and pushes kv (16) tiles into nxt_S\n\n    // 6. o_t = q_t @ S_new -> cb_out\n    nxt_S.wait_front(kv);\n    mm(cb_q, nxt_S_id, cb_out, 1, k_tiles, v_tiles);\n    dfb_q.pop_front(k_tiles);\n}\n```\n\nIn each token step `t`, `add_tiles_bcast_SC` reserves and pushes `kv` (`16`) tiles into `nxt_S`, and step 6 calls `nxt_S.wait_front(kv)` without popping it so that step `t + 1` can consume `nxt_S` as `cur_S` and pop it at line 209. However, on the **final token step (`t == T - 1`)**, no `t + 1` iteration runs, and `kernel_main()` exits without ever calling `nxt_S.pop_front(kv)`. On Quasar, `~DataflowBuffer() -> finish_impl()` on `dfb_s2` / `dfb_s3` blocks forever waiting for those `16` tiles to be popped.\n\n---\n\n## Reproduction\n\n```python\nimport pytest\nimport torch\nimport ttnn\n\n\ndef test_moe_routing_remap_negative_zero_and_partial_nonzero(device):\n    # 1. IEEE-754 -0.0bf16 (0x8000) in unselected expert slot\n    # Row has 16 experts, 2 active experts (indices 3 and 11), and -0.0 at index 0.\n    weights = torch.zeros((1, 1, 1, 16), dtype=torch.bfloat16)\n    weights[0, 0, 0, 0] = -0.0  # 0x8000 in bfloat16 — previously misclassified as non-zero!\n    weights[0, 0, 0, 3] = 0.625\n    weights[0, 0, 0, 11] = 0.375\n\n    tt_weights = ttnn.from_torch(weights, device=device, dtype=ttnn.bfloat16, layout=ttnn.ROW_MAJOR_LAYOUT)\n    tt_out = ttnn.moe_routing_remap(tt_weights, non_zero_weight_size=2, expert_parallel_size=1, cluster_axis=0)\n    out = ttnn.to_torch(tt_out)\n\n    # Expected: both active experts (3 and 11) preserved; index 0 is 0.0\n    assert out[0, 0, 0, 3].item() == pytest.approx(0.625, rel=1e-2)\n    assert out[0, 0, 0, 11].item() == pytest.approx(0.375, rel=1e-2)\n```\n\n---\n\n## Proposed C++ & Kernel Remediation Patch\n\nThe complete, self-contained fix across all 12 affected C++ host and RISC-V/Tensix kernel files is prepared and pushed to fork commit [U-ITACHII/tt-metal@319ff35](https://github.com/U-ITACHII/tt-metal/commit/319ff35a7b5cfc2d5460d6c010ae94c36179d57e) (branch [U-ITACHII:fix/moe-routing-remap-and-gated-delta-defects](https://github.com/U-ITACHII/tt-metal/tree/fix/moe-routing-remap-and-gated-delta-defects)):\n\n1. **`moe_routing_remap` (`reader_moe_routing_remap.cpp`, `writer_moe_routing_remap.cpp`)**:\n   - Mask out the IEEE-754 sign bit (`val & 0x7FFFu` for 2-byte `bfloat16`, `val & 0x7FFFFFFFu` for 4-byte `float32`) when testing for non-zero routing weights.\n   - Initialize unfilled slots in `local_weight_idx_ptr[device_weights_count .. num_non_zero_per_device - 1]` to a sentinel `0xFFFF` and guard `if (idx < total_Experts)` in `writer_moe_routing_remap.cpp` before `tt_memmove`.\n   - Call `pop_front(1)` on `routing_weights_dfb`, `local_weights_idxs_dfb`, and `local_weights_dfb` before exiting `writer_moe_routing_remap.cpp`.\n2. **`moe_expert_token_remap` (`moe_expert_token_remap_program_factory.cpp`, `writer_moe_expert_token_remap.cpp`, `moe_expert_token_remap_device_operation.cpp`)**:\n   - Align `c_4` (`output_mapping_cb_id`) and `c_5` (`output_reduced_cb_id`) CB page sizes to `l1_alignment` (`16` bytes) while writing logical `output_mapping_page_size_bytes` / `output_reduced_page_size_bytes` to DRAM.\n   - Add `TT_FATAL` checks in `validate_on_program_cache_miss` for `experts % num_devices == 0`, `metadata_shape[2] == topk_shape[2]`, and optional output tensors.\n3. **`topk_router_gpt` (`topk_router_gpt_program_factory.cpp`, `topk_router_gpt_device_operation.cpp`, `compute.cpp`, `dm1.cpp`)**:\n   - Validate `num_cores >= required_cores` and `hidden_dim > 0`, and restrict kernel/CB/semaphore creation to the `required_cores` active worker cores.\n   - Fix `reduce_uninit(dfb::softmax_tmp)` in `compute.cpp:252, 287`, add `dfb_index.wait_front(1)` in `dm1.cpp`, and add `#ifdef ARCH_QUASAR pack_init(...); #endif` on pack target switches.\n4. **`gated_delta_attn` & `fused_recurrent_gated_delta_rule`**:\n   - Validate `BH >= 1 && NC >= 1`, `!t.is_sharded()`, `t.device() == in.L_unit.device()`, and `attrs.output_mem_config` in `gated_delta_attn_device_operation.cpp`, and wire `attrs.compute_kernel_config` via `init_device_compute_kernel_config` in `gated_delta_attn_program_factory.cpp`.\n   - Call `nxt_S.pop_front(kv)` on the final iteration (`t == T - 1`) in `fused_recurrent_gated_delta_rule.cpp:215`.\n\nHappy to open the PR from U-ITACHII:fix/moe-routing-remap-and-gated-delta-defects as soon as a maintainer reviews/assigns!",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
-        "freshness": 99
-      }
-    }
-  },
-  {
     "number": 163,
     "title": "Remove `disableAutoFocus` in favor of `focusOnHover={false}`",
     "url": "https://github.com/tscircuit/pcb-viewer/issues/163",
@@ -629,7 +601,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1118,6 +1090,99 @@
     }
   },
   {
+    "number": 679,
+    "title": "Security report: tari-universe app config files were world-readable, exposing the MCP bearer token, airdrop tokens and wallet view key to other local users (GHSA-3rc7-6cr6-8mx8)",
+    "url": "https://github.com/tari-project/special_contributions/issues/679",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-19T14:30:06Z",
+    "updated_at": "2026-11-19T14:32:18Z",
+    "author": "brianp",
+    "body": "Retro bounty for @Char0n1507 for reporting a security vulnerability in `tari-universe` through GitHub Security Advisories: [GHSA-3rc7-6cr6-8mx8](https://github.com/tari-project/universe/security/advisories/GHSA-3rc7-6cr6-8mx8).\n\nThe report showed that every app config file was written 0644 under a world-traversable directory, so on a shared machine another local user could read the MCP bearer token, airdrop tokens and the wallet view key, and reach the MCP control plane with them. The reporter did not touch any shared network.\n\nThe fix was implemented separately by the Tari team in tari-project/universe#3473, which creates config files owner-only and tightens existing installs on startup, and shipped in v1.6.21. **No code work is required here.**\n\n## Done when\n\n@Char0n1507 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #679` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #679`, naming this issue\n- [ ] It is opened by @Char0n1507, the credited reporter\n- [ ] It changes only `YYYY/MM/Char0n1507_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 83,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 677,
+    "title": "Contribution: fix(state_store_rocksdb): keep a substate's head at its highest version in any transition order (tari-project/tari-ootle#3820)",
+    "url": "https://github.com/tari-project/special_contributions/issues/677",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-19T12:24:21Z",
+    "updated_at": "2026-11-19T12:24:22Z",
+    "author": "sdbondi",
+    "body": "Bounty for @kah-ja for contributing [tari-project/tari-ootle#3820](https://github.com/tari-project/tari-ootle/pull/3820): fix(state_store_rocksdb): keep a substate's head at its highest version in any transition order.\n\n**No further code work is required here.**\n\n## Done when\n\n@kah-ja opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #677` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #677`, naming this issue\n- [ ] It is opened by @kah-ja, the author of tari-project/tari-ootle#3820\n- [ ] It changes only `YYYY/MM/kah-ja_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 676,
+    "title": "Contribution: fix(wallet-storage): confirm on-chain unconfirmed outputs relocked for spend (tari-project/tari-ootle#3851)",
+    "url": "https://github.com/tari-project/special_contributions/issues/676",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-19T11:33:34Z",
+    "updated_at": "2026-11-19T11:33:34Z",
+    "author": "sdbondi",
+    "body": "Bounty for @cocvn157 for contributing [tari-project/tari-ootle#3851](https://github.com/tari-project/tari-ootle/pull/3851): fix(wallet-storage): confirm on-chain unconfirmed outputs relocked for spend.\n\n**No further code work is required here.**\n\n## Done when\n\n@cocvn157 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #676` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #676`, naming this issue\n- [ ] It is opened by @cocvn157, the author of tari-project/tari-ootle#3851\n- [ ] It changes only `YYYY/MM/cocvn157_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 670,
     "title": "Contribution: fix(engine): reject duplicate function names and colliding dispatch identifiers in TemplateDef (tari-project/tari-ootle#3841)",
     "url": "https://github.com/tari-project/special_contributions/issues/670",
@@ -1144,38 +1209,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 669,
-    "title": "Contribution: fix(wallet): resolve ValidatorFeePool token, unstored references, and versions in dependent substates (tari-project/tari-ootle#3634)",
-    "url": "https://github.com/tari-project/special_contributions/issues/669",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-18T08:06:18Z",
-    "updated_at": "2026-11-18T08:06:19Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3634](https://github.com/tari-project/tari-ootle/pull/3634): fix(wallet): resolve ValidatorFeePool token, unstored references, and versions in dependent substates.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #669` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #669`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3634\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1195,68 +1229,6 @@
     "updated_at": "2026-11-18T06:39:14Z",
     "author": "sdbondi",
     "body": "Bounty for @CHEFDALORIAN for contributing [tari-project/tari-ootle#3794](https://github.com/tari-project/tari-ootle/pull/3794): fix(consensus): pass HighPc height on pacemaker start and reset timers on view advance.\n\n**No further code work is required here.**\n\n## Done when\n\n@CHEFDALORIAN opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #668` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #668`, naming this issue\n- [ ] It is opened by @CHEFDALORIAN, the author of tari-project/tari-ootle#3794\n- [ ] It changes only `YYYY/MM/CHEFDALORIAN_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 661,
-    "title": "Contribution: fix(consensus): preserve Output lock on fee-pool withdrawals and defer versioned lock conflicts (tari-project/tari-ootle#3632)",
-    "url": "https://github.com/tari-project/special_contributions/issues/661",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-17T11:39:23Z",
-    "updated_at": "2026-11-17T11:39:24Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3632](https://github.com/tari-project/tari-ootle/pull/3632): fix(consensus): preserve Output lock on fee-pool withdrawals and defer versioned lock conflicts.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #661` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #661`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3632\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 660,
-    "title": "Contribution: fix(consensus): reject foreign proposals naming the local shard group (tari-project/tari-ootle#3779)",
-    "url": "https://github.com/tari-project/special_contributions/issues/660",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-17T10:31:08Z",
-    "updated_at": "2026-11-17T10:31:09Z",
-    "author": "sdbondi",
-    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3779](https://github.com/tari-project/tari-ootle/pull/3779): fix(consensus): reject foreign proposals naming the local shard group.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #660` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #660`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3779\n- [ ] It changes only `YYYY/MM/aswadi_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1304,502 +1276,6 @@
     }
   },
   {
-    "number": 653,
-    "title": "Contribution: fix(engine): reject guest exports carrying reserved __tari_global_ prefix (tari-project/tari-ootle#3702)",
-    "url": "https://github.com/tari-project/special_contributions/issues/653",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-16T12:01:40Z",
-    "updated_at": "2026-11-16T12:01:41Z",
-    "author": "sdbondi",
-    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3702](https://github.com/tari-project/tari-ootle/pull/3702): fix(engine): reject guest exports carrying reserved __tari_global_ prefix.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #653` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #653`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3702\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 652,
-    "title": "Contribution: fix(consensus): harden catch-up voting guards and fork batch pagination (tari-project/tari-ootle#3660)",
-    "url": "https://github.com/tari-project/special_contributions/issues/652",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-16T10:18:43Z",
-    "updated_at": "2026-11-17T07:33:11Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3660](https://github.com/tari-project/tari-ootle/pull/3660): fix(consensus): harden catch-up voting guards and fork batch pagination.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #652` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #652`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3660\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 651,
-    "title": "Contribution: fix(consensus): multishard dynamic-output abort evidence and fee-intent propagation (tari-project/tari-ootle#3662)",
-    "url": "https://github.com/tari-project/special_contributions/issues/651",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-16T09:20:53Z",
-    "updated_at": "2026-11-17T07:33:09Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3662](https://github.com/tari-project/tari-ootle/pull/3662): fix(consensus): multishard dynamic-output abort evidence and fee-intent propagation.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #651` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #651`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3662\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
-        "freshness": 99
-      }
-    }
-  },
-  {
-    "number": 644,
-    "title": "Contribution: fix(walletd): enforce account scopes in validator handlers and validate nft transfer list (tari-project/tari-ootle#3297)",
-    "url": "https://github.com/tari-project/special_contributions/issues/644",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T08:15:37Z",
-    "updated_at": "2026-11-13T08:15:38Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3297](https://github.com/tari-project/tari-ootle/pull/3297): fix(walletd): enforce account scopes in validator handlers and validate nft transfer list.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #644` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #644`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3297\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 643,
-    "title": "Contribution: fix(validator_node,app_utilities,swarm_daemon): harden identity keypair persistence and claim key settings (tari-project/tari-ootle#3565)",
-    "url": "https://github.com/tari-project/special_contributions/issues/643",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T07:48:53Z",
-    "updated_at": "2026-11-13T07:48:54Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3565](https://github.com/tari-project/tari-ootle/pull/3565): fix(validator_node,app_utilities,swarm_daemon): harden identity keypair persistence and claim key settings.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #643` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #643`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3565\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 641,
-    "title": "Contribution: fix(wallet_sdk): release pre-locked inputs on merged-fee fallback and declare required account substates (tari-project/tari-ootle#3296)",
-    "url": "https://github.com/tari-project/special_contributions/issues/641",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T07:07:40Z",
-    "updated_at": "2026-11-13T07:07:41Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3296](https://github.com/tari-project/tari-ootle/pull/3296): fix(wallet_sdk): release pre-locked inputs on merged-fee fallback and declare required account substates.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #641` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #641`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3296\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 639,
-    "title": "Contribution: fix(validator_node): bound get_committed_block_proof RPC by state_sync_reads and response budget (tari-project/tari-ootle#3668)",
-    "url": "https://github.com/tari-project/special_contributions/issues/639",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T06:38:17Z",
-    "updated_at": "2026-11-13T06:38:18Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3668](https://github.com/tari-project/tari-ootle/pull/3668): fix(validator_node): bound get_committed_block_proof RPC by state_sync_reads and response budget.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #639` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #639`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3668\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 636,
-    "title": "Contribution: fix(consensus): preserve view votes after quorum and enforce collectible vote window (tari-project/tari-ootle#3706)",
-    "url": "https://github.com/tari-project/special_contributions/issues/636",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T06:24:29Z",
-    "updated_at": "2026-11-13T06:24:30Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Burapa-J for contributing [tari-project/tari-ootle#3706](https://github.com/tari-project/tari-ootle/pull/3706): fix(consensus): preserve view votes after quorum and enforce collectible vote window.\n\n**No further code work is required here.**\n\n## Done when\n\n@Burapa-J opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #636` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #636`, naming this issue\n- [ ] It is opened by @Burapa-J, the author of tari-project/tari-ootle#3706\n- [ ] It changes only `YYYY/MM/Burapa-J_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 634,
-    "title": "Contribution: fix(indexer_lib): harden substate batch and template result validation (tari-project/tari-ootle#3456)",
-    "url": "https://github.com/tari-project/special_contributions/issues/634",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-13T05:35:22Z",
-    "updated_at": "2026-11-13T05:35:22Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3456](https://github.com/tari-project/tari-ootle/pull/3456): fix(indexer_lib): harden substate batch and template result validation.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #634` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #634`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3456\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 629,
-    "title": "Contribution: fix(state_store_rocksdb): account for full u64 SubstateVersion in VersionedSubstateIdRef encode_len (tari-project/tari-ootle#3750)",
-    "url": "https://github.com/tari-project/special_contributions/issues/629",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T12:56:34Z",
-    "updated_at": "2026-11-12T12:56:35Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3750](https://github.com/tari-project/tari-ootle/pull/3750): fix(state_store_rocksdb): account for full u64 SubstateVersion in VersionedSubstateIdRef encode_len.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #629` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #629`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3750\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 628,
-    "title": "Contribution: fix(ootle_sdk_core): settle main_signer before auth signing and deduplicate vault refs (tari-project/tari-ootle#3738)",
-    "url": "https://github.com/tari-project/special_contributions/issues/628",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T12:10:26Z",
-    "updated_at": "2026-11-12T12:10:27Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3738](https://github.com/tari-project/tari-ootle/pull/3738): fix(ootle_sdk_core): settle main_signer before auth signing and deduplicate vault refs.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #628` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #628`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3738\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 627,
-    "title": "Contribution: fix(epoch_manager): preserve assigned committee counts and sync activation state (tari-project/tari-ootle#3459)",
-    "url": "https://github.com/tari-project/special_contributions/issues/627",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T11:47:22Z",
-    "updated_at": "2026-11-12T11:47:23Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3459](https://github.com/tari-project/tari-ootle/pull/3459): fix(epoch_manager): preserve assigned committee counts and sync activation state.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #627` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #627`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3459\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 626,
-    "title": "Contribution: fix(state_store_rocksdb): pin pending state generation on first writer read (tari-project/tari-ootle#3734)",
-    "url": "https://github.com/tari-project/special_contributions/issues/626",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T10:43:44Z",
-    "updated_at": "2026-11-12T10:43:45Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3734](https://github.com/tari-project/tari-ootle/pull/3734): fix(state_store_rocksdb): pin pending state generation on first writer read.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #626` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #626`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3734\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 623,
-    "title": "Contribution: fix(consensus): preserve forced beats and guard pacemaker and view transitions (tari-project/tari-ootle#3727)",
-    "url": "https://github.com/tari-project/special_contributions/issues/623",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T09:57:44Z",
-    "updated_at": "2026-11-12T09:57:44Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3727](https://github.com/tari-project/tari-ootle/pull/3727): fix(consensus): preserve forced beats and guard pacemaker and view transitions.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #623` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #623`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3727\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 621,
-    "title": "Contribution: fix(walletd): harden session management auth, expiry reporting, and WebRTC delegation (tari-project/tari-ootle#3651)",
-    "url": "https://github.com/tari-project/special_contributions/issues/621",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T09:24:02Z",
-    "updated_at": "2026-11-12T09:24:03Z",
-    "author": "sdbondi",
-    "body": "Bounty for @Ninkuki for contributing [tari-project/tari-ootle#3651](https://github.com/tari-project/tari-ootle/pull/3651): fix(walletd): harden session management auth, expiry reporting, and WebRTC delegation.\n\n**No further code work is required here.**\n\n## Done when\n\n@Ninkuki opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #621` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #621`, naming this issue\n- [ ] It is opened by @Ninkuki, the author of tari-project/tari-ootle#3651\n- [ ] It changes only `YYYY/MM/Ninkuki_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 618,
-    "title": "Contribution: fix(transaction_validation,consensus): run validity window check before epoch range and resequence against block epoch (tari-project/tari-ootle#3667)",
-    "url": "https://github.com/tari-project/special_contributions/issues/618",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-12T08:02:30Z",
-    "updated_at": "2026-11-17T07:33:07Z",
-    "author": "sdbondi",
-    "body": "Bounty for @e5ash for contributing [tari-project/tari-ootle#3667](https://github.com/tari-project/tari-ootle/pull/3667): fix(transaction_validation,consensus): run validity window check before epoch range and resequence against block epoch.\n\n**No further code work is required here.**\n\n## Done when\n\n@e5ash opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #618` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #618`, naming this issue\n- [ ] It is opened by @e5ash, the author of tari-project/tari-ootle#3667\n- [ ] It changes only `YYYY/MM/e5ash_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
-        "freshness": 99
-      }
-    }
-  },
-  {
     "number": 596,
     "title": "Security report: tari-ootle ootle Engine Unmetered InstructionArg::Blob / Spend-Script Args & CBOR Nesting-Depth Bypass, and Consensus Aborted-Transaction Resequencing / Foreign LocalAccept Stage Divergence (GHSA-49cx-57x8-w632)",
     "url": "https://github.com/tari-project/special_contributions/issues/596",
@@ -1826,7 +1302,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -1888,7 +1364,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1976,12 +1452,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -2007,12 +1483,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -2038,12 +1514,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -2136,7 +1612,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
@@ -2167,7 +1643,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -2260,7 +1736,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2322,7 +1798,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -2415,7 +1891,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -2435,37 +1911,6 @@
     "updated_at": "2026-10-27T19:48:23Z",
     "author": "brianp",
     "body": "Retro bounty for @samrusani for reporting a security vulnerability in `tari-universe` through GitHub Security Advisories: [GHSA-pfr6-f88m-m42j](https://github.com/tari-project/universe/security/advisories/GHSA-pfr6-f88m-m42j).\n\nThe report showed that the generic config setter copied every raw setter value into the `config-update-field` telemetry event and the debug log, so saving airdrop tokens shipped the access and refresh tokens to the telemetry endpoint whenever telemetry was enabled. The reporter did not touch any shared network.\n\nThe fix was implemented separately by the Tari team in tari-project/universe#3352 and shipped in v1.6.18. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@samrusani opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #334` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #334`, naming this issue\n- [ ] It is opened by @samrusani, the credited reporter\n- [ ] It changes only `YYYY/MM/samrusani_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 49,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 89
-      }
-    }
-  },
-  {
-    "number": 332,
-    "title": "Security report: tari-universe wallet send had no confirmation gate when no PIN was set, reachable through the tapplet postMessage bridge, with a no-op isolation hook, permissive CSP and an unverified bridge tapplet download (GHSA-9mc8-c8cr-7m6h)",
-    "url": "https://github.com/tari-project/special_contributions/issues/332",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-M"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-10-27T19:48:15Z",
-    "updated_at": "2026-10-27T19:48:16Z",
-    "author": "brianp",
-    "body": "Retro bounty for @chironbuilds for reporting a security vulnerability in `tari-universe` through GitHub Security Advisories: [GHSA-9mc8-c8cr-7m6h](https://github.com/tari-project/universe/security/advisories/GHSA-9mc8-c8cr-7m6h).\n\nThe report showed that with no PIN configured the `send_one_sided_to_stealth_address` command signed and broadcast with no user confirmation, the tapplet postMessage bridge dispatched any signer method without validating the sender, the Tauri isolation hook was a no-op, the CSP allowed inline and eval'd script, and the bridge tapplet download skipped checksum validation. The reporter did not touch any shared network.\n\nThe fix was implemented separately by the Tari team in tari-project/universe#3355 (with tari-project/universe#3376 as a follow-up) and shipped in v1.6.18. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@chironbuilds opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #332` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #332`, naming this issue\n- [ ] It is opened by @chironbuilds, the credited reporter\n- [ ] It changes only `YYYY/MM/chironbuilds_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -2539,7 +1984,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 84
+        "freshness": 83
       }
     }
   },
@@ -2570,7 +2015,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -2627,12 +2072,43 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
         "freshness": 78
+      }
+    }
+  },
+  {
+    "number": 680,
+    "title": "Security report: tari-universe Monero seed PIN encryption used a single unsalted SHA-256 KDF, allowing offline brute force of the PIN keyspace (GHSA-gr4c-r43w-8pp9)",
+    "url": "https://github.com/tari-project/special_contributions/issues/680",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-L"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-19T14:30:10Z",
+    "updated_at": "2026-11-19T14:32:19Z",
+    "author": "brianp",
+    "body": "Retro bounty for @kiyeps for reporting a security vulnerability in `tari-universe` through GitHub Security Advisories: [GHSA-gr4c-r43w-8pp9](https://github.com/tari-project/universe/security/advisories/GHSA-gr4c-r43w-8pp9).\n\nThe report showed that the AES key protecting the Monero seed was a bare SHA-256 of the 4-6 digit PIN, so anyone holding the encrypted blob could brute-force the full keyspace offline in seconds, while the Tari seed already used Argon2. The reporter did not touch any shared network.\n\nThe fix was implemented separately by the Tari team in tari-project/universe#3464, which derives the key with salted Argon2id and re-encrypts existing blobs on the next PIN entry, and shipped in v1.6.21. **No code work is required here.**\n\n## Done when\n\n@kiyeps opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #680` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #680`, naming this issue\n- [ ] It is opened by @kiyeps, the credited reporter\n- [ ] It changes only `YYYY/MM/kiyeps_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 83,
+        "freshness": 100
       }
     }
   },
@@ -2725,7 +2201,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
@@ -2787,7 +2263,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2818,7 +2294,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2849,7 +2325,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2860,7 +2336,7 @@
     "state": "open",
     "labels": [],
     "comment_count": 0,
-    "open_pr_count": 3,
+    "open_pr_count": 4,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-07-23T01:23:06Z",
     "updated_at": "2026-07-23T01:46:31Z",
@@ -2871,12 +2347,12 @@
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 34,
+      "is_hidden_gem": false,
+      "bounty_score": 31,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 55,
+        "competition": 40,
         "freshness": 40
       }
     }
@@ -3035,7 +2511,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -3067,7 +2543,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 76
+        "freshness": 75
       }
     }
   },
@@ -3101,7 +2577,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 63
+        "freshness": 62
       }
     }
   },
@@ -3162,12 +2638,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 39,
+      "bounty_score": 38,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 36,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -3228,7 +2704,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 45,
+      "bounty_score": 44,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -3331,7 +2807,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 37,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -3430,7 +2906,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
