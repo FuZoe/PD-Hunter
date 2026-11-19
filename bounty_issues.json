@@ -1188,6 +1188,23 @@
     "body": "Retro bounty for @JustAResearcher for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-m493-gggq-hvvw](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-m493-gggq-hvvw).\n\nThe report showed that a foreign proposal's commit proof was verified against the proposer's committee rather than the committee of the shard group the proposal names, so a quorum of one shard group could sign for another. It included a code-path analysis, a reproduction plan for an isolated network and a suggested fix. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#2737. **No code work is required here.**\n\n## Done when\n\n@JustAResearcher opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #45` in the description and their XTM payout address on its own line.\n"
   },
   {
+    "number": 674,
+    "title": "Security report: tari-ootle sealer Can Mint Arbitrarily Many Distinct Valid TransactionIds and TransactionReceipts from a Single Co-Signature via Unbound Co-Signature Padding, Permutation, and Witness Nonce Hashing in calculate_id_v1 (GHSA-fcwg-q252-mr2f)",
+    "url": "https://github.com/tari-project/special_contributions/issues/674",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-M"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-19T04:04:04Z",
+    "updated_at": "2026-11-19T04:04:05Z",
+    "author": "sdbondi",
+    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-fcwg-q252-mr2f](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-fcwg-q252-mr2f).\n\nThe report showed that sealer Can Mint Arbitrarily Many Distinct Valid TransactionIds and TransactionReceipts from a Single Co-Signature via Unbound Co-Signature Padding, Permutation, and Witness Nonce Hashing in calculate_id_v1. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3827. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #674` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #674`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_\u003cMonth\u003e_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n"
+  },
+  {
     "number": 521,
     "title": "Security report: tari-ootle a validator that does not vote on a finalizing block reports the previous life cycle's decision (GHSA-9f9q-g46r-7rrc)",
     "url": "https://github.com/tari-project/special_contributions/issues/521",
