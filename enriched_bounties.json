@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 198,
+    "comment_count": 199,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-20T09:57:27Z",
+    "updated_at": "2026-11-20T21:15:11Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -344,7 +344,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 35,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -370,7 +370,7 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 750,
       "is_hidden_gem": false,
-      "bounty_score": 40,
+      "bounty_score": 39,
       "score_breakdown": {
         "amount": 15,
         "feasibility": 60,
@@ -859,37 +859,6 @@
         "feasibility": 60,
         "competition": 63,
         "freshness": 98
-      }
-    }
-  },
-  {
-    "number": 103,
-    "title": "Mitigate risks due to \"next\" known CVEs version and current versions range",
-    "url": "https://github.com/tari-project/wxtm-bridge-frontend/issues/103",
-    "state": "open",
-    "labels": [
-      "bounty",
-      "bounty-S"
-    ],
-    "comment_count": 29,
-    "open_pr_count": 1,
-    "repository": "tari-project/wxtm-bridge-frontend",
-    "created_at": "2026-04-23T09:34:42Z",
-    "updated_at": "2026-11-05T13:02:12Z",
-    "author": "0xskr33p",
-    "body": "## Bounty: Mitigate Next.js CVE Risk by Pinning Version\n\n**Tier:** S — 15,000 XTM\n\n### Description\n\nThe `wxtm-bridge-frontend` currently depends on `\"next\": \"^16.1.1\"`, which allows npm/yarn to resolve any semver-compatible version in the 16.x range, including versions with known CVEs. Pin Next.js to exactly `16.1.7` (the latest patched release) and remove the `^` caret to prevent unintended resolution to vulnerable versions. Update `eslint-config-next` to match.\n\n### Acceptance Criteria\n\n- [ ] `package.json` specifies `\"next\": \"16.1.7\"` (exact, no caret)\n- [ ] `eslint-config-next` version is updated to `\"16.1.7\"` (exact, no caret) to match\n- [ ] `package-lock.json` / `yarn.lock` is regenerated with the pinned versions\n- [ ] The app builds successfully (`npm run build` or `yarn build` passes with no new errors)\n- [ ] Wrap/unwrap flow verified working end-to-end via TU with the updated bridge frontend (screenshot or recording)\n\n### Context\n\n- Original issue: https://github.com/tari-project/wxtm-bridge-frontend/issues/103\n- Current versions: `\"next\": \"^16.1.1\"`, `\"eslint-config-next\": \"^16.1.1\"`\n- Next.js changelog: https://github.com/vercel/next.js/releases\n- The frontend depends on private `@aspect` npm packages (api & contracts). To test locally you either need an npm token for the private registry, or build the public `api` and `contracts` repos locally and link them as dependencies\n- Full integration testing requires running the bridge frontend as a tapplet inside Tari Universe (TU)\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #103`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 35,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 27,
-        "freshness": 92
       }
     }
   },
@@ -1633,7 +1602,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -2115,9 +2084,9 @@
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-11-18T14:04:13Z",
-    "updated_at": "2026-11-18T14:09:09Z",
+    "updated_at": "2026-11-20T16:04:34Z",
     "author": "Kelketek",
-    "body": "Place 3rd in the Ootle bug hunt",
+    "body": "Place 3rd in the Ootle bug hunt.\n\nWinner was @SLRHR .",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -2129,7 +2098,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -2146,9 +2115,9 @@
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-11-18T14:03:04Z",
-    "updated_at": "2026-11-18T14:03:17Z",
+    "updated_at": "2026-11-20T16:04:17Z",
     "author": "Kelketek",
-    "body": "Get second place in the Ootle Bug hunt",
+    "body": "Get second place in the Ootle Bug hunt\n\nWinner was @chironbuilds ",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -2160,7 +2129,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -2177,9 +2146,9 @@
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
     "created_at": "2026-11-18T14:01:37Z",
-    "updated_at": "2026-11-18T14:01:37Z",
+    "updated_at": "2026-11-20T16:01:53Z",
     "author": "Kelketek",
-    "body": "Win the Ootle Bug Hunt, and take first place.",
+    "body": "Win the Ootle Bug Hunt, and take first place.\n\nWinner was @m4r1m0 .",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -2191,7 +2160,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -2250,7 +2219,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 81,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -2804,7 +2773,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 79,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
