@@ -182,7 +182,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -213,7 +213,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 48
+        "freshness": 47
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -247,12 +247,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 52,
+      "bounty_score": 51,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -313,7 +313,7 @@
         "amount": 40,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -375,7 +375,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 20,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -487,7 +487,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1550,7 +1550,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1922,7 +1922,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1953,7 +1953,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -2443,12 +2443,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 40,
+      "bounty_score": 39,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2480,7 +2480,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 27,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2736,12 +2736,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 36,
+      "bounty_score": 35,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 22
+        "freshness": 21
       }
     }
   },
@@ -2873,7 +2873,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 56,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2967,7 +2967,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 42,
+      "bounty_score": 41,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -3005,7 +3005,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 22
+        "freshness": 21
       }
     }
   },
@@ -3100,7 +3100,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 52,
-        "freshness": 22
+        "freshness": 21
       }
     }
   }
