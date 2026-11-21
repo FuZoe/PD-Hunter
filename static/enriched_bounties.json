@@ -405,7 +405,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -889,7 +889,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -920,7 +920,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -1044,7 +1044,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1075,7 +1075,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1101,7 +1101,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1137,7 +1137,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -1194,12 +1194,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -1292,7 +1292,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -1323,7 +1323,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -1354,7 +1354,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -1447,7 +1447,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 82
+        "freshness": 81
       }
     }
   },
@@ -1478,7 +1478,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
@@ -1571,7 +1571,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -1633,7 +1633,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1726,7 +1726,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1819,7 +1819,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 83
+        "freshness": 82
       }
     }
   },
@@ -1850,7 +1850,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 81
+        "freshness": 80
       }
     }
   },
@@ -1969,7 +1969,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2036,7 +2036,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -2251,7 +2251,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 7
+        "freshness": 6
       }
     }
   },
@@ -2341,12 +2341,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2378,7 +2378,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -2412,7 +2412,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 62
+        "freshness": 61
       }
     }
   },
@@ -2478,7 +2478,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 36,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -2741,7 +2741,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
