@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 200,
+    "comment_count": 201,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-21T21:30:27Z",
+    "updated_at": "2026-11-22T09:27:38Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -59,7 +59,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -107,7 +107,7 @@
     "open_pr_count": 1,
     "repository": "commaai/opendbc",
     "created_at": "2026-05-31T22:10:24Z",
-    "updated_at": "2026-11-21T20:43:14Z",
+    "updated_at": "2026-11-22T06:04:14Z",
     "author": "adeebshihadeh",
     "body": "Let's get the new F-150s supported! Any [TRON platform](https://bluepilot.dev/2025/08/13/confirmed-tron-status-list/) car model is also eligible for this bounty.\n\nRequires a harness design (schematic), a high quality lateral port, and at least a proof-of-concept for longitudinal support.\n\nThe full $10k is for a normal openpilot experience: user is ready to go after installing compatible hardware and openpilot. $2k for support similar to the 2021 Toyota Rav4 Prime, where it works if the user manually configures extra parameters.\n\n<img width=\"1200\" height=\"800\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/51df485b-8762-4325-8bb8-8be3d4d56ff1\" />",
     "hunter_intelligence": {
@@ -982,7 +982,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1013,7 +1013,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -1039,7 +1039,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1070,7 +1070,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1106,7 +1106,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1163,12 +1163,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -1230,7 +1230,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -1261,7 +1261,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -1416,7 +1416,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -1509,7 +1509,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -1659,12 +1659,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -1695,7 +1695,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -1881,7 +1881,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -1912,7 +1912,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -1974,7 +1974,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -2005,7 +2005,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
@@ -2067,7 +2067,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 70,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -2544,7 +2544,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 61,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2897,12 +2897,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 42,
+      "bounty_score": 41,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
