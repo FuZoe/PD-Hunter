@@ -89,7 +89,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 77
+        "freshness": 76
       }
     }
   },
@@ -151,7 +151,7 @@
         "amount": 2,
         "feasibility": 60,
         "competition": 65,
-        "freshness": 3
+        "freshness": 2
       }
     }
   },
@@ -894,37 +894,6 @@
     }
   },
   {
-    "number": 686,
-    "title": "Bug report: tari-ootle un-Aborted Foreign Evidence in TransactionPoolRecord::set_remote_decision Causes Leader-vs-Replica MismatchedEvidence No-Votes on Locally Aborted Multi-Shard Transactions (GHSA-wr9f-gm95-grww)",
-    "url": "https://github.com/tari-project/special_contributions/issues/686",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-20T09:31:48Z",
-    "updated_at": "2026-11-20T09:31:49Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @sonson0910 for reporting a bug in `tari-ootle` through GitHub Security Advisories: [GHSA-wr9f-gm95-grww](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-wr9f-gm95-grww).\n\nThe report showed that un-Aborted Foreign Evidence in TransactionPoolRecord::set_remote_decision Causes Leader-vs-Replica MismatchedEvidence No-Votes on Locally Aborted Multi-Shard Transactions. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3866. **No code work is required here.**\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #686` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #686`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 99
-      }
-    }
-  },
-  {
     "number": 679,
     "title": "Security report: tari-universe app config files were world-readable, exposing the MCP bearer token, airdrop tokens and wallet view key to other local users (GHSA-3rc7-6cr6-8mx8)",
     "url": "https://github.com/tari-project/special_contributions/issues/679",
@@ -971,37 +940,6 @@
     "updated_at": "2026-11-19T12:24:22Z",
     "author": "sdbondi",
     "body": "Bounty for @kah-ja for contributing [tari-project/tari-ootle#3820](https://github.com/tari-project/tari-ootle/pull/3820): fix(state_store_rocksdb): keep a substate's head at its highest version in any transition order.\n\n**No further code work is required here.**\n\n## Done when\n\n@kah-ja opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #677` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #677`, naming this issue\n- [ ] It is opened by @kah-ja, the author of tari-project/tari-ootle#3820\n- [ ] It changes only `YYYY/MM/kah-ja_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 98
-      }
-    }
-  },
-  {
-    "number": 676,
-    "title": "Contribution: fix(wallet-storage): confirm on-chain unconfirmed outputs relocked for spend (tari-project/tari-ootle#3851)",
-    "url": "https://github.com/tari-project/special_contributions/issues/676",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-19T11:33:34Z",
-    "updated_at": "2026-11-19T11:33:34Z",
-    "author": "sdbondi",
-    "body": "Bounty for @cocvn157 for contributing [tari-project/tari-ootle#3851](https://github.com/tari-project/tari-ootle/pull/3851): fix(wallet-storage): confirm on-chain unconfirmed outputs relocked for spend.\n\n**No further code work is required here.**\n\n## Done when\n\n@cocvn157 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #676` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #676`, naming this issue\n- [ ] It is opened by @cocvn157, the author of tari-project/tari-ootle#3851\n- [ ] It changes only `YYYY/MM/cocvn157_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -1514,37 +1452,6 @@
     }
   },
   {
-    "number": 674,
-    "title": "Security report: tari-ootle sealer Can Mint Arbitrarily Many Distinct Valid TransactionIds and TransactionReceipts from a Single Co-Signature via Unbound Co-Signature Padding, Permutation, and Witness Nonce Hashing in calculate_id_v1 (GHSA-fcwg-q252-mr2f)",
-    "url": "https://github.com/tari-project/special_contributions/issues/674",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-M"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-19T04:04:04Z",
-    "updated_at": "2026-11-19T04:04:05Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @sonson0910 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-fcwg-q252-mr2f](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-fcwg-q252-mr2f).\n\nThe report showed that sealer Can Mint Arbitrarily Many Distinct Valid TransactionIds and TransactionReceipts from a Single Co-Signature via Unbound Co-Signature Padding, Permutation, and Witness Nonce Hashing in calculate_id_v1. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3827. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@sonson0910 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #674` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #674`, naming this issue\n- [ ] It is opened by @sonson0910, the credited reporter\n- [ ] It changes only `YYYY/MM/sonson0910_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 98
-      }
-    }
-  },
-  {
     "number": 521,
     "title": "Security report: tari-ootle a validator that does not vote on a finalizing block reports the previous life cycle's decision (GHSA-9f9q-g46r-7rrc)",
     "url": "https://github.com/tari-project/special_contributions/issues/521",
@@ -1948,37 +1855,6 @@
     }
   },
   {
-    "number": 657,
-    "title": "Security report: tari-ootle unauthenticated Target-Template Migration (Instruction::UpdateComponentTemplate) Allows Arbitrary Component State & Template-Scoped Access-Rule Forgery Across Any Template (GHSA-8cwh-mrp7-8v24)",
-    "url": "https://github.com/tari-project/special_contributions/issues/657",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-L"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-17T09:42:25Z",
-    "updated_at": "2026-11-17T09:42:26Z",
-    "author": "sdbondi",
-    "body": "Retro bounty for @LBCron for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-8cwh-mrp7-8v24](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-8cwh-mrp7-8v24).\n\nThe report showed that unauthenticated Target-Template Migration (Instruction::UpdateComponentTemplate) Allows Arbitrary Component State & Template-Scoped Access-Rule Forgery Across Any Template. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#3824. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@LBCron opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #657` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #657`, naming this issue\n- [ ] It is opened by @LBCron, the credited reporter\n- [ ] It changes only `YYYY/MM/LBCron_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 97
-      }
-    }
-  },
-  {
     "number": 426,
     "title": "Security report: tari-ootle `CallFunction` executes `&self` methods as static functions: component access rules are bypassed and the method acts with the template's resource authority (GHSA-gf2x-v6mp-cc46)",
     "url": "https://github.com/tari-project/special_contributions/issues/426",
@@ -2188,7 +2064,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 25,
-        "freshness": 39
+        "freshness": 38
       }
     }
   },
@@ -2446,7 +2322,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 38,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2807,7 +2683,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 67,
-        "freshness": 67
+        "freshness": 66
       }
     }
   },
