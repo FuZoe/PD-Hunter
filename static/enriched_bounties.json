@@ -182,7 +182,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -213,7 +213,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 46
+        "freshness": 45
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -252,7 +252,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 73
+        "freshness": 72
       }
     }
   },
@@ -375,7 +375,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 20,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -858,7 +858,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1261,7 +1261,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -1447,7 +1447,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -1478,7 +1478,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -1700,37 +1700,6 @@
     }
   },
   {
-    "number": 673,
-    "title": "Contest Winning: Ootle Bug Hunt 3rd Place",
-    "url": "https://github.com/tari-project/special_contributions/issues/673",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-XTM-250000"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-18T14:04:13Z",
-    "updated_at": "2026-11-20T16:04:34Z",
-    "author": "Kelketek",
-    "body": "Place 3rd in the Ootle bug hunt.\n\nWinner was @SLRHR .",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
-        "freshness": 98
-      }
-    }
-  },
-  {
     "number": 672,
     "title": "Contest Winning: Ootle Bug Hunt 2nd Place",
     "url": "https://github.com/tari-project/special_contributions/issues/672",
@@ -1780,7 +1749,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 27,
+      "bounty_score": 26,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2029,21 +1998,21 @@
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2024-02-11T04:40:54Z",
-    "updated_at": "2026-11-12T00:19:46Z",
+    "updated_at": "2026-11-24T01:14:18Z",
     "author": "DreadKnight",
-    "body": "When targeting an ability, the ability's icon should be showcased above the hexagon hovered (along with its frame).\n\nShould be temporary (like the yellow text tooltip is basically); he cancel one should show icon as well, the cancel.svg\n\nRelies on #1584 probably, so we can load svg files as textures, based on that, icons could be added on the fly #678",
+    "body": "When targeting an ability, the ability's icon should be showcased above the hexagon hovered (along with its frame).\n\nShould be temporary (like the yellow text tooltip is basically); the cancel one should show icon as well, the cancel.svg\n\nRelies on #1584 probably, so we can load svg files as textures, based on that, icons could be added on the fly #678",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 38,
+      "bounty_score": 39,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 38,
-        "freshness": 94
+        "freshness": 100
       }
     }
   },
@@ -2173,7 +2142,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 20
+        "freshness": 19
       }
     }
   },
@@ -2365,7 +2334,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2432,12 +2401,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 18,
+      "bounty_score": 17,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 20
+        "freshness": 19
       }
     }
   },
@@ -2527,12 +2496,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 31,
+      "bounty_score": 30,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 52,
-        "freshness": 20
+        "freshness": 19
       }
     }
   }

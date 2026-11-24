@@ -923,23 +923,6 @@
     "body": "Retro bounty for @Ahmadsm2005 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-wxp4-rq8h-jcvf](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-wxp4-rq8h-jcvf).\n\nThe report showed that an unauthenticated peer could knock a validator's HotStuff worker out of `Running` with one malformed consensus message, and that a restart timed at an epoch boundary could leave the validator stranded on a different epoch genesis. It included a root-cause analysis, reproductions against a LocalNet committee and suggested fixes. The reporter tested locally only and did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#2738 and tari-project/tari-ootle#2746. **No code work is required here.**\n\n## Done when\n\n@Ahmadsm2005 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #43` in the description and their XTM payout address on its own line.\n"
   },
   {
-    "number": 673,
-    "title": "Contest Winning: Ootle Bug Hunt 3rd Place",
-    "url": "https://github.com/tari-project/special_contributions/issues/673",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-XTM-250000"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-18T14:04:13Z",
-    "updated_at": "2026-11-20T16:04:34Z",
-    "author": "Kelketek",
-    "body": "Place 3rd in the Ootle bug hunt.\n\nWinner was @SLRHR ."
-  },
-  {
     "number": 672,
     "title": "Contest Winning: Ootle Bug Hunt 2nd Place",
     "url": "https://github.com/tari-project/special_contributions/issues/672",
@@ -1112,9 +1095,9 @@
     "open_pr_count": 2,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2024-02-11T04:40:54Z",
-    "updated_at": "2026-11-12T00:19:46Z",
+    "updated_at": "2026-11-24T01:14:18Z",
     "author": "DreadKnight",
-    "body": "When targeting an ability, the ability's icon should be showcased above the hexagon hovered (along with its frame).\n\nShould be temporary (like the yellow text tooltip is basically); he cancel one should show icon as well, the cancel.svg\n\nRelies on #1584 probably, so we can load svg files as textures, based on that, icons could be added on the fly #678"
+    "body": "When targeting an ability, the ability's icon should be showcased above the hexagon hovered (along with its frame).\n\nShould be temporary (like the yellow text tooltip is basically); the cancel one should show icon as well, the cancel.svg\n\nRelies on #1584 probably, so we can load svg files as textures, based on that, icons could be added on the fly #678"
   },
   {
     "number": 2531,
