@@ -27,7 +27,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -59,7 +59,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -344,7 +344,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 35,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -863,6 +863,37 @@
     }
   },
   {
+    "number": 693,
+    "title": "Contribution: fix(wallet-sdk-services): reconcile confidential output spent status on vault refresh (tari-project/tari-ootle#3983)",
+    "url": "https://github.com/tari-project/special_contributions/issues/693",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 1,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-24T10:43:52Z",
+    "updated_at": "2026-11-24T11:49:01Z",
+    "author": "hootle-bot",
+    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3983](https://github.com/tari-project/tari-ootle/pull/3983): fix(wallet-sdk-services): reconcile confidential output spent status on vault refresh.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #693` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #693`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3983\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 83,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 689,
     "title": "Contribution: fix(template_macros): validate non-wasm templates, allow impl-before-struct, and improve AST diagnostics (tari-project/tari-ootle#3468)",
     "url": "https://github.com/tari-project/special_contributions/issues/689",
@@ -884,7 +915,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -920,7 +951,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -951,7 +982,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1013,7 +1044,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1106,7 +1137,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -1137,7 +1168,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -1292,7 +1323,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -1385,7 +1416,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 74
+        "freshness": 73
       }
     }
   },
@@ -1416,7 +1447,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -1571,7 +1602,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -1602,7 +1633,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 76
+        "freshness": 75
       }
     }
   },
@@ -1633,7 +1664,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1695,7 +1726,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 70,
-        "freshness": 74
+        "freshness": 73
       }
     }
   },
@@ -1721,7 +1752,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 51,
+      "bounty_score": 50,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1785,7 +1816,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 81,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -2110,7 +2141,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 61,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -2302,7 +2333,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 46,
+      "bounty_score": 45,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -2468,7 +2499,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 91
+        "freshness": 90
       }
     }
   },
