@@ -89,7 +89,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 76
+        "freshness": 75
       }
     }
   },
@@ -121,7 +121,7 @@
         "amount": 100,
         "feasibility": 60,
         "competition": 65,
-        "freshness": 99
+        "freshness": 98
       }
     }
   },
@@ -151,7 +151,7 @@
         "amount": 2,
         "feasibility": 60,
         "competition": 65,
-        "freshness": 2
+        "freshness": 1
       }
     }
   },
@@ -308,12 +308,12 @@
       "bounty_tier": "S-Tier",
       "bounty_amount": 2000,
       "is_hidden_gem": true,
-      "bounty_score": 62,
+      "bounty_score": 61,
       "score_breakdown": {
         "amount": 40,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -327,7 +327,7 @@
       "bounty_difficulty/easy"
     ],
     "comment_count": 10,
-    "open_pr_count": 3,
+    "open_pr_count": 4,
     "repository": "tenstorrent/tt-metal",
     "created_at": "2026-11-06T14:55:51Z",
     "updated_at": "2026-11-09T15:36:38Z",
@@ -338,12 +338,12 @@
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "A-Tier",
       "bounty_amount": 750,
-      "is_hidden_gem": true,
-      "bounty_score": 42,
+      "is_hidden_gem": false,
+      "bounty_score": 39,
       "score_breakdown": {
         "amount": 15,
         "feasibility": 60,
-        "competition": 35,
+        "competition": 20,
         "freshness": 92
       }
     }
@@ -405,7 +405,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -863,37 +863,6 @@
     }
   },
   {
-    "number": 693,
-    "title": "Contribution: fix(wallet-sdk-services): reconcile confidential output spent status on vault refresh (tari-project/tari-ootle#3983)",
-    "url": "https://github.com/tari-project/special_contributions/issues/693",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 1,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-24T10:43:52Z",
-    "updated_at": "2026-11-24T11:49:01Z",
-    "author": "hootle-bot",
-    "body": "Bounty for @cyczzhao-lab for contributing [tari-project/tari-ootle#3983](https://github.com/tari-project/tari-ootle/pull/3983): fix(wallet-sdk-services): reconcile confidential output spent status on vault refresh.\n\n**No further code work is required here.**\n\n## Done when\n\n@cyczzhao-lab opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #693` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #693`, naming this issue\n- [ ] It is opened by @cyczzhao-lab, the author of tari-project/tari-ootle#3983\n- [ ] It changes only `YYYY/MM/cyczzhao-lab_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 83,
-        "freshness": 100
-      }
-    }
-  },
-  {
     "number": 689,
     "title": "Contribution: fix(template_macros): validate non-wasm templates, allow impl-before-struct, and improve AST diagnostics (tari-project/tari-ootle#3468)",
     "url": "https://github.com/tari-project/special_contributions/issues/689",
@@ -920,7 +889,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1013,7 +982,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1075,7 +1044,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1106,7 +1075,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
@@ -1199,7 +1168,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1230,7 +1199,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1261,7 +1230,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1354,7 +1323,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -1385,7 +1354,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 76
+        "freshness": 75
       }
     }
   },
@@ -1540,7 +1509,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 81
+        "freshness": 80
       }
     }
   },
@@ -1571,7 +1540,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -1597,7 +1566,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1695,7 +1664,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -1757,7 +1726,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -1790,37 +1759,6 @@
     }
   },
   {
-    "number": 3252,
-    "title": "OpenCollective banners eagerly loads redundant avatars on match start for hidden views [bounty: 40 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/3252",
-    "state": "open",
-    "labels": [
-      "coding",
-      "bounty"
-    ],
-    "comment_count": 2,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2026-11-17T12:35:20Z",
-    "updated_at": "2026-11-17T15:25:48Z",
-    "author": "vivek-kanugula",
-    "body": "**Describe the bug**\nOn match start, the game's UI constructor initializes three `OpenCollectiveBanner` instances (`dashOpenCollectiveBanner`, `scoreboardOpenCollectiveBanner`, and `musicPlayerOpenCollectiveBanner`). All three synchronously call `.init()`, which immediately renders all normalized contributors from `localStorage` into the DOM.\n\nWith current feed data (41 active contributors, 39 having images), this results in **117 image requests** (39 × 3) fired simultaneously with `loading: 'eager'`, despite all three host views being completely hidden (`.hide` on scoreboard & music player, `display: none` on dash).\n\nFurthermore, when a user eventually opens any of these views, `onViewOpen()` calls `renderContributors()` again from scratch, making the initial 117 image requests in `init()` completely redundant. If any avatar fails to load or returns a 404, the broken `<a>` element remains in the track, resulting in blank circular holes in the marquee.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Open https://beta.ancientbeast.com/ in Chrome with DevTools open (Network & Console tabs).\n2. Start any match so the UI constructor runs.\n3. Inspect Network requests: 117 image requests fire immediately to OpenCollective/AWS for contributor avatars.\n4. Inspect the DOM: all 3 banner elements (`#dash_open_collective_banner`, `#scoreboard_open_collective_banner`, `#music_player_open_collective_banner`) have populated `.opencollective_track` elements with 39 `<img>` tags each, while their parent containers remain hidden.\n5. If any avatar URLs fail, an empty circle remains in the marquee loop instead of being pruned.\n\n**Expected behavior**\n- `init()` should mount a lightweight CTA-only placeholder or defer avatar DOM rendering until `onViewOpen()` is called.\n- `fetchMembers()` should not re-render contributor DOM nodes if the banner's view is not currently open (`isViewOpen()`).\n- Contributor avatars should use `loading=\"lazy\"` and `decoding=\"async\"`.\n- If an avatar image triggers an `error` event, its parent anchor element should be pruned from the track so the marquee doesn't display empty circular slots.\n\n**Screenshots**\n\n<img width=\"1925\" height=\"912\" alt=\"clean_ingame_sponsor_banner\" src=\"https://github.com/user-attachments/assets/fbedc9e7-37ae-4828-80e1-cbb37108e559\" />\n\n<img width=\"600\" height=\"112\" alt=\"banner_empty_circle_highlighted\" src=\"https://github.com/user-attachments/assets/4e8fccc5-2081-488e-991c-5489ecb45b47\" />\n\n<img width=\"1920\" height=\"839\" alt=\"devtools_console_error\" src=\"https://github.com/user-attachments/assets/c66fe18c-85a5-4547-a204-51cbcf6df32f\" />\n\n**Desktop:**\n - OS: Windows 11\n - Browser: Chrome 131.0.6778.86\n\n**Additional context**\nRelevant file: `src/ui/open-collective-banner.ts` (`init()`, `fetchMembers()`, and `renderContributors()`). I have a tested patch ready that resolves all three points cleanly.\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 49,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 81,
-        "freshness": 96
-      }
-    }
-  },
-  {
     "number": 2976,
     "title": "demo mode [bounty: 666 XTR]",
     "url": "https://github.com/FreezingMoon/AncientBeast/issues/2976",
@@ -1848,7 +1786,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 5
+        "freshness": 4
       }
     }
   },
@@ -1866,7 +1804,7 @@
     "open_pr_count": 1,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2025-04-26T18:58:59Z",
-    "updated_at": "2026-11-08T17:08:29Z",
+    "updated_at": "2026-11-25T13:59:59Z",
     "author": "DreadKnight",
     "body": "The game should be game locked to landscape orientation by default even if not maximized, not having to do a workaround by suggesting people to rotate the device #1728",
     "hunter_intelligence": {
@@ -1875,12 +1813,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 39,
+      "bounty_score": 40,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 92
+        "freshness": 100
       }
     }
   },
@@ -1907,12 +1845,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": false,
-      "bounty_score": 36,
+      "bounty_score": 35,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 27,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -1943,7 +1881,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 93
+        "freshness": 92
       }
     }
   },
@@ -1975,7 +1913,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 73
+        "freshness": 72
       }
     }
   },
@@ -2009,7 +1947,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 60
+        "freshness": 59
       }
     }
   },
@@ -2174,7 +2112,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 37,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -2240,7 +2178,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 56,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2273,7 +2211,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -2310,40 +2248,6 @@
     }
   },
   {
-    "number": 1965,
-    "title": "don't turn around while casting [bounty: 8 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/1965",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "abilities",
-      "bounty",
-      "invalid"
-    ],
-    "comment_count": 9,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2021-12-15T09:51:08Z",
-    "updated_at": "2026-09-16T23:45:18Z",
-    "author": "DreadKnight",
-    "body": "Golden Wyrm should not turn around when using Visible Stigmata on allies that are on adjacent hexagons near the frontal diagonal ones.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 41,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 67,
-        "freshness": 65
-      }
-    }
-  },
-  {
     "number": 1469,
     "title": "modular abilities [bounty: 70 XTR]",
     "url": "https://github.com/FreezingMoon/AncientBeast/issues/1469",
@@ -2373,6 +2277,40 @@
         "feasibility": 60,
         "competition": 0,
         "freshness": 19
+      }
+    }
+  },
+  {
+    "number": 1207,
+    "title": "Supper Chomp hints [bounty: 15 XTR]",
+    "url": "https://github.com/FreezingMoon/AncientBeast/issues/1207",
+    "state": "open",
+    "labels": [
+      "coding",
+      "visuals",
+      "audio",
+      "abilities",
+      "bounty"
+    ],
+    "comment_count": 2,
+    "open_pr_count": 1,
+    "repository": "FreezingMoon/AncientBeast",
+    "created_at": "2017-09-28T22:01:47Z",
+    "updated_at": "2026-11-25T15:19:38Z",
+    "author": "DreadKnight",
+    "body": "If Uncle Fungus uses upgraded Supper Chomp on a unit and he's already full health, a \"Burp!\" should be displayed above as a hint (similar to amount of healing text) and also a burp sound should be played.\r\n\r\nThe extra health points surpassing his maximum should overflow (if not doing so already) into temporary buff that provides regrowth bonus. If he doesn't overflow, then `Regrowth++` text shouldn't be displayed.",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 50,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 81,
+        "freshness": 100
       }
     }
   },
