@@ -1785,7 +1785,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 25,
-        "freshness": 38
+        "freshness": 37
       }
     }
   },
@@ -2043,72 +2043,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 38,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 2531,
-    "title": "fullscreen button not working on iOS [bounty: 16 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/2531",
-    "state": "open",
-    "labels": [
-      "coding",
-      "input",
-      "bounty"
-    ],
-    "comment_count": 17,
-    "open_pr_count": 2,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2024-02-10T09:39:50Z",
-    "updated_at": "2026-11-18T12:16:15Z",
-    "author": "DreadKnight",
-    "body": "The fullscreen button doesn't do anything at all on iOS/iPhone while using Chrome.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": false,
-      "bounty_score": 38,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 36,
-        "freshness": 97
-      }
-    }
-  },
-  {
-    "number": 2375,
-    "title": "more pre-match screen adjustment consistency [bounty: 2 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/2375",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "input",
-      "bounty"
-    ],
-    "comment_count": 9,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2023-06-20T08:25:24Z",
-    "updated_at": "2026-03-27T00:00:16Z",
-    "author": "DreadKnight",
-    "body": "The pre-match screen should have more consistency between the small and big screen versions:\r\n\r\n- the game version icon from small screen adjustment should be used in both the screen sizes\r\n- \"Ancient Beast\" upper left icon from small screen should be displayed in big version as well\r\n- both changes listed above should receive some code clean-up regarding styling adjustments",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 31,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 67,
-        "freshness": 0
+        "freshness": 99
       }
     }
   },
@@ -2370,7 +2305,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 79,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -2404,7 +2339,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 67,
-        "freshness": 66
+        "freshness": 65
       }
     }
   },
