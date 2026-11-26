@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 202,
+    "comment_count": 203,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-23T06:59:37Z",
+    "updated_at": "2026-11-25T23:49:14Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -27,7 +27,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 99
+        "freshness": 100
       }
     }
   },
@@ -182,7 +182,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 57,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -213,7 +213,7 @@
         "amount": 40,
         "feasibility": 30,
         "competition": 63,
-        "freshness": 45
+        "freshness": 44
       },
       "risk_level": "Critical",
       "risk_warning": "This bounty appears superseded by comma.ai's internal vamOS work. Treat it as low-EV unless maintainers reconfirm that outside PRs can still win the remaining mainline-kernel reward.",
@@ -252,7 +252,7 @@
         "amount": 0,
         "feasibility": 90,
         "competition": 73,
-        "freshness": 72
+        "freshness": 71
       }
     }
   },
@@ -375,7 +375,7 @@
         "amount": 15,
         "feasibility": 60,
         "competition": 20,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -1261,7 +1261,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -1447,7 +1447,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -1478,7 +1478,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -1700,9 +1700,9 @@
     }
   },
   {
-    "number": 672,
-    "title": "Contest Winning: Ootle Bug Hunt 2nd Place",
-    "url": "https://github.com/tari-project/special_contributions/issues/672",
+    "number": 697,
+    "title": "Contest Winning: October Spooky Secrets 2nd Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/697",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -1711,22 +1711,53 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-18T14:03:04Z",
-    "updated_at": "2026-11-20T16:04:17Z",
+    "created_at": "2026-11-25T20:55:43Z",
+    "updated_at": "2026-11-25T20:55:43Z",
     "author": "Kelketek",
-    "body": "Get second place in the Ootle Bug hunt\n\nWinner was @chironbuilds ",
+    "body": "Win 2nd place in the October Spooky Secrets build contest.\n\nFor @ogboy92ii, the winner:\n\nPlease follow the [procedure here](https://wiki.tari.com/processes:bounties) to get onboarded and claim your bounty.\n\nAlso please ping me on the resulting PR.",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 51,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 696,
+    "title": "Contest Winning: October Spooky Secrets 1st Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/696",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-XTM-1000000"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-25T20:51:39Z",
+    "updated_at": "2026-11-25T21:02:28Z",
+    "author": "Kelketek",
+    "body": "Win 1st place in the October Spooky Secrets build contest.\n\nFor @Seal-Clubber, the winner:\n\nPlease follow the [procedure here](https://wiki.tari.com/processes:bounties) to get onboarded and claim your bounty.\n\nAlso please ping me on the resulting PR.",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
       }
     }
   },
@@ -2028,11 +2059,11 @@
       "visuals",
       "bounty"
     ],
-    "comment_count": 7,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2023-04-14T08:44:13Z",
-    "updated_at": "2026-06-15T22:28:34Z",
+    "updated_at": "2026-11-25T21:00:34Z",
     "author": "DreadKnight",
     "body": "Hovering on a hexagon that has a drop and/or a trap should show widget(s) at the top (like shown for hovered units).\n\nTraps and drops get showcased properly even if obstructed by units etc now thanks to improved XRay feature #2617\n\nFor drop it should show  the modified stats along with icons, using green or red text and +/- signs before the numbers.\nFor traps, it should show the ability icon the trap is made by (player colored frame) and the description (card B info slice).",
     "hunter_intelligence": {
@@ -2041,12 +2072,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 35,
+      "bounty_score": 46,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
-        "competition": 71,
-        "freshness": 19
+        "competition": 67,
+        "freshness": 100
       }
     }
   },
@@ -2276,41 +2307,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 19
-      }
-    }
-  },
-  {
-    "number": 1207,
-    "title": "Supper Chomp hints [bounty: 15 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/1207",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "audio",
-      "abilities",
-      "bounty"
-    ],
-    "comment_count": 2,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2017-09-28T22:01:47Z",
-    "updated_at": "2026-11-25T15:19:38Z",
-    "author": "DreadKnight",
-    "body": "If Uncle Fungus uses upgraded Supper Chomp on a unit and he's already full health, a \"Burp!\" should be displayed above as a hint (similar to amount of healing text) and also a burp sound should be played.\r\n\r\nThe extra health points surpassing his maximum should overflow (if not doing so already) into temporary buff that provides regrowth bonus. If he doesn't overflow, then `Regrowth++` text shouldn't be displayed.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 50,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 81,
-        "freshness": 100
+        "freshness": 18
       }
     }
   },
@@ -2405,7 +2402,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 52,
-        "freshness": 19
+        "freshness": 18
       }
     }
   }

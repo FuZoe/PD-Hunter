@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 202,
+    "comment_count": 203,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-23T06:59:37Z",
+    "updated_at": "2026-11-25T23:49:14Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. "
   },
@@ -923,9 +923,9 @@
     "body": "Retro bounty for @Ahmadsm2005 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-wxp4-rq8h-jcvf](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-wxp4-rq8h-jcvf).\n\nThe report showed that an unauthenticated peer could knock a validator's HotStuff worker out of `Running` with one malformed consensus message, and that a restart timed at an epoch boundary could leave the validator stranded on a different epoch genesis. It included a root-cause analysis, reproductions against a LocalNet committee and suggested fixes. The reporter tested locally only and did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#2738 and tari-project/tari-ootle#2746. **No code work is required here.**\n\n## Done when\n\n@Ahmadsm2005 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #43` in the description and their XTM payout address on its own line.\n"
   },
   {
-    "number": 672,
-    "title": "Contest Winning: Ootle Bug Hunt 2nd Place",
-    "url": "https://github.com/tari-project/special_contributions/issues/672",
+    "number": 697,
+    "title": "Contest Winning: October Spooky Secrets 2nd Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/697",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -934,10 +934,27 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-18T14:03:04Z",
-    "updated_at": "2026-11-20T16:04:17Z",
+    "created_at": "2026-11-25T20:55:43Z",
+    "updated_at": "2026-11-25T20:55:43Z",
     "author": "Kelketek",
-    "body": "Get second place in the Ootle Bug hunt\n\nWinner was @chironbuilds "
+    "body": "Win 2nd place in the October Spooky Secrets build contest.\n\nFor @ogboy92ii, the winner:\n\nPlease follow the [procedure here](https://wiki.tari.com/processes:bounties) to get onboarded and claim your bounty.\n\nAlso please ping me on the resulting PR."
+  },
+  {
+    "number": 696,
+    "title": "Contest Winning: October Spooky Secrets 1st Place",
+    "url": "https://github.com/tari-project/special_contributions/issues/696",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-XTM-1000000"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-25T20:51:39Z",
+    "updated_at": "2026-11-25T21:02:28Z",
+    "author": "Kelketek",
+    "body": "Win 1st place in the October Spooky Secrets build contest.\n\nFor @Seal-Clubber, the winner:\n\nPlease follow the [procedure here](https://wiki.tari.com/processes:bounties) to get onboarded and claim your bounty.\n\nAlso please ping me on the resulting PR."
   },
   {
     "number": 1,
@@ -1111,11 +1128,11 @@
       "visuals",
       "bounty"
     ],
-    "comment_count": 7,
+    "comment_count": 9,
     "open_pr_count": 1,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2023-04-14T08:44:13Z",
-    "updated_at": "2026-06-15T22:28:34Z",
+    "updated_at": "2026-11-25T21:00:34Z",
     "author": "DreadKnight",
     "body": "Hovering on a hexagon that has a drop and/or a trap should show widget(s) at the top (like shown for hovered units).\n\nTraps and drops get showcased properly even if obstructed by units etc now thanks to improved XRay feature #2617\n\nFor drop it should show  the modified stats along with icons, using green or red text and +/- signs before the numbers.\nFor traps, it should show the ability icon the trap is made by (player colored frame) and the description (card B info slice)."
   },
@@ -1250,26 +1267,6 @@
     "updated_at": "2026-06-15T22:33:30Z",
     "author": "DreadKnight",
     "body": "Unit abilities should be refactored by having a proper API, with a set of actions that can be combined.\r\nThey should have a common class that gets instantiated, standard object oriented programming style.\r\n\r\nIt should roughly contain stuff like:\r\n- type (first ability is passive, second is a basic attack, third is a special move and forth is an ultimate)\r\n- usability (certain conditions must be met in order to be able to use the ability, provided cost is fulfilled; an ability could be disable by a debuff; active abilities are usually only usable once per turn)\r\n- cost (usable abilities have a usage cost, usually being a certain amount of energy points, but not exclusive or limited to that)\r\n- upgrade (passive abilities tend to auto upgrade before a set amount of rounds, while the other require a certain number of uses before upgrading; when an ability is upgraded, certain parameters are improved)\r\n- effect (this can be certain amounts of damage, healing, movement, buffs/debuffs)\r\n- target (can be self, enemy units, allied units, area, hexagon, etc.)\r\n- range (some abilities have patterns, basic attacks can usually hit in front and sideways of the first/last unit hexagon; )\r\n- hits (some abilities can hit multiple times or even be used multiple times in the same round)\r\n- modifiers (stats and masteries can influence the output of specific abilities)\r\n\r\nFiles to be refactored: `src/ability.js` and the stuff in `src/abilities`.\r\nThis is one of the biggest things holding back the project, as it makes it hard to code abilities for new awesome playable units."
-  },
-  {
-    "number": 1207,
-    "title": "Supper Chomp hints [bounty: 15 XTR]",
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues/1207",
-    "state": "open",
-    "labels": [
-      "coding",
-      "visuals",
-      "audio",
-      "abilities",
-      "bounty"
-    ],
-    "comment_count": 2,
-    "open_pr_count": 1,
-    "repository": "FreezingMoon/AncientBeast",
-    "created_at": "2017-09-28T22:01:47Z",
-    "updated_at": "2026-11-25T15:19:38Z",
-    "author": "DreadKnight",
-    "body": "If Uncle Fungus uses upgraded Supper Chomp on a unit and he's already full health, a \"Burp!\" should be displayed above as a hint (similar to amount of healing text) and also a burp sound should be played.\r\n\r\nThe extra health points surpassing his maximum should overflow (if not doing so already) into temporary buff that provides regrowth bonus. If he doesn't overflow, then `Regrowth++` text shouldn't be displayed."
   },
   {
     "number": 1099,
