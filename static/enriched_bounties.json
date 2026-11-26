@@ -9,11 +9,11 @@
       "maintainer approved",
       "💎 Bounty"
     ],
-    "comment_count": 203,
+    "comment_count": 204,
     "open_pr_count": 1,
     "repository": "onyx-dot-app/onyx",
     "created_at": "2024-08-30T23:46:34Z",
-    "updated_at": "2026-11-25T23:49:14Z",
+    "updated_at": "2026-11-26T09:43:43Z",
     "author": "Weves",
     "body": "Pull in all tickets from a specified [Jira Service Management](https://www.atlassian.com/software/jira/service-management) project. \r\n\r\nCheckout the connector creation README here for more details on the best way to add new connectors: https://github.com/danswer-ai/danswer/blob/main/backend/danswer/connectors/README.md. ",
     "hunter_intelligence": {
@@ -59,7 +59,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 73,
-        "freshness": 86
+        "freshness": 85
       }
     }
   },
@@ -116,7 +116,7 @@
       "bounty_tier": "S-Tier",
       "bounty_amount": 10000,
       "is_hidden_gem": true,
-      "bounty_score": 81,
+      "bounty_score": 80,
       "score_breakdown": {
         "amount": 100,
         "feasibility": 60,
@@ -339,12 +339,12 @@
       "bounty_tier": "A-Tier",
       "bounty_amount": 750,
       "is_hidden_gem": false,
-      "bounty_score": 39,
+      "bounty_score": 38,
       "score_breakdown": {
         "amount": 15,
         "feasibility": 60,
         "competition": 20,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -844,7 +844,7 @@
     "open_pr_count": 1,
     "repository": "tari-project/universe",
     "created_at": "2026-06-29T11:54:21Z",
-    "updated_at": "2026-11-17T03:13:07Z",
+    "updated_at": "2026-11-26T11:29:02Z",
     "author": "brianp",
     "body": "## Bounty: Fix CPU mining 64-thread cap on Windows (64+ logical cores)\n\n**Tier:** M — 60,000 XTM\n\n### Description\n\nCPU mining tops out at 64 threads on Windows machines that have more than 64 logical cores. A user with 128 threads reported that only 64 were ever used, no matter what thread count they selected. The goal of this bounty is simple to state and hard to prove: **make Tari Universe actually use more than 64 threads on a Windows machine that has more than 64 logical cores.**\n\nWindows splits machines with more than 64 logical processors into \"processor groups\" of at most 64 each, and a process that isn't group-aware only gets scheduled onto one group. On top of that, Rust's `std::thread::available_parallelism()` (which we use to count cores) undercounts past 64 on Windows for the same reason. The correct fix must count cores across all processor groups **and** ensure the miner threads actually run across them — however that is best achieved.\n\n### Acceptance Criteria\n\n- [ ] On a Windows machine with **more than 64 logical cores**, CPU mining uses **more than 64 threads** — up to the count the user selects, bounded by the machine's real logical core count\n- [ ] Core count is determined accurately across all processor groups (not capped at 64 the way `available_parallelism()` is)\n- [ ] No regression on machines with ≤64 cores, and no regression on macOS or Linux\n- [ ] **The PR includes proof of a working result on real hardware:**\n  - [ ] A screenshot proving the test machine's spec (Task Manager → Performance, or CPU-Z) showing **more than 64 logical cores**\n  - [ ] Screenshots and/or xmrig log excerpts showing **more than 64 threads in active use** after the fix, on that machine\n\n### Development Requirements\n\nThis bounty **cannot be developed or verified blind.** You must have access to a Windows machine with more than 64 logical cores to work on it. A fix that \"looks correct\" but is not demonstrated to work on qualifying hardware will **not** be accepted — the hardware proof above is mandatory, not optional. A VM/emulated core count that does not reproduce real processor-group behavior does not qualify. If you do not have such a machine, this is not the right bounty for you.\n\n### Context\n\n- Relevant code:\n  - `src-tauri/src/mining/cpu/manager.rs` — `determine_number_of_cores_to_use()` uses `thread::available_parallelism()`, which undercounts past 64 on Windows\n  - `src-tauri/src/mining/cpu/miners/xmrig.rs` — passes the count through as `--threads={cpu_threads}`\n  - xmrig is pinned to `6.25.0` in `src-tauri/binaries-versions/binaries_versions_*.json`\n- **Open question (see the analysis in the comment below):** it is not yet confirmed whether xmrig 6.25.0 spreads threads across processor groups on its own. The comment below is a *lead/hypothesis*, not a confirmed ceiling — do not treat it as ruling out an app-side fix. The bounty is open to any approach that demonstrably works: an accurate all-groups core count, adjusting how xmrig is launched (e.g. affinity handling on Win11/Server 2022), or a launcher strategy. What matters is the proven result on real hardware, not the mechanism.\n- Reference on the 64-core threshold and Windows processor groups: https://bitsum.com/general/the-64-core-threshold-processor-groups-and-windows/\n\n### How It Works\n\n1. Comment on this issue to signal intent (courtesy, not a lock)\n2. Fork the repo and do the work\n3. Submit a PR that references the issue with a closing keyword (e.g. `Fixes #3299`) so GitHub links your PR to the bounty automatically\n4. Bounties are competitive. Multiple PRs may be submitted for the same bounty. Review comments are public, and contributors may borrow ideas from each other's work. The maintainer selects the PR that best solves the problem, considering code quality, completeness, and contributor behavior. In cases where multiple contributors made significant contributions, the maintainer may split the bounty. The maintainer's decision is final.\n5. Earn XTM (processing may take up to a week; reach out to @possum on Discord with your Tari address)\n\n### Notes\n\n- AI-assisted development is expected and encouraged\n- If you get stuck, ask in Discord\n",
     "hunter_intelligence": {
@@ -858,7 +858,69 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 63,
-        "freshness": 96
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 702,
+    "title": "Contribution: fix(walletd)!: scope validator fee permissions by claim key (tari-project/tari-ootle#3796)",
+    "url": "https://github.com/tari-project/special_contributions/issues/702",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-26T05:05:18Z",
+    "updated_at": "2026-11-26T05:56:00Z",
+    "author": "hootle-bot",
+    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3796](https://github.com/tari-project/tari-ootle/pull/3796): fix(walletd)!: scope validator fee permissions by claim key.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #702` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #702`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3796\n- [ ] It changes only `YYYY/MM/aswadi_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 701,
+    "title": "Contribution: fix(engine): enforce component scope on VaultAction read operations (tari-project/tari-ootle#3773)",
+    "url": "https://github.com/tari-project/special_contributions/issues/701",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-S"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-26T05:03:40Z",
+    "updated_at": "2026-11-26T05:54:59Z",
+    "author": "hootle-bot",
+    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3773](https://github.com/tari-project/tari-ootle/pull/3773): fix(engine): enforce component scope on VaultAction read operations.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #701` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #701`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3773\n- [ ] It changes only `YYYY/MM/aswadi_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
       }
     }
   },
@@ -920,7 +982,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -951,7 +1013,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1013,7 +1075,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -1106,7 +1168,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1137,7 +1199,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1287,12 +1349,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 49,
+      "bounty_score": 48,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 85
+        "freshness": 84
       }
     }
   },
@@ -1385,7 +1447,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 73
+        "freshness": 72
       }
     }
   },
@@ -1416,7 +1478,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1535,7 +1597,7 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 48,
+      "bounty_score": 47,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
@@ -1571,7 +1633,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
@@ -1602,7 +1664,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -1633,7 +1695,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 83,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1695,38 +1757,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 70,
-        "freshness": 73
-      }
-    }
-  },
-  {
-    "number": 697,
-    "title": "Contest Winning: October Spooky Secrets 2nd Place",
-    "url": "https://github.com/tari-project/special_contributions/issues/697",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-XTM-500000"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-25T20:55:43Z",
-    "updated_at": "2026-11-25T20:55:43Z",
-    "author": "Kelketek",
-    "body": "Win 2nd place in the October Spooky Secrets build contest.\n\nFor @ogboy92ii, the winner:\n\nPlease follow the [procedure here](https://wiki.tari.com/processes:bounties) to get onboarded and claim your bounty.\n\nAlso please ping me on the resulting PR.",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
+        "freshness": 72
       }
     }
   },
@@ -1849,7 +1880,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 43,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -2045,7 +2076,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 61,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -2063,7 +2094,7 @@
     "open_pr_count": 1,
     "repository": "FreezingMoon/AncientBeast",
     "created_at": "2023-04-14T08:44:13Z",
-    "updated_at": "2026-11-25T21:00:34Z",
+    "updated_at": "2026-11-26T13:24:53Z",
     "author": "DreadKnight",
     "body": "Hovering on a hexagon that has a drop and/or a trap should show widget(s) at the top (like shown for hovered units).\n\nTraps and drops get showcased properly even if obstructed by units etc now thanks to improved XRay feature #2617\n\nFor drop it should show  the modified stats along with icons, using green or red text and +/- signs before the numbers.\nFor traps, it should show the ability icon the trap is made by (player colored frame) and the description (card B info slice).",
     "hunter_intelligence": {
@@ -2369,7 +2400,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 53,
-        "freshness": 90
+        "freshness": 89
       }
     }
   },
