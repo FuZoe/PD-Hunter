@@ -27,7 +27,7 @@
         "amount": 0,
         "feasibility": 30,
         "competition": 0,
-        "freshness": 100
+        "freshness": 99
       }
     }
   },
@@ -89,7 +89,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -121,7 +121,7 @@
         "amount": 100,
         "feasibility": 60,
         "competition": 65,
-        "freshness": 98
+        "freshness": 97
       }
     }
   },
@@ -151,7 +151,7 @@
         "amount": 2,
         "feasibility": 60,
         "competition": 65,
-        "freshness": 1
+        "freshness": 0
       }
     }
   },
@@ -313,7 +313,7 @@
         "amount": 40,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -405,7 +405,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 0,
-        "freshness": 95
+        "freshness": 94
       }
     }
   },
@@ -863,9 +863,9 @@
     }
   },
   {
-    "number": 702,
-    "title": "Contribution: fix(walletd)!: scope validator fee permissions by claim key (tari-project/tari-ootle#3796)",
-    "url": "https://github.com/tari-project/special_contributions/issues/702",
+    "number": 706,
+    "title": "Contribution: fix(validator_node): look up each called component once when prewarming a transaction (tari-project/tari-ootle#3809)",
+    "url": "https://github.com/tari-project/special_contributions/issues/706",
     "state": "open",
     "labels": [
       "retro-bounty",
@@ -874,41 +874,10 @@
     "comment_count": 0,
     "open_pr_count": 1,
     "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-26T05:05:18Z",
-    "updated_at": "2026-11-26T05:56:00Z",
+    "created_at": "2026-11-27T05:01:16Z",
+    "updated_at": "2026-11-27T05:15:54Z",
     "author": "hootle-bot",
-    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3796](https://github.com/tari-project/tari-ootle/pull/3796): fix(walletd)!: scope validator fee permissions by claim key.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #702` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #702`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3796\n- [ ] It changes only `YYYY/MM/aswadi_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
-    "hunter_intelligence": {
-      "friction_level": "Medium",
-      "technical_hint": "Review the issue details and related code.",
-      "bounty_tier": "B-Tier",
-      "bounty_amount": 0,
-      "is_hidden_gem": true,
-      "bounty_score": 51,
-      "score_breakdown": {
-        "amount": 0,
-        "feasibility": 60,
-        "competition": 85,
-        "freshness": 100
-      }
-    }
-  },
-  {
-    "number": 701,
-    "title": "Contribution: fix(engine): enforce component scope on VaultAction read operations (tari-project/tari-ootle#3773)",
-    "url": "https://github.com/tari-project/special_contributions/issues/701",
-    "state": "open",
-    "labels": [
-      "retro-bounty",
-      "bounty-S"
-    ],
-    "comment_count": 0,
-    "open_pr_count": 1,
-    "repository": "tari-project/special_contributions",
-    "created_at": "2026-11-26T05:03:40Z",
-    "updated_at": "2026-11-26T05:54:59Z",
-    "author": "hootle-bot",
-    "body": "Bounty for @aswadi for contributing [tari-project/tari-ootle#3773](https://github.com/tari-project/tari-ootle/pull/3773): fix(engine): enforce component scope on VaultAction read operations.\n\n**No further code work is required here.**\n\n## Done when\n\n@aswadi opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #701` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #701`, naming this issue\n- [ ] It is opened by @aswadi, the author of tari-project/tari-ootle#3773\n- [ ] It changes only `YYYY/MM/aswadi_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "body": "Bounty for @kah-ja for contributing [tari-project/tari-ootle#3809](https://github.com/tari-project/tari-ootle/pull/3809): fix(validator_node): look up each called component once when prewarming a transaction.\n\n**No further code work is required here.**\n\n## Done when\n\n@kah-ja opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #706` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #706`, naming this issue\n- [ ] It is opened by @kah-ja, the author of tari-project/tari-ootle#3809\n- [ ] It changes only `YYYY/MM/kah-ja_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
     "hunter_intelligence": {
       "friction_level": "Medium",
       "technical_hint": "Review the issue details and related code.",
@@ -951,7 +920,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 97
+        "freshness": 96
       }
     }
   },
@@ -1044,7 +1013,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 96
+        "freshness": 95
       }
     }
   },
@@ -1101,12 +1070,12 @@
       "bounty_tier": "B-Tier",
       "bounty_amount": 0,
       "is_hidden_gem": true,
-      "bounty_score": 50,
+      "bounty_score": 49,
       "score_breakdown": {
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -1137,7 +1106,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 89
+        "freshness": 88
       }
     }
   },
@@ -1230,7 +1199,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -1261,7 +1230,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -1292,7 +1261,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 88
+        "freshness": 87
       }
     }
   },
@@ -1385,7 +1354,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 79
+        "freshness": 78
       }
     }
   },
@@ -1416,7 +1385,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 75
+        "freshness": 74
       }
     }
   },
@@ -1448,6 +1417,99 @@
         "feasibility": 60,
         "competition": 85,
         "freshness": 72
+      }
+    }
+  },
+  {
+    "number": 712,
+    "title": "Contribution: fix(consensus): bound timeout votes per sender so committees resume after long quorum loss (tari-project/tari-ootle#3758)",
+    "url": "https://github.com/tari-project/special_contributions/issues/712",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-M"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-27T05:57:38Z",
+    "updated_at": "2026-11-27T06:08:28Z",
+    "author": "hootle-bot",
+    "body": "Bounty for @ocakciomursel-pixel for contributing [tari-project/tari-ootle#3758](https://github.com/tari-project/tari-ootle/pull/3758): fix(consensus): bound timeout votes per sender so committees resume after long quorum loss.\n\n**No further code work is required here.**\n\n## Done when\n\n@ocakciomursel-pixel opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #712` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #712`, naming this issue\n- [ ] It is opened by @ocakciomursel-pixel, the author of tari-project/tari-ootle#3758\n- [ ] It changes only `YYYY/MM/ocakciomursel-pixel_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 710,
+    "title": "Security report: tari-ootle consensus: unvalidated CatchUpPageMessage.next_height allows a single Byzantine committee peer to permanently suppress victim block proposals for the entire epoch and trigger tight sync loops (GHSA-49mw-pgvh-wp3c)",
+    "url": "https://github.com/tari-project/special_contributions/issues/710",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-M"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-27T05:38:04Z",
+    "updated_at": "2026-11-27T05:49:27Z",
+    "author": "hootle-bot",
+    "body": "Retro bounty for @cocvn157 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-49mw-pgvh-wp3c](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-49mw-pgvh-wp3c).\n\nThe report showed that consensus: unvalidated CatchUpPageMessage.next_height allows a single Byzantine committee peer to permanently suppress victim block proposals for the entire epoch and trigger tight sync loops. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#4066. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@cocvn157 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #710` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #710`, naming this issue\n- [ ] It is opened by @cocvn157, the credited reporter\n- [ ] It changes only `YYYY/MM/cocvn157_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 709,
+    "title": "Security report: tari-ootle unmetered component-state walks on every vault read inside a resource auth hook (check_component_scope) (GHSA-h4vw-wrx8-929c)",
+    "url": "https://github.com/tari-project/special_contributions/issues/709",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-M"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-27T05:36:12Z",
+    "updated_at": "2026-11-27T05:36:14Z",
+    "author": "hootle-bot",
+    "body": "Retro bounty for @ManishModak for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-h4vw-wrx8-929c](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-h4vw-wrx8-929c).\n\nThe report showed that unmetered component-state walks on every vault read inside a resource auth hook (check_component_scope). The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#4064. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@ManishModak opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #709` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #709`, naming this issue\n- [ ] It is opened by @ManishModak, the credited reporter\n- [ ] It changes only `YYYY/MM/ManishModak_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
       }
     }
   },
@@ -1571,7 +1633,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 80
+        "freshness": 79
       }
     }
   },
@@ -1602,7 +1664,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 78
+        "freshness": 77
       }
     }
   },
@@ -1669,6 +1731,68 @@
     }
   },
   {
+    "number": 716,
+    "title": "Security report: tari-ootle rPC server reserves 6 MiB of read buffer per inbound substream from 4-byte length prefix (1572864x amplification, unauthenticated) (GHSA-wfmg-6gv5-8qp2)",
+    "url": "https://github.com/tari-project/special_contributions/issues/716",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-L"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-27T10:56:09Z",
+    "updated_at": "2026-11-27T10:56:12Z",
+    "author": "hootle-bot",
+    "body": "Retro bounty for @Char0n1507 for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-wfmg-6gv5-8qp2](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-wfmg-6gv5-8qp2).\n\nThe report showed that rPC server reserves 6 MiB of read buffer per inbound substream from 4-byte length prefix (1572864x amplification, unauthenticated). The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#4073. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@Char0n1507 opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #716` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #716`, naming this issue\n- [ ] It is opened by @Char0n1507, the credited reporter\n- [ ] It changes only `YYYY/MM/Char0n1507_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
+    "number": 708,
+    "title": "Security report: tari-ootle unmetered O(N log N) Confidential container commitment moves (>10,000x underpricing) and unpriced discrete substate downs in BucketAction::Burn (GHSA-qgfh-h9fc-gw3g)",
+    "url": "https://github.com/tari-project/special_contributions/issues/708",
+    "state": "open",
+    "labels": [
+      "retro-bounty",
+      "bounty-L"
+    ],
+    "comment_count": 0,
+    "open_pr_count": 1,
+    "repository": "tari-project/special_contributions",
+    "created_at": "2026-11-27T05:35:38Z",
+    "updated_at": "2026-11-27T05:35:40Z",
+    "author": "hootle-bot",
+    "body": "Retro bounty for @tapirro for reporting a security vulnerability in `tari-ootle` through GitHub Security Advisories: [GHSA-qgfh-h9fc-gw3g](https://github.com/tari-project/tari-ootle/security/advisories/GHSA-qgfh-h9fc-gw3g).\n\nThe report showed that unmetered O(N log N) Confidential container commitment moves (>10,000x underpricing) and unpriced discrete substate downs in BucketAction::Burn. The reporter did not touch any shared network.\n\nThe fix was implemented separately by @sdbondi in tari-project/tari-ootle#4065. **No code work is required here.** Details stay in the advisory until it is published.\n\n## Done when\n\n@tapirro opens a PR in this repo that follows the pattern of earlier merged PRs, with `Fixes #708` in the description and their XTM payout address on its own line.\n\n## Claim PR checklist\n\nThe claim PR is checked against this list; anything missing is pointed out on the PR.\n\n- [ ] The description says `Fixes #708`, naming this issue\n- [ ] It is opened by @tapirro, the credited reporter\n- [ ] It changes only `YYYY/MM/tapirro_<Month>_contributions.md`\n- [ ] The description has the XTM payout address on its own line\n- [ ] No other merged PR has already claimed this issue\n",
+    "hunter_intelligence": {
+      "friction_level": "Medium",
+      "technical_hint": "Review the issue details and related code.",
+      "bounty_tier": "B-Tier",
+      "bounty_amount": 0,
+      "is_hidden_gem": true,
+      "bounty_score": 51,
+      "score_breakdown": {
+        "amount": 0,
+        "feasibility": 60,
+        "competition": 85,
+        "freshness": 100
+      }
+    }
+  },
+  {
     "number": 680,
     "title": "Security report: tari-universe Monero seed PIN encryption used a single unsalted SHA-256 KDF, allowing offline brute force of the PIN keyspace (GHSA-gr4c-r43w-8pp9)",
     "url": "https://github.com/tari-project/special_contributions/issues/680",
@@ -1726,7 +1850,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 85,
-        "freshness": 74
+        "freshness": 73
       }
     }
   },
@@ -1816,7 +1940,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 25,
-        "freshness": 37
+        "freshness": 36
       }
     }
   },
@@ -1912,7 +2036,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 27,
-        "freshness": 94
+        "freshness": 93
       }
     }
   },
@@ -1943,7 +2067,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 75,
-        "freshness": 92
+        "freshness": 91
       }
     }
   },
@@ -1975,7 +2099,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 18,
-        "freshness": 72
+        "freshness": 71
       }
     }
   },
@@ -2009,7 +2133,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 69,
-        "freshness": 59
+        "freshness": 58
       }
     }
   },
@@ -2142,7 +2266,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 37,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
@@ -2241,7 +2365,7 @@
         "amount": 0,
         "feasibility": 60,
         "competition": 71,
-        "freshness": 87
+        "freshness": 86
       }
     }
   },
